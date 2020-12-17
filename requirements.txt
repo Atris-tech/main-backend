@@ -1,0 +1,7 @@
+fastapi[all]
+authlib
+httpx
+python-jose
+python-dotenv
+mongoengine
+pymongo
