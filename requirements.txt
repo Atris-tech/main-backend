@@ -5,3 +5,5 @@ python-jose
 python-dotenv
 mongoengine
 pymongo
+azure-storage-blob
+passlib[bcrypt]

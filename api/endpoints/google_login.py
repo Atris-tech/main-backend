@@ -35,8 +35,14 @@ async def auth(request: Request):
     except OAuthError as error:
         return HTMLResponse(f'<h1>{error.error}</h1>')
     user = await oauth.google.parse_id_token(request, token)
+    data_dict = {
+        "user_name": user["given_name"],
+        "email": user["email"],
+        "Full Name": user["name"],
+        "picture": user["picture"]
+    }
     access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data=user, expires_delta=access_token_expires
+        data=data_dict, expires_delta=access_token_expires
     )
     return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)

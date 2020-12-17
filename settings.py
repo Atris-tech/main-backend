@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-PROJECT_NAME = True
+PROJECT_NAME = "ATRIS Backend"
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES"))
@@ -15,3 +15,4 @@ MONGO_HOST = os.getenv("MONGO_HOST")
 MONGO_PORT = os.getenv("MONGO_PORT")
 MONGO_USER = os.getenv("MONGO_USER")
 MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+DEFAULT_PROFILE_PIC=os.getenv("DEFAULT_PROFILE_PIC")
