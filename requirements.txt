@@ -7,3 +7,4 @@ mongoengine
 pymongo
 azure-storage-blob
 passlib[bcrypt]
+fastapi-mail

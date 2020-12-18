@@ -2,6 +2,8 @@ from fastapi import Form
 from fastapi import APIRouter, HTTPException
 from Services.auth_services import login
 from pydantic import EmailStr
+from settings import AUTH_REDIRECT_URL
+from starlette.responses import RedirectResponse
 
 
 router = APIRouter()
@@ -15,8 +17,8 @@ def register(
     token = login(email, password)
     if not token:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
-    elif token:
-        return {
-            "access_token": token,
-            "token_type": "bearer",
-        }
+    elif token == "un-verified":
+        raise HTTPException(status_code=401, detail="Email not Verified")
+    else:
+        print("success")
+        return RedirectResponse(url=AUTH_REDIRECT_URL + token)
