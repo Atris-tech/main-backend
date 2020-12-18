@@ -6,6 +6,8 @@ from datetime import timedelta
 from Services.auth_services import create_access_token
 import settings
 from fastapi import APIRouter
+from Services.auth_services import check_user, user_name_gen, sign_up
+from random import randrange
 
 
 router = APIRouter()
@@ -45,4 +47,31 @@ async def auth(request: Request):
     access_token = create_access_token(
         data=data_dict, expires_delta=access_token_expires
     )
-    return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)
+    if not check_user(email=user["email"]):
+        if check_user(user_name=user["given_name"]):
+            user_name = user_name_gen()
+            if check_user(user_name=user_name):
+                user_name = user_name_gen() + str(randrange(1000))
+                if check_user(user_name=user_name):
+                    return RedirectResponse(url=settings.LOGIN_PAGE)
+            access_token = sign_up(
+                user_name=user_name,
+                email=user["email"],
+                first_name=user["name"].split()[0],
+                last_name=user["name"].split()[1],
+                picture=user["picture"],
+                user_check=False
+            )
+            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)
+        else:
+            access_token = sign_up(
+                user_name=user["given_name"],
+                email=user["email"],
+                first_name=user["name"].split()[0],
+                last_name=user["name"].split()[1],
+                picture=user["picture"],
+                user_check=False
+            )
+            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)
+    else:
+        return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)

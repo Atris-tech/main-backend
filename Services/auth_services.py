@@ -6,7 +6,9 @@ import settings
 from db_models.models.user_model import UserModel
 from passlib.context import CryptContext
 from db_models.mongo_setup import global_init
-from .mail_body_return_service import mail_body
+from coolname import generate_slug
+
+
 global_init()
 
 
@@ -64,27 +66,33 @@ def check_user(email=False, user_name=False):
             return False
 
 
-def sign_up(user_name, email, first_name, last_name, password):
-    if check_user(user_name=user_name):
-        return False
-    elif check_user(email=email):
-        return False
-    else:
-        user_model_obj = UserModel()
-        user_model_obj.user_name = user_name
-        user_model_obj.first_name = first_name
-        user_model_obj.last_name = last_name
-        user_model_obj.email_id = email
+def sign_up(user_name, email, first_name, last_name, picture, password=False, user_check=True):
+    if user_check:
+        if check_user(user_name=user_name):
+            return False
+        elif check_user(email=email):
+            return False
+    user_model_obj = UserModel()
+    user_model_obj.user_name = user_name.lower()
+    user_model_obj.first_name = first_name
+    user_model_obj.last_name = last_name
+    user_model_obj.email_id = email
+    if user_check:
         user_model_obj.password_hash = get_password_hash(password)
         user_model_obj.account_type = "Normal"
         user_model_obj.save()
-        data = {
-            "user_name": user_name,
-            "email": email,
-            "full name": first_name + " " + last_name,
-        }
-        token = create_access_token(data)
-        return token
+    else:
+        user_model_obj.account_type = "Third Party Oath"
+        user_model_obj.image = picture
+        user_model_obj.verified = True
+        user_model_obj.save()
+    data = {
+        "user_name": user_name,
+        "email": email,
+        "full name": first_name + " " + last_name,
+    }
+    token = create_access_token(data)
+    return token
 
 
 def get_user_data(user_name=False, email_address=False, user_obj=False):
@@ -159,3 +167,8 @@ def update_user(email, user_name=False, password=False, first_name=False, last_n
             return True
     except UserModel.DoesNotExist:
         return False
+
+
+def user_name_gen():
+    username = generate_slug(2).lower()
+    return username
