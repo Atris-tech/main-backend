@@ -18,7 +18,7 @@ def register(
         password: str = Form(...)
 ):
     token = sign_up(
-        user_name, email, first_name, last_name, password
+        user_name, email, first_name, last_name,password=password 
     )
     if token:
         url = create_auth_url(token, type="verify")

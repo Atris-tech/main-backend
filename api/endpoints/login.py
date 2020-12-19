@@ -20,5 +20,4 @@ def register(
     elif token == "un-verified":
         raise HTTPException(status_code=401, detail="Email not Verified")
     else:
-        print("success")
         return RedirectResponse(url=AUTH_REDIRECT_URL + token)

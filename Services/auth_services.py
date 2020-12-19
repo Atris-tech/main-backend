@@ -66,7 +66,7 @@ def check_user(email=False, user_name=False):
             return False
 
 
-def sign_up(user_name, email, first_name, last_name, picture, password=False, user_check=True):
+def sign_up(user_name, email, first_name, last_name, picture=False, password=False, user_check=True):
     if user_check:
         if check_user(user_name=user_name):
             return False
