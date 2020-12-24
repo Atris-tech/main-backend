@@ -1,6 +1,5 @@
 import mongoengine
 import datetime
-from settings import DEFAULT_PROFILE_PIC
 
 
 class UserModel(mongoengine.Document):
@@ -13,6 +12,7 @@ class UserModel(mongoengine.Document):
     password_hash = mongoengine.StringField()
     account_created_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     verified = mongoengine.BooleanField(default=False)
+    plan = mongoengine.StringField(required=True, default="Free")
     meta = {
         'db_alias': 'core',
         'collection': 'users'

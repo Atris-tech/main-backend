@@ -1,6 +1,6 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 import settings
-from .mail_body_return_service import mail_body
+from Services.mail.mail_body_return_service import mail_body
 
 conf = ConnectionConfig(
     MAIL_USERNAME=settings.MAIL_USERNAME,
@@ -13,10 +13,10 @@ conf = ConnectionConfig(
 )
 
 
-async def send_mail(email, mail_type, email_data):
+async def send_mail(email, mail_type, email_data, subject):
     html = mail_body(type=mail_type, data=email_data)
     message = MessageSchema(
-        subject="Fastapi-Mail module",
+        subject=subject,
         recipients=email,  # List of recipients, as many as you can pass
         body=html,
         subtype="html"

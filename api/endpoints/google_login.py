@@ -2,18 +2,16 @@ from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuth, OAuthError
-from datetime import timedelta
-from Services.auth_services import create_access_token
 import settings
-from fastapi import APIRouter
-from Services.auth_services import check_user, user_name_gen, sign_up
+from fastapi import APIRouter, HTTPException
+from Services.auth.auth_services import check_user, user_name_gen, sign_up
 from random import randrange
+from Services.auth.auth_services import login
 
 
 router = APIRouter()
 config = Config('.env')
 oauth = OAuth(config)
-
 
 oauth.register(
     name='google',
@@ -25,7 +23,7 @@ oauth.register(
 
 
 @router.get('/google-login')
-async def login(request: Request):
+async def glogin(request: Request):
     redirect_uri = request.url_for('auth')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
@@ -37,41 +35,42 @@ async def auth(request: Request):
     except OAuthError as error:
         return HTMLResponse(f'<h1>{error.error}</h1>')
     user = await oauth.google.parse_id_token(request, token)
-    data_dict = {
-        "user_name": user["given_name"],
-        "email": user["email"],
-        "Full Name": user["name"],
-        "picture": user["picture"]
-    }
-    access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data=data_dict, expires_delta=access_token_expires
-    )
-    if not check_user(email=user["email"]):
-        if check_user(user_name=user["given_name"]):
+    get_user = check_user(email=user["email"])
+    if not get_user:
+        get_user = check_user(user_name=user["given_name"])
+        if get_user:
             user_name = user_name_gen()
-            if check_user(user_name=user_name):
+            if get_user.user_name == user_name:
                 user_name = user_name_gen() + str(randrange(1000))
-                if check_user(user_name=user_name):
+                if get_user.user_name == user_name:
+                    print("fucked up name")
                     return RedirectResponse(url=settings.LOGIN_PAGE)
-            access_token = sign_up(
-                user_name=user_name,
-                email=user["email"],
-                first_name=user["name"].split()[0],
-                last_name=user["name"].split()[1],
+
+            token_dict = sign_up(
+                user_name=user_name.replace(" ", "").lower(),
+                email=user["email"].replace(" ", "").lower(),
+                first_name=user["name"].split()[0].replace(" ", "").lower(),
+                last_name=user["name"].split()[1].replace(" ", "").lower(),
                 picture=user["picture"],
                 user_check=False
             )
-            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)
+            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
+                                    token_dict["ref_token"])
         else:
-            access_token = sign_up(
-                user_name=user["given_name"],
+            token_dict = sign_up(
+                user_name=user["given_name"].replace(" ", "").lower(),
                 email=user["email"],
-                first_name=user["name"].split()[0],
-                last_name=user["name"].split()[1],
+                first_name=user["name"].split()[0].replace(" ", "").lower(),
+                last_name=user["name"].split()[1].replace(" ", "").lower(),
                 picture=user["picture"],
                 user_check=False
             )
-            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)
+            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
+                                        token_dict["ref_token"])
     else:
-        return RedirectResponse(url=settings.AUTH_REDIRECT_URL + access_token)
+        token_dict = login(email_id=user["email"], password=False, user_obj=get_user, new_user=False)
+        if token_dict == "user_banned":
+            return HTTPException(status_code=400, detail="user_banned")
+        else:
+            return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
+                                        token_dict["ref_token"])

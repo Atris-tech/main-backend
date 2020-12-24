@@ -9,3 +9,6 @@ azure-storage-blob
 passlib[bcrypt]
 fastapi-mail
 coolname
+python-dateutil
+redis
+slowapi
