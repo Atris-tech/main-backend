@@ -47,6 +47,7 @@ def create_verify_token(user_obj):
 
 
 def create_ref_token(email=False, user_obj=False, token_obj=False):
+    print("in create ref")
     user_dict = dict()
     if email:
         user_obj = UserModel.objects.get(email_id=email)
@@ -58,6 +59,8 @@ def create_ref_token(email=False, user_obj=False, token_obj=False):
     user_dict["verified"] = user_obj.verified
     expiry_year = datetime.now() + relativedelta(years=settings.REFRESH_TOKEN_EXPIRE_YEAR)
     ref_token = create_jwt_token(data=user_dict, expire_date_time=expiry_year.timestamp())
+    print("ref token new")
+    print(ref_token)
     if token_obj:
         token_obj.refresh_token = ref_token
         token_obj.save()
@@ -74,30 +77,50 @@ def create_ref_token(email=False, user_obj=False, token_obj=False):
 
 
 def get_ref_token(user_obj):
+    print("in get ref")
     try:
         token_obj = TokenModel.objects.get(user=user_obj)
         ref_token = token_obj.refresh_token
+        print("ref token")
         print(ref_token)
-        payload = verify_jwt_token(ref_token)
-        if payload:
-            user_dict = get_val(ref_token, json_type=True)
-            if user_dict is not None:
-                if "banned" in user_dict:
-                    print("USER BANNED")
-                    raise HTTPException(
-                        status_code=error_constants.USER_BANNED["status_code"],
-                        detail=error_constants.USER_BANNED["detail"]
-                    )
-                expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-                access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
-                set_val(ref_token, user_dict, json_type=True)
-                return {"ref_token": ref_token, "access_token": access_token}
+        if token_obj.token_status == "Dead":
+            raise HTTPException(
+                status_code=error_constants.USER_BANNED["status_code"],
+                detail=error_constants.USER_BANNED["detail"]
+            )
+        if ref_token is None:
+            return create_ref_token(user_obj=user_obj, token_obj=token_obj)
+        else:
+            payload = verify_jwt_token(ref_token)
+            if payload:
+                user_dict = get_val(ref_token, json_type=True)
+                if user_dict is not None:
+                    if "banned" in user_dict:
+                        print("USER BANNED")
+                        raise HTTPException(
+                            status_code=error_constants.USER_BANNED["status_code"],
+                            detail=error_constants.USER_BANNED["detail"]
+                        )
+                    expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+                    access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
+                    set_val(ref_token, user_dict, json_type=True)
+                    return {"ref_token": ref_token, "access_token": access_token}
+                else:
+                    return create_ref_token(user_obj=user_obj, token_obj=token_obj)
             else:
                 return create_ref_token(user_obj=user_obj, token_obj=token_obj)
-        else:
-            return create_ref_token(user_obj=user_obj, token_obj=token_obj)
     except TokenModel.DoesNotExist:
         return create_ref_token(user_obj=user_obj)
+
+
+def remove_ref_token(user_obj):
+    try:
+        token_obj = TokenModel.objects.get(user=user_obj)
+        refresh_token = token_obj.refresh_token
+        token_obj.update(refresh_token=None)
+        set_val(refresh_token, None, json_type=True)
+    except TokenModel.DoesNotExist:
+        pass
 
 
 def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
@@ -126,6 +149,7 @@ def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
                 detail=error_constants.RF_TOKEN_EXPIRED_INVALID["detail"]
             )
     if not new_user:
+        print("in no new user")
         return get_ref_token(user_obj)
     else:
         return create_ref_token(user_obj=user_obj)
@@ -261,6 +285,7 @@ def update_user(email=False, user_name=False, password=False, first_name=False, 
             password_hash = get_password_hash(password)
             user_model_obj = UserModel.objects.get(id=id)
             user_model_obj.update(password_hash=password_hash)
+            remove_ref_token(user_model_obj)
             return True
         elif first_name:
             user_model_obj = UserModel.objects.get(email_id=email)

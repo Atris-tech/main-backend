@@ -9,7 +9,8 @@ def ban_user(email):
     token_obj.token_status = "Dead"
     token_obj.save()
     ref_token = token_obj.refresh_token
-    set_val(ref_token, {"banned": True}, json_type=True)
+    if ref_token is not None:
+        set_val(ref_token, {"banned": True}, json_type=True)
 
 
 def unban_user(email):
@@ -18,4 +19,5 @@ def unban_user(email):
     token_obj.token_status = "Alive"
     token_obj.save()
     ref_token = token_obj.refresh_token
-    set_val(ref_token, None, json_type=True)
+    if ref_token is not None:
+        set_val(ref_token, None, json_type=True)
