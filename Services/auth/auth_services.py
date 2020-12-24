@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from jose import JWTError, jwt
-from Services.redis_service import get_val, set_val, redis_obj
+from Services.redis_service import get_val, set_val
 from datetime import datetime
 import settings
 from db_models.models.user_model import UserModel
@@ -54,6 +54,7 @@ def create_ref_token(email=False, user_obj=False, token_obj=False):
     """Create refresh token here"""
     user_dict["token_type"] = "refresh_token"
     user_dict["email_id"] = user_obj.email_id
+    user_dict["user_name"] = user_obj.user_name
     user_dict["account_type"] = user_obj.account_type
     user_dict["verified"] = user_obj.verified
     expiry_year = datetime.now() + relativedelta(years=settings.REFRESH_TOKEN_EXPIRE_YEAR)
@@ -117,7 +118,7 @@ def remove_ref_token(user_obj):
         token_obj = TokenModel.objects.get(user=user_obj)
         refresh_token = token_obj.refresh_token
         token_obj.update(refresh_token=None)
-        redis_obj.delete(str(refresh_token))
+        set_val(refresh_token, None, json_type=True)
     except TokenModel.DoesNotExist:
         pass
 
@@ -127,16 +128,16 @@ def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
         """get access token"""
         if verify_jwt_token(ref_token):
             user_dict = get_val(ref_token, json_type=True)
-            if user_dict is None:
-                raise HTTPException(
-                    status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
-                    detail=error_constants.TOKEN_NOT_EXIST["detail"]
-                )
             if "banned" in user_dict:
                 print("USER BANNEDDD")
                 raise HTTPException(
                     status_code=error_constants.USER_BANNED["status_code"],
                     detail=error_constants.USER_BANNED["detail"]
+                )
+            elif not user_dict:
+                raise HTTPException(
+                    status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
+                    detail=error_constants.TOKEN_NOT_EXIST["detail"]
                 )
             else:
                 expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -216,7 +217,7 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
         return refresh_token_utils(user_obj=user_model_obj)
 
 
-def get_user_data(user_name=False, email_address=False, user_obj=False, user_setting=False):
+def get_user_data(user_name=False, email_address=False, user_obj=False):
     if user_obj:
         data = {
             "user_name": user_obj.user_name,
@@ -227,20 +228,12 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
         return data
     elif email_address:
         user_obj = UserModel.objects.get(email_id=email_address)
-        if user_setting:
-            data = {
-                "user_name": user_obj.user_name,
-                "first_name": user_obj.first_name,
-                "last_name": user_obj.last_name,
-                "picture": user_obj.image
-            }
-        else:
-            data = {
-                "user_name": user_obj.user_name,
-                "email": user_obj.email_id,
-                "full name": user_obj.first_name + " " + user_obj.last_name,
-                "picture": user_obj.image
-            }
+        data = {
+            "user_name": user_obj.user_name,
+            "email": user_obj.email_id,
+            "full name": user_obj.first_name + " " + user_obj.last_name,
+            "picture": user_obj.image
+        }
         return data
     elif user_name:
         user_obj = UserModel.objects.get(user_name=user_name)
@@ -251,7 +244,6 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
             "picture": user_obj.image
         }
         return data
-
 
 
 def login(email_id, password=True, user_obj=False, new_user=True):
@@ -282,13 +274,26 @@ def login(email_id, password=True, user_obj=False, new_user=True):
         )
 
 
-def update_user_verification(password=False, verified=False, id=False):
+def update_user(email=False, user_name=False, password=False, first_name=False, last_name=False,
+                verified=False, id=False):
     try:
-        if password:
+        if user_name:
+            user_model_obj = UserModel.objects.get(email_id=email)
+            user_model_obj.update(user_name=user_name)
+            return True
+        elif password:
             password_hash = get_password_hash(password)
             user_model_obj = UserModel.objects.get(id=id)
             user_model_obj.update(password_hash=password_hash)
             remove_ref_token(user_model_obj)
+            return True
+        elif first_name:
+            user_model_obj = UserModel.objects.get(email_id=email)
+            user_model_obj.update(first_name=first_name)
+            return True
+        elif last_name:
+            user_model_obj = UserModel.objects.get(email_id=email)
+            user_model_obj.update(last_name=last_name)
             return True
         elif verified:
             user_model_obj = UserModel.objects.get(id=id)
@@ -296,31 +301,6 @@ def update_user_verification(password=False, verified=False, id=False):
             return True
     except UserModel.DoesNotExist:
         return False
-
-
-def update_user(email=False, user_name=False, first_name=False, last_name=False):
-    try:
-        user_model_obj = UserModel.objects.get(email_id=email)
-        if user_name:
-            try:
-                UserModel.objects.get(user_name=user_name)
-                raise HTTPException(
-                    status_code=error_constants.USER_NAME_TAKEN["status_code"],
-                    detail=error_constants.USER_NAME_TAKEN["detail"]
-                )
-            except UserModel.DoesNotExist:
-                user_model_obj.user_name = user_name
-        if first_name:
-            user_model_obj.first_name = first_name
-        if last_name:
-            user_model_obj.last_name = last_name
-        user_model_obj.save()
-        return True
-    except UserModel.DoesNotExist:
-        raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
-        )
 
 
 def user_name_gen():
