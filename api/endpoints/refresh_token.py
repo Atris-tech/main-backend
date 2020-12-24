@@ -18,5 +18,5 @@ def get_new_token(
             detail=error_constants.TOKEN_NOT_EXIST["detail"]
         )
     token = token.split()
-    token = token[0]
+    token = token[1]
     return refresh_token_utils(ref_token=token)
