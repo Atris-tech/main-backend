@@ -216,7 +216,7 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
         return refresh_token_utils(user_obj=user_model_obj)
 
 
-def get_user_data(user_name=False, email_address=False, user_obj=False):
+def get_user_data(user_name=False, email_address=False, user_obj=False, user_setting=False):
     if user_obj:
         data = {
             "user_name": user_obj.user_name,
@@ -227,12 +227,20 @@ def get_user_data(user_name=False, email_address=False, user_obj=False):
         return data
     elif email_address:
         user_obj = UserModel.objects.get(email_id=email_address)
-        data = {
-            "user_name": user_obj.user_name,
-            "email": user_obj.email_id,
-            "full name": user_obj.first_name + " " + user_obj.last_name,
-            "picture": user_obj.image
-        }
+        if user_setting:
+            data = {
+                "user_name": user_obj.user_name,
+                "first_name": user_obj.first_name,
+                "last_name": user_obj.last_name,
+                "picture": user_obj.image
+            }
+        else:
+            data = {
+                "user_name": user_obj.user_name,
+                "email": user_obj.email_id,
+                "full name": user_obj.first_name + " " + user_obj.last_name,
+                "picture": user_obj.image
+            }
         return data
     elif user_name:
         user_obj = UserModel.objects.get(user_name=user_name)
@@ -243,6 +251,7 @@ def get_user_data(user_name=False, email_address=False, user_obj=False):
             "picture": user_obj.image
         }
         return data
+
 
 
 def login(email_id, password=True, user_obj=False, new_user=True):

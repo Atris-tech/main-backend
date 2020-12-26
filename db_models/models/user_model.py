@@ -13,6 +13,7 @@ class UserModel(mongoengine.Document):
     account_created_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     verified = mongoengine.BooleanField(default=False)
     plan = mongoengine.StringField(required=True, default="Free")
+    user_storage_container_name = mongoengine.StringField()
     meta = {
         'db_alias': 'core',
         'collection': 'users'
