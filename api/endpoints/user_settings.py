@@ -1,7 +1,10 @@
-from fastapi import FastAPI, APIRouter, Request, status
+from fastapi import FastAPI, APIRouter, Request, File, UploadFile
 from settings import MAX_NAME_LENGTH, MIN_NAME_LENGTH
 from pydantic import BaseModel, StrictStr
-from Services.auth.auth_services import token_check, update_user
+from Services.auth.auth_services import token_check, update_user, get_user_data
+from Services.storage_services import upload_profile
+from typing import Optional
+import magic
 
 
 router = APIRouter()
@@ -9,7 +12,7 @@ app = FastAPI()
 
 
 class UserSettingModel(BaseModel):
-    username: StrictStr
+    username:  Optional[StrictStr]
     firstname: StrictStr
     lastname: StrictStr
 
@@ -34,7 +37,26 @@ def change_user_settings(
     )
 
 
+@router.post("/user_data/", status_code=200)
+def get_user_setting_data(
+        request: Request
+):
+    user_dict = token_check(request)
+    return get_user_data(
+        email_address=user_dict["email_id"],
+        user_setting=True
+    )
 
+
+@router.post("/change_profile/", status_code=200)
+def change_dp(
+        request: Request,
+        file: UploadFile = File(...)
+):
+    email_id = "jainalgosaliya@gmail.com"
+    user_dict = token_check(request)
+    file_data = file.file.read()
+    return upload_profile(email=user_dict["email_id"], file_data=file_data, file_name=file.filename)
 
 
 
