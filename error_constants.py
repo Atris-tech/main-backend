@@ -42,11 +42,3 @@ INVALID_USER_NAME = {
     "status_code": 400,
     "detail": "invalid_email"
 }
-INVALID_FILE_TYPE = {
-    "status_code": 415,
-    "detail": "invalid_file_type"
-}
-FILE_SIZE_EXCEEDED = {
-    "status_code": 413,
-    "detail": "file_size_exceeded"
-}

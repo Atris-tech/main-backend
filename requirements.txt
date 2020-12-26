@@ -11,4 +11,3 @@ fastapi-mail
 coolname
 python-dateutil
 redis
-python-magic
