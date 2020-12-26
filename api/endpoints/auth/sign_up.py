@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from Services.auth.auth_services import sign_up, create_auth_url, check_user,\
-    update_user, token_check, create_verify_token
+    update_user_verification, token_check, create_verify_token
 from Services.mail.mail_service import send_mail
 from pydantic import EmailStr, BaseModel
 from starlette.requests import Request
@@ -20,9 +20,10 @@ router = APIRouter()
 
 @router.post("/register/", status_code=200)
 def register(background_tasks: BackgroundTasks, register_obj: SignUpModel):
+    username = register_obj.user_name.replace(" ", "").lower()
     user_obj = sign_up(
-        user_name = register_obj.user_name.replace(" ", "").lower(),
-        email =register_obj.email.replace(" ", "").lower(),
+        user_name=username,
+        email=register_obj.email.replace(" ", "").lower(),
         first_name=register_obj.first_name.replace(" ", "").lower(),
         last_name=register_obj.last_name.replace(" ", "").lower(),
         password=register_obj.password
@@ -31,7 +32,7 @@ def register(background_tasks: BackgroundTasks, register_obj: SignUpModel):
     token_data = create_verify_token(user_obj)
     token = token_data["token"]
     url = create_auth_url(token, type="verify")
-    data = {"user": token_data["user_data"]["user_name"], "url": url}
+    data = {"user": username, "url": url}
     background_tasks.add_task(send_mail, [str(register_obj.email)], "verify", data, "Verify your Atris Account")
     return True
 
@@ -88,7 +89,7 @@ def verification(
             detail=error_constants.TOKEN_EXPIRED["detail"]
         )
     else:
-        verification_status = update_user(id=payload["id"], verified=True)
+        verification_status = update_user_verification(id=payload["id"], verified=True)
         if verification_status:
             return True
         else:
@@ -105,7 +106,7 @@ def reset(
         forgot_password_obj: ForgotPasswordModel
 ):
     payload = token_check(request)
-    verification_status = update_user(id=payload["id"], password=forgot_password_obj.password)
+    verification_status = update_user_verification(id=payload["id"], password=forgot_password_obj.password)
     if verification_status:
         return True
     else:

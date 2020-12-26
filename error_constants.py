@@ -38,3 +38,7 @@ EMAIL_ALREADY_VERIFIED = {
     "status_code": 400,
     "detail": "email already verified"
 }
+INVALID_USER_NAME = {
+    "status_code": 400,
+    "detail": "invalid_email"
+}
