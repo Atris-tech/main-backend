@@ -1,6 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from jose import JWTError, jwt
-from Services.redis_service import get_val, set_val
+from Services.redis_service import get_val, set_val, redis_obj
 from datetime import datetime
 import settings
 from db_models.models.user_model import UserModel
@@ -117,7 +117,7 @@ def remove_ref_token(user_obj):
         token_obj = TokenModel.objects.get(user=user_obj)
         refresh_token = token_obj.refresh_token
         token_obj.update(refresh_token=None)
-        set_val(refresh_token, None, json_type=True)
+        redis_obj.delete(str(refresh_token))
     except TokenModel.DoesNotExist:
         pass
 
