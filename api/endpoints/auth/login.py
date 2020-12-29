@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from Services.auth.auth_services import login
 from pydantic import EmailStr, BaseModel
-from starlette.requests import Request
 
 
 router = APIRouter()
