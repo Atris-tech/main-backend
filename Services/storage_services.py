@@ -24,7 +24,6 @@ def upload_profile(email, file_data, file_name):
             if str(mime_type) == val:
                 file_extension = key
                 break
-        print(file_extension)
         if file_extension is None:
             raise HTTPException(
                 status_code=INVALID_FILE_TYPE["status_code"],

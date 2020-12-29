@@ -19,4 +19,5 @@ def get_new_token(
         )
     token = token.split()
     token = token[1]
+    print(token)
     return refresh_token_utils(ref_token=token)

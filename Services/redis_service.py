@@ -16,8 +16,12 @@ def set_val(key, val, json_type=False):
 def get_val(key, json_type=False):
     if json_type:
         try:
-            data = json.loads(redis_obj.get(key))
-            return data
+            u_data = redis_obj.get(key)
+            if u_data is not None:
+                data = json.loads(u_data)
+                return data
+            else:
+                return None
         except ValueError:
             return False
     else:
