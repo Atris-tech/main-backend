@@ -1,0 +1,307 @@
+{
+	"info": {
+		"_postman_id": "b2f95994-9967-4077-a00c-f9f372916f7c",
+		"name": "atris",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "forgot_password",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoidmVyaWZ5IiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJ1c2VyX25hbWUiOiJqYWluYWwwOSIsImlkIjoiNWZlNjViODkyM2M5NDkzN2EwMDdlYWNmIiwiZXhwIjoxNjA5Mjk3NjYxLjkxODE0N30.iKQ3xB0DIX5kUAsqVVCoB_MkWFtQoWzsmEzDd_sAnTk",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"password\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/forgot-password/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"forgot-password",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "verify_user",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoidmVyaWZ5IiwiZW1haWxfaWQiOiJqYWluYWwwOWdvc2FsaWFAZ21haWwuY29tIiwidXNlcl9uYW1lIjoiamFpbmFsIiwiaWQiOiI1ZmUzZWNmNjllNTRkZGI0MTYwM2Q2YzQiLCJleHAiOjE2MDg4NTkyNTQuOTcwMzEyfQ.oyFTArqJTrg9BikewSS0Z3CcHPaBZQVywxuhY0qOV4w",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/verify-user/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"verify-user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_access_token",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaF90b2tlbiIsImVtYWlsX2lkIjoiamFpbmFsZ29zYWxpeWFAZ21haWwuY29tIiwiYWNjb3VudF90eXBlIjoiTm9ybWFsIiwidmVyaWZpZWQiOnRydWUsImV4cCI6MTY0MDQ2ODMzMC4yODI4ODZ9.sDO2-cHuFQPh6iwmeuf-HphwbCN35-5U_kkzwwBhwO4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/get_access_token/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"get_access_token",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change user params",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJhY2NvdW50X3R5cGUiOiJOb3JtYWwiLCJwbGFuIjoiRnJlZSIsImV4cCI6MTYwODk2MTU2My44OTc3Nn0.02aggBqLg4fWQc74owD0eDcWdKk6WrhDn5grgK50E2o",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstname\": \" dssd\",\r\n    \"lastname\": \" dsdsd\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/change_user/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"change_user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_user_data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJhY2NvdW50X3R5cGUiOiJOb3JtYWwiLCJwbGFuIjoiRnJlZSIsImV4cCI6MTYwOTAwODE1MS41MDY2N30.CZSxrBxei2HpEv8jKoxjKxcjxnaAhCX7pwYlvzHv3Ag",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/user_data/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"user_data",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "logout_from_devices",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJhY2NvdW50X3R5cGUiOiJOb3JtYWwiLCJwbGFuIjoiRnJlZSIsImV4cCI6MTYwOTIxNjU4OS41ODI3MTl9.5WCW2tpJin2-1AVzim5xHsfQOS4SKvAtArAvbD6egdQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/logout_all_devices",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"logout_all_devices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"jainalgosaliya@gmail.com\",\r\n  \"password\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/login/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "change profile photo",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJhY2NvdW50X3R5cGUiOiJOb3JtYWwiLCJwbGFuIjoiRnJlZSIsImV4cCI6MTYwOTAwNDczOS45Nzk4MzV9.mXavvAwq2XCcoAjTdII6-PfgE9255KPRFXt8_evpH2A",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/atris/Downloads/Jainal (1).png"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/change_profile/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"change_profile",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
