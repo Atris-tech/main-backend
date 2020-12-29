@@ -1,0 +1,14 @@
+fastapi[all]
+authlib
+httpx
+python-jose
+python-dotenv
+mongoengine
+pymongo
+azure-storage-blob
+passlib[bcrypt]
+fastapi-mail
+coolname
+python-dateutil
+redis
+python-magic
