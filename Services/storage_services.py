@@ -1,6 +1,6 @@
 import uuid
 from fastapi import HTTPException
-from settings import AZURE_BLOB_STORAGE_CONEECTION_STRING, MAX_PROFILE_PHOTO_SIZE
+from settings import AZURE_BLOB_STORAGE_CONNECTION_STRING, MAX_PROFILE_PHOTO_SIZE
 from azure.storage.blob import BlobServiceClient, PublicAccess
 from db_models.models.user_model import UserModel
 import magic
@@ -8,7 +8,7 @@ import settings
 from error_constants import INVALID_FILE_TYPE, FILE_SIZE_EXCEEDED
 
 
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_BLOB_STORAGE_CONEECTION_STRING)
+blob_service_client = BlobServiceClient.from_connection_string(AZURE_BLOB_STORAGE_CONNECTION_STRING)
 
 
 def upload_profile(email, file_data, file_name):

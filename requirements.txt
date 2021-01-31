@@ -12,3 +12,4 @@ coolname
 python-dateutil
 redis
 python-magic
+emoji

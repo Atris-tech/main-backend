@@ -49,10 +49,11 @@ def resend(
 ):
     user_obj = check_user(email=verification_model_obj.email)
     if user_obj:
-        token_data = create_verify_token(user_obj)
-        token = token_data["token"]
-        data = token_data["user_data"]
+
         if verification_model_obj.type == "verify":
+            token_data = create_verify_token(user_obj, verify=True)
+            token = token_data["token"]
+            data = token_data["user_data"]
             if user_obj.verified:
                 raise HTTPException(
                     status_code=error_constants.EMAIL_ALREADY_VERIFIED["status_code"],
@@ -64,6 +65,9 @@ def resend(
                                       "Verify your Atris Account")
             return True
         elif verification_model_obj.type == "forgot_password":
+            token_data = create_verify_token(user_obj, forgot_password=True)
+            token = token_data["token"]
+            data = token_data["user_data"]
             url = create_auth_url(token, type="forgot")
             data = {"user": data["user_name"], "url": url}
             background_tasks.add_task(send_mail, [str(verification_model_obj.email)], "forgot", data,
@@ -82,18 +86,12 @@ def resend(
 def verification(
          request: Request
 ):
-    payload = token_check(request)
-    if not payload:
-        raise HTTPException(
-            status_code=error_constants.TOKEN_EXPIRED["status_code"],
-            detail=error_constants.TOKEN_EXPIRED["detail"]
-        )
+    payload = token_check(request, verify=True)
+    verification_status = update_user_verification(id=payload["id"], verified=True)
+    if verification_status:
+        return True
     else:
-        verification_status = update_user_verification(id=payload["id"], verified=True)
-        if verification_status:
-            return True
-        else:
-            raise HTTPException(status_code=400)
+        raise HTTPException(status_code=400)
 
 
 class ForgotPasswordModel(BaseModel):
@@ -105,7 +103,7 @@ def reset(
         request: Request,
         forgot_password_obj: ForgotPasswordModel
 ):
-    payload = token_check(request)
+    payload = token_check(request, forgot_password=True)
     verification_status = update_user_verification(id=payload["id"], password=forgot_password_obj.password)
     if verification_status:
         return True

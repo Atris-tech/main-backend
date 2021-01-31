@@ -50,3 +50,7 @@ FILE_SIZE_EXCEEDED = {
     "status_code": 413,
     "detail": "file_size_exceeded"
 }
+BAD_REQUEST = {
+    "status_code": 400,
+    "detail": "incorrect or bad request"
+}
