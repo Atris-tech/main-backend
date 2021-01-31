@@ -16,7 +16,7 @@ class WorkspaceEditingModel(BaseModel):
 
 
 @router.post("/create_workspace/", status_code=200)
-def change_user_settings(
+def create_user_workspace(
         workspace_editting_obj:WorkspaceEditingModel,
         request: Request,
 
@@ -36,7 +36,7 @@ class WorkspaceRenameModel(BaseModel):
 
 
 @router.post("/rename_workspace/", status_code=200)
-def change_user_settings(
+def rename_user_workspace(
         workspace_rename_obj: WorkspaceRenameModel,
         request: Request,
 
@@ -58,9 +58,9 @@ class WorkspaceDeleteModel(BaseModel):
     workspace_name:  str
 
 
-@router.post("/create_workspace/", status_code=200)
-def change_user_settings(
-        workspace_delete_obj:WorkspaceDeleteModel,
+@router.post("/delete_workspace/", status_code=200)
+def delete_user_workspace(
+        workspace_delete_obj: WorkspaceDeleteModel,
         request: Request,
 
 ):
