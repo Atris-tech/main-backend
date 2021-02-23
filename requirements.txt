@@ -13,3 +13,4 @@ python-dateutil
 redis
 python-magic
 emoji
+rq

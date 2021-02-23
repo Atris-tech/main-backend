@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, Request, File, UploadFile, HTTPException
 from settings import MAX_NAME_LENGTH, MIN_NAME_LENGTH
 from pydantic import BaseModel, StrictStr
 from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
-from Services.storage_services import upload_profile
+from Services.storage_services import upload_file_blob_storage
 from typing import Optional
 
 
@@ -54,7 +54,8 @@ def change_dp(
 ):
     user_dict = token_check(request)
     file_data = file.file.read()
-    return upload_profile(email=user_dict["email_id"], file_data=file_data, file_name=file.filename)
+    return upload_file_blob_storage(email=user_dict["email_id"], file_data=file_data, file_name=file.filename,
+                                    profile=True)
 
 
 @router.post("/logout_all_devices", status_code=200)

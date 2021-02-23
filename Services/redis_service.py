@@ -7,8 +7,11 @@ redis_obj = redis.StrictRedis(host=settings.REDIS_HOSTNAME, port=settings.REDIS_
 
 
 def set_val(key, val, json_type=False):
+    print("set_value")
     if json_type:
+        print("set_value")
         redis_obj.set(key, json.dumps(val))
+        print("set value done1")
     else:
         redis_obj.set(key, str(val))
 

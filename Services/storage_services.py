@@ -11,7 +11,7 @@ from error_constants import INVALID_FILE_TYPE, FILE_SIZE_EXCEEDED
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_BLOB_STORAGE_CONNECTION_STRING)
 
 
-def upload_profile(email, file_data, file_name):
+def upload_file_blob_storage(email, file_data, file_name, profile=False):
     if len(file_data) > MAX_PROFILE_PHOTO_SIZE:
         raise HTTPException(
             status_code=FILE_SIZE_EXCEEDED["status_code"],
@@ -31,14 +31,20 @@ def upload_profile(email, file_data, file_name):
             )
         user_model_obj = UserModel.objects.get(email_id=email)
         container_name = user_model_obj.user_storage_container_name
-        if container_name is None:
-            container_name = str(uuid.uuid1())
-            container_client = blob_service_client.create_container(name=container_name,
-                                                                    public_access=PublicAccess.Container)
-            user_model_obj.update(user_storage_container_name=container_name)
+        if profile:
+            if container_name is None:
+                container_name = str(uuid.uuid1())
+                container_client = blob_service_client.create_container(name=container_name,
+                                                                        public_access=PublicAccess.Container)
+                user_model_obj.update(user_storage_container_name=container_name)
+            else:
+                blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
+                blob_client.upload_blob(file_data, overwrite=True)
+                url = blob_client.url
+                user_model_obj.update(image=url)
+                return url
         else:
             blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
             blob_client.upload_blob(file_data, overwrite=True)
             url = blob_client.url
-            user_model_obj.update(image=url)
             return url

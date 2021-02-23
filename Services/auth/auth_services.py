@@ -19,9 +19,11 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_jwt_token(data, expire_date_time):
+    print(data)
     to_encode = data.copy()
     to_encode.update({"exp": expire_date_time})
     encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    print(encoded_jwt)
     return encoded_jwt
 
 
@@ -108,18 +110,25 @@ def create_ref_token(email=False, user_obj=False, token_obj=False):
     user_dict["verified"] = user_obj.verified
     expiry_year = datetime.now() + relativedelta(years=settings.REFRESH_TOKEN_EXPIRE_YEAR)
     ref_token = create_jwt_token(data=user_dict, expire_date_time=expiry_year.timestamp())
+    print(ref_token)
+    print("referesh token created")
     if token_obj:
+        print("in token obj")
         token_obj.refresh_token = ref_token
         token_obj.save()
     else:
+        print("in else token obj")
         token_obj = TokenModel(user=user_obj, refresh_token=ref_token)
         token_obj.save()
     user_dict["plan"] = user_obj.plan
     user_dict.pop("verified", None)
     user_dict["token_type"] = "access_token"
     expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    print("above create jwt token")
     access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
+    print(access_token)
     set_val(ref_token, user_dict, json_type=True)
+    print("set value done")
     return {"ref_token": ref_token, "access_token": access_token}
 
 
@@ -127,6 +136,7 @@ def get_ref_token(user_obj):
     try:
         token_obj = TokenModel.objects.get(user=user_obj)
         ref_token = token_obj.refresh_token
+        print(ref_token)
         if token_obj.token_status == "Dead":
             raise HTTPException(
                 status_code=error_constants.USER_BANNED["status_code"],
@@ -135,9 +145,12 @@ def get_ref_token(user_obj):
         if ref_token is None:
             return create_ref_token(user_obj=user_obj, token_obj=token_obj)
         else:
-            payload = verify_jwt_token(ref_token)
+            print("get ref else")
+            payload = verify_jwt_token(token=ref_token, refresh_token=True)
+            print(payload)
             if payload:
                 user_dict = get_val(ref_token, json_type=True)
+                print(user_dict)
                 if user_dict is not None:
                     if "banned" in user_dict:
                         raise HTTPException(
@@ -149,6 +162,7 @@ def get_ref_token(user_obj):
                     set_val(ref_token, user_dict, json_type=True)
                     return {"ref_token": ref_token, "access_token": access_token}
                 else:
+                    print("user dict null")
                     return create_ref_token(user_obj=user_obj, token_obj=token_obj)
             else:
                 return create_ref_token(user_obj=user_obj, token_obj=token_obj)
