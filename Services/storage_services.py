@@ -6,6 +6,8 @@ from db_models.models.user_model import UserModel
 import magic
 import settings
 from error_constants import INVALID_FILE_TYPE, FILE_SIZE_EXCEEDED
+import uuid
+from azure.core.exceptions import ResourceNotFoundError
 
 
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_BLOB_STORAGE_CONNECTION_STRING)
@@ -48,3 +50,11 @@ def upload_file_blob_storage(email, file_data, file_name, profile=False):
             blob_client.upload_blob(file_data, overwrite=True)
             url = blob_client.url
             return url
+
+
+def delete_blob(container_name, blob_name):
+    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+    try:
+        blob_client.delete_blob()
+    except ResourceNotFoundError:
+        print("file not found to delete")

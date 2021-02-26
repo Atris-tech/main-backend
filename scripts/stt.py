@@ -2,14 +2,16 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 import nemo.collections.asr as nemo_asr
-import urllib.request
-from fastapi import FastAPI
-from pydantic import BaseModel, HttpUrl
+from nemo.collections import nlp as nemo_nlp
+from fastapi import FastAPI, File, UploadFile, Form
 import subprocess
 import magic
 import uuid
+import requests
+import json
 
-app = FastAPI(host = '0.0.0.0', port = 8080)
+
+app = FastAPI(host='0.0.0.0', port = 8080)
 
 
 MIME_TYPES_AUDIO = {
@@ -24,7 +26,7 @@ MIME_TYPES_AUDIO = {
 # Speech Recognition model - QuartzNet
 jasper = nemo_asr.models.EncDecCTCModel.from_pretrained(model_name="Jasper10x5Dr-En").cuda()
 # Punctuation and capitalization model
-#punctuation = nemo_nlp.models.PunctuationCapitalizationModel.from_pretrained(model_name='Punctuation_Capitalization_with_DistilBERT').cuda()
+punctuation = nemo_nlp.models.PunctuationCapitalizationModel.from_pretrained(model_name='Punctuation_Capitalization_with_DistilBERT').cuda()
 
 
 def convert_audio(source_format, file):
@@ -54,7 +56,7 @@ def check_mime_type(file):
     return file_extension
 
 
-def transcribe(file_name):
+def transcribe(file_name, f_align_url):
     # Convert our audio sample to text
     files = [file_name]
     raw_text = ''
@@ -63,27 +65,29 @@ def transcribe(file_name):
     #     raw_text = transcription
     raw_text = jasper.transcribe(paths2audio_files=files)[0]
     # Add capitalization and punctuation
-    # res = punctuation.add_punctuation_capitalization(queries=[raw_text])
-    # text = res[0]
+    res = punctuation.add_punctuation_capitalization(queries=[raw_text])
+    text = res[0]
+    print(res)
+    payload = {'transcript': text}
+    files = [
+      ('audio', ('1.m4a', open(file_name, 'rb'), 'application/octet-stream'))
+    ]
+    response = requests.request("POST", f_align_url, data=payload, files=files)
     os.remove(file_name)
-    return raw_text
-
-
-class File(BaseModel):
-    url: HttpUrl
+    print(response.text)
+    return {"transcribe": text, "f_align": json.loads(response.text)}
 
 
 @app.post("/uploadfile/")
-def create_upload_file(url_obj: File):
-    filedata = urllib.request.urlopen(url_obj.url)
-    file_name = str(uuid.uuid4()) + os.path.basename(filedata.geturl())
+def create_upload_file(file: UploadFile = File(...), f_align_url: str = Form(...)):
+    file_name = file.filename
     print(file_name)
     with open(file_name, 'wb') as f:
-        f.write(filedata.read())
+        f.write(file.file.read())
     file_extension = check_mime_type(file_name)
     if file_extension is not None:
         converted_file = convert_audio(source_format=file_extension, file=file_name)
-        stt_data = transcribe(converted_file)
+        stt_data = transcribe(converted_file, f_align_url)
         return stt_data
     else:
         return False

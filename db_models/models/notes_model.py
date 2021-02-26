@@ -22,6 +22,7 @@ class NotesModel(mongoengine.Document):
     images = mongoengine.ListField(mongoengine.EmbeddedDocument(Image))
     audios = mongoengine.ListField(mongoengine.EmbeddedDocument(Audio))
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
+    note_size = mongoengine.FloatField()
     meta = {
         'db_alias': 'core',
         'collection': 'notes'

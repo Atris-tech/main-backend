@@ -4,9 +4,22 @@ from Services.redis_service import get_val
 import urllib.request
 import uuid
 import os
+from db_models.models.notes_model import NotesModel
+from db_models.models.audio_model import Audio
 
 
-def audio_preprocess(file_url):
+def audio_preprocess(email_id, file_url, work_space_id, note_id, file_name):
+    """download raw file here"""
+
+    filedata = urllib.request.urlopen(file_url)
+    print(file_name)
+    with open(file_name, 'wb') as f:
+        f.write(filedata.read())
+
+    """stt api call"""
+
+
+
 
     url = get_val(key="STT_UPLOAD_URL")
 

@@ -32,7 +32,7 @@ def create_user_workspace(
 class WorkspaceRenameModel(BaseModel):
     old_workspace_name: str
     new_workspace_name: Optional[str]
-    emoji: Optional[str]
+    emoji:Optional[str]
 
 
 @router.post("/rename_workspace/", status_code=200)

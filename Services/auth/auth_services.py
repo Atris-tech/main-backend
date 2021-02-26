@@ -260,6 +260,8 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
     user_model_obj.first_name = first_name
     user_model_obj.last_name = last_name
     user_model_obj.email_id = email
+    space = get_val("FREE_USER_SPACE")
+    user_model_obj.space = space
     if user_check:
         user_model_obj.password_hash = get_password_hash(password)
         user_model_obj.account_type = "Normal"
