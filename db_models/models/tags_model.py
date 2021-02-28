@@ -1,6 +1,6 @@
 import mongoengine
 from .user_model import UserModel
-from .cache_display_model import CacheModel
+from db_models.models.cache_display_model import CacheModel
 
 
 class TagModel(mongoengine.Document):

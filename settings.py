@@ -39,6 +39,14 @@ MIME_TYPES_IMAGES = {
     "jpg": "image/jpeg",
     "png": "image/png"
 }
+MIME_TYPES_AUDIO = {
+    "mp3": "audio/mpeg",
+    "wav": "audio/x-wav",
+    "m4a": "audio/m4a",
+    "mp4": "audio/mp4",
+    "aiff": "audio/x-aiff",
+    "aac": "audio/x-hx-aac-adts"
+}
 MAX_PROFILE_PHOTO_SIZE = int(os.getenv("MAX_PROFILE_PHOTO_SIZE"))
 TENDIS_HOSTNAME = os.getenv("TENDIS_HOSTNAME")
 TENDIS_PORT = int(os.getenv("TENDIS_PORT"))

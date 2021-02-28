@@ -30,8 +30,9 @@ def check_space(user_model_obj, note_obj=False, new_size_note=False, note_space_
         else:
             user_model_obj.space = user_space
             user_model_obj.save()
-            note_obj.note_size = new_size_note
-            note_obj.save()
+            if not blob_size:
+                note_obj.note_size = new_size_note
+                note_obj.save()
 
 
 def increase_quota_space(user_model_obj, to_increase):

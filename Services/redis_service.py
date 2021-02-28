@@ -35,6 +35,7 @@ def get_list(list_name):
     results = list()
     for i in range(0, redis_obj.llen(list_name)):
         results.append(redis_obj.lindex(list_name, i))
+    return results
 
 
 def add_to_list(list_name, val):

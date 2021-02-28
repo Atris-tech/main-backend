@@ -56,7 +56,7 @@ def check_mime_type(file):
     return file_extension
 
 
-def transcribe(file_name, f_align_url):
+def transcribe(file_name, f_align_url, sound_recog_url):
     # Convert our audio sample to text
     files = [file_name]
     raw_text = ''
@@ -70,16 +70,29 @@ def transcribe(file_name, f_align_url):
     print(res)
     payload = {'transcript': text}
     files = [
-      ('audio', ('1.m4a', open(file_name, 'rb'), 'application/octet-stream'))
+      ('audio', (file_name, open(file_name, 'rb'), 'application/octet-stream'))
     ]
     response = requests.request("POST", f_align_url, data=payload, files=files)
+    f_align = response.text
+
+    files = [
+        ('audio', (file_name, open(file_name, 'rb'), 'audio/wav'))
+    ]
+
+    response = requests.request("POST", sound_recog_url, files=files)
+
+    sound_recog_results = response.text
+    sound_recog_results = json.loads(sound_recog_results)
+    sound_recog_predictions = list()
+    for result in sound_recog_results["predictions"]:
+        if result["probability"] > 0.4:
+            sound_recog_predictions.append(result["label"])
     os.remove(file_name)
-    print(response.text)
-    return {"transcribe": text, "f_align": json.loads(response.text)}
+    return {"transcribe": text, "f_align": json.loads(f_align), "sound_recog_results": sound_recog_predictions}
 
 
 @app.post("/uploadfile/")
-def create_upload_file(file: UploadFile = File(...), f_align_url: str = Form(...)):
+def create_upload_file(file: UploadFile = File(...), f_align_url: str = Form(...), sound_recog_url: str = Form(...)):
     file_name = file.filename
     print(file_name)
     with open(file_name, 'wb') as f:
@@ -87,7 +100,7 @@ def create_upload_file(file: UploadFile = File(...), f_align_url: str = Form(...
     file_extension = check_mime_type(file_name)
     if file_extension is not None:
         converted_file = convert_audio(source_format=file_extension, file=file_name)
-        stt_data = transcribe(converted_file, f_align_url)
+        stt_data = transcribe(converted_file, f_align_url, sound_recog_url)
         return stt_data
     else:
         return False
