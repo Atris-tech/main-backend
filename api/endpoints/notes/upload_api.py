@@ -32,6 +32,7 @@ def upload_audio(
         print("*********************************************************")
         print(content_length)
         check_space(user_model_obj=user_obj, blob_size=content_length)
+
     except NotesModel.DoesNotExist:
         raise HTTPException(
             status_code=BAD_REQUEST["status_code"],
