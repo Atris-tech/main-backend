@@ -47,7 +47,7 @@ def new_workspace(user_dict, name, emoji):
         workspace_model_obj.work_space_name = name
         workspace_model_obj.work_space_emoji = emoji
         workspace_model_obj.save()
-        return True
+        return str(workspace_model_obj.id)
 
 
 def rename_workspace(old_workspace_name, new_workspace_name=False, emoji=False):

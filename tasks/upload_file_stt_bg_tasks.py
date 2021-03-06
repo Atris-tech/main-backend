@@ -1,17 +1,19 @@
 import uuid
 from Services.storage_services import upload_file_blob_storage
 from Services.stt_api_call_service import stt_api_call
-from redis import Redis
+from redis import Redis, StrictRedis
 from settings import REDIS_PASSWORD, REDIS_HOSTNAME, REDIS_PORT
 from rq import Queue
 from tasks.audio_process_rq_task import audio_preprocess
 from tasks.audio_file_upload_rq_task import audio_save_to_db
 from Services.redis_service import get_list, get_val
+import json
+
 
 redis_conn = Redis(
             host=REDIS_HOSTNAME,
-            port=REDIS_PORT,
-            password=REDIS_PASSWORD
+            port=6379,
+            password=REDIS_PASSWORD,
         )
 
 
@@ -20,6 +22,8 @@ def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
     file_name = str(uuid.uuid4()) + file_name
     data = upload_file_blob_storage(email=user_obj.email_id, file_data=file_data,
                                    file_name=file_name, bg=True)
+    print("data")
+    print(data)
     if data:
         print("in data")
         container_name = data["container_name"]
@@ -35,5 +39,5 @@ def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
             audio_save_to_db(file_size=blob_size, stt_data=stt_data, note_obj=notes_obj, url=url)
             """websocket code here"""
         else:
-            q = Queue("Public", connection=redis_conn)
-            job = q.enqueue_job(audio_preprocess, url, notes_obj.id, file_name, container_name)
+            q = Queue("public", connection=redis_conn)
+            job = q.enqueue(audio_preprocess, args=(str(url), str(notes_obj.id), str(file_name), blob_size))

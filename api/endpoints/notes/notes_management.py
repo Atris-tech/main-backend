@@ -10,21 +10,24 @@ router = APIRouter()
 
 
 class NotesEditingModel(BaseModel):
-    notes_name:  str
+    work_space_id: str
+    notes_name:  Optional[str] = "untitled"
     data: str
 
 
 @router.post("/create_notes/", status_code=200)
-def create_user_workspace(
+def create_user_notes(
         notes_editing_obj: NotesEditingModel,
         request: Request,
 
 ):
+    print(notes_editing_obj.notes_name)
     user_dict = token_check(request)
     return new_notes(
         user_dict=user_dict,
-        name=notes_editing_obj.notes_name,
-        data=notes_editing_obj.data
+        work_space_id=notes_editing_obj.work_space_id,
+        notes_name=notes_editing_obj.notes_name,
+        to_save_data=notes_editing_obj.data
     )
 
 

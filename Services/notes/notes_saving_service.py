@@ -16,30 +16,33 @@ def check_notes(name):
         return False
 
 
-def check_user_workspace(workspace_name, email):
+def check_user_workspace(workspace_id, email):
     try:
         user_obj = UserModel.objects.get(email_id=email)
-        WorkSpaceModel.objects(Q(user_id=user_obj) & Q(work_space_name=workspace_name))
-        return True
-    except UserModel.DoesNotExist:
+        workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=workspace_id))
+        print("in check user_manage")
+        print(workspace_obj)
+        return {"user_obj": user_obj, "workspace_obj": workspace_obj}
+    except (UserModel.DoesNotExist, WorkSpaceModel.DoesNotExist):
         raise HTTPException(
             status_code=error_constants.INVALID_EMAIL["status_code"],
             detail=error_constants.INVALID_EMAIL["detail"]
         )
 
 
-def new_notes(user_dict, name, data, email):
-    check_user_workspace(name, email)
-    print(user_dict["email_id"])
-    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+def new_notes(user_dict, work_space_id, notes_name, to_save_data):
+    workspace_data = check_user_workspace(work_space_id, user_dict["email_id"])
     notes_model_obj = NotesModel()
-    notes_model_obj.user_id = user_object_model
-    notes_model_obj.work_space_name = name
-    notes_model_obj.data = data
-    clean_txt = html_to_text(data)
-    notes_model_obj.clean_text = clean_txt
+    print("###################################################")
+    print(workspace_data["workspace_obj"])
+    notes_model_obj.workspace_id = workspace_data["workspace_obj"]
+    notes_model_obj.user_id = workspace_data["user_obj"]
+    notes_model_obj.work_space_name = notes_name
+    notes_model_obj.data = to_save_data
+    #clean_txt = html_to_text(to_save_data)
+    notes_model_obj.clean_text = to_save_data
     notes_model_obj.save()
-    return True
+    return str(notes_model_obj.id)
 
 
 def rename_notes(old_notes_name, new_notes_name=False):

@@ -28,7 +28,7 @@ def upload_audio(
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
         work_space_obj = WorkSpaceModel.objects.get(id=work_space_id)
-        notes_obj = NotesModel.objects(Q(user_id=user_obj) & Q(workspace_id=work_space_obj) & Q(id=notes_id))
+        notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(workspace_id=work_space_obj) & Q(id=notes_id))
         print("*********************************************************")
         print(content_length)
         check_space(user_model_obj=user_obj, blob_size=content_length)
@@ -42,5 +42,5 @@ def upload_audio(
     """upload file in background task and call rq process in background"""
 
     background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
-                              file_data=file_data, file_name=str(uuid.uuid4()) + file.filename)
+                              file_data=file_data, file_name=str(uuid.uuid4()) + file.filename, blob_size=content_length)
     return True

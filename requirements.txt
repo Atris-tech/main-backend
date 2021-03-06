@@ -16,3 +16,4 @@ emoji
 rq
 rq-dashboard
 html2text
+icecream
