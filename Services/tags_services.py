@@ -7,7 +7,7 @@ import error_constants
 from error_constants import BAD_REQUEST
 from mongoengine.queryset.visitor import Q
 from Services.auth.auth_services import check_user
-from icecream import ic
+1
 
 
 def add_tag(name, user_obj):

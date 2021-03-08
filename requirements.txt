@@ -15,5 +15,5 @@ python-magic
 emoji
 rq
 rq-dashboard
-html2text
+beautifulsoup4
 icecream
