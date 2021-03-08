@@ -11,27 +11,129 @@
 				{
 					"name": "create workspace",
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
 						"header": [],
-						"url": null
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"workspace_name\": \"third1\",\r\n    \"emoji\": \"😂\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/create_workspace/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"create_workspace",
+								""
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "rename_workspace",
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
 						"header": [],
-						"url": null
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"old_workspace_name\": \"fsadfas\",\r\n  \"new_workspace_name\": \"fsa1dfas\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/rename_workspace/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"rename_workspace",
+								""
+							]
+						}
 					},
 					"response": []
 				},
 				{
 					"name": "delete_workspace",
 					"request": {
-						"method": "GET",
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
 						"header": [],
-						"url": null
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"workspace_name\": \"fsa1dfas\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/delete_workspace/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"delete_workspace",
+								""
+							]
+						}
 					},
 					"response": []
 				}
@@ -48,7 +150,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoidmVyaWZ5IiwiZW1haWxfaWQiOiJqYWluYWwwOWdvc2FsaWFAZ21haWwuY29tIiwidXNlcl9uYW1lIjoiamFpbmFsIiwiaWQiOiI1ZmUzZWNmNjllNTRkZGI0MTYwM2Q2YzQiLCJleHAiOjE2MDg4NTkyNTQuOTcwMzEyfQ.oyFTArqJTrg9BikewSS0Z3CcHPaBZQVywxuhY0qOV4w",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoidmVyaWZ5IiwiZW1haWxfaWQiOiJqYWluYWwwOWdvc2FsaWFAZ21haWwuY29tIiwidXNlcl9uYW1lIjoianNnIiwiaWQiOiI2MDE2ZGU5YjdiYzI5MzA0ZmQwYzU0YmEiLCJleHAiOjE2MTIxOTgyNzcuNDE1NTEzfQ.iE7C7TWN9f_Bmj6uxc3ddL9ypQqPao-x_0kKzGxTJj4",
 									"type": "string"
 								}
 							]
@@ -82,7 +184,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoidmVyaWZ5IiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJ1c2VyX25hbWUiOiJqYWluYWwwOSIsImlkIjoiNWZlNjViODkyM2M5NDkzN2EwMDdlYWNmIiwiZXhwIjoxNjA5Mjk3NjYxLjkxODE0N30.iKQ3xB0DIX5kUAsqVVCoB_MkWFtQoWzsmEzDd_sAnTk",
+									"value": "",
 									"type": "string"
 								}
 							]
@@ -124,7 +226,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"jainalgosaliya@gmail.com\",\r\n  \"password\": \"1234\"\r\n}",
+							"raw": "{\r\n  \"email\": \"admin@glib.ai\",\r\n  \"password\": \"09Prototype_101\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -182,6 +284,40 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get_access_token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaF90b2tlbiIsImVtYWlsX2lkIjoiamFpbmFsLmdvc2FsaXlhQGdsaWIuYWkiLCJhY2NvdW50X3R5cGUiOiJOb3JtYWwiLCJ2ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNjQ1NTk5ODI1LjYwMzY3N30.oje-AFeDDa7LyN3DvVYDhfMjcBprWKWTbbdOxPVUYrw",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/get_access_token/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"get_access_token",
+								""
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -196,7 +332,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWxnb3NhbGl5YUBnbWFpbC5jb20iLCJhY2NvdW50X3R5cGUiOiJOb3JtYWwiLCJwbGFuIjoiRnJlZSIsImV4cCI6MTYwOTAwODE1MS41MDY2N30.CZSxrBxei2HpEv8jKoxjKxcjxnaAhCX7pwYlvzHv3Ag",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoidmVyaWZ5IiwiZW1haWxfaWQiOiJqYWluYWwwOWdvc2FsaWFAZ21haWwuY29tIiwidXNlcl9uYW1lIjoianNnIiwiaWQiOiI2MDE2ZGU5YjdiYzI5MzA0ZmQwYzU0YmEiLCJleHAiOjE2MTIxOTgyNzcuNDE1NTEzfQ.iE7C7TWN9f_Bmj6uxc3ddL9ypQqPao-x_0kKzGxTJj4",
 									"type": "string"
 								}
 							]
@@ -312,49 +448,318 @@
 			]
 		},
 		{
-			"name": "get_access_token",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaF90b2tlbiIsImVtYWlsX2lkIjoiamFpbmFsZ29zYWxpeWFAZ21haWwuY29tIiwiYWNjb3VudF90eXBlIjoiTm9ybWFsIiwidmVyaWZpZWQiOnRydWUsImV4cCI6MTY0MDQ2ODMzMC4yODI4ODZ9.sDO2-cHuFQPh6iwmeuf-HphwbCN35-5U_kkzwwBhwO4",
-							"type": "string"
+			"name": "notes",
+			"item": [
+				{
+					"name": "upload_audio",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWwuZ29zYWxpeWFAZ2xpYi5haSIsImFjY291bnRfdHlwZSI6Ik5vcm1hbCIsInBsYW4iOiJGcmVlIiwiZXhwIjoxNjE0ODk3NTc3LjY0MzI5fQ.eWCasfpFyIDmXYJDsjFAoTSPZV0VO3bgaxucdkszK9k",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/atris/main-server/4_3.wav"
+								},
+								{
+									"key": "notes_id",
+									"value": "604160ef16c03d8f23687aac",
+									"type": "text"
+								},
+								{
+									"key": "work_space_id",
+									"value": "60415f1e14d38a166ae0e829",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/upload_audio/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"upload_audio",
+								""
+							]
 						}
-					]
+					},
+					"response": []
 				},
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/get_access_token/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"get_access_token",
-						""
-					]
+				{
+					"name": "create_note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"data\": \"\",\r\n  \"work_space_id\": \"60464a1ff7dee1a0e71467ac\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/create_note/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"create_note",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_note",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"notes_id\": \"604686befd5be13e217406af\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/delete_note/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"delete_note",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "rename_notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"old_notes_id\": \"604683ae49d6029bd645b47b\",\r\n  \"new_notes_name\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/rename_note/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"rename_note",
+								""
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "deep speech 2",
+			"name": "tags",
+			"item": [
+				{
+					"name": "add_tag",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWwuZ29zYWxpeWFAZ2xpYi5haSIsImFjY291bnRfdHlwZSI6Ik5vcm1hbCIsInBsYW4iOiJGcmVlIiwiZXhwIjoxNjE0OTc2Mzk3LjE2ODk3OH0.Sbz4UdJqSEJwSp33AO8m_9R606EiS8niZ5D_G88jtmM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tag_name\": \"string\",\r\n  \"workspace_id\": \"60415f1e14d38a166ae0e829\",\r\n  \"notes_id\": \"60428eb9891cc8678ee905c1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/add_tags/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"add_tags",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete_tag",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzX3Rva2VuIiwiZW1haWxfaWQiOiJqYWluYWwuZ29zYWxpeWFAZ2xpYi5haSIsImFjY291bnRfdHlwZSI6Ik5vcm1hbCIsInBsYW4iOiJGcmVlIiwiZXhwIjoxNjE0OTc2Mzk3LjE2ODk3OH0.Sbz4UdJqSEJwSp33AO8m_9R606EiS8niZ5D_G88jtmM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"tag_id\": \"60428fea93c9f1db64fa7bec\",\r\n  \"notes_id\": \"60428ec1891cc8678ee905c2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/delete_tags/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"delete_tags",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "stt",
 			"request": {
 				"method": "GET",
 				"header": [],
-				"url": {
-					"raw": ""
-				}
+				"url": null
 			},
 			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaF90b2tlbiIsImVtYWlsX2lkIjoiZmFpemFuNDVzaGFpa2hAZ21haWwuY29tIiwiYWNjb3VudF90eXBlIjoiTm9ybWFsIiwidmVyaWZpZWQiOnRydWUsImV4cCI6MTY0NTk2MzM3NS4xNzk3MzR9.34ejQJT9KMqi85SDDLPMBhhJPLWbHrEoAYHlQ4GaAgM"
 		}
 	]
 }
