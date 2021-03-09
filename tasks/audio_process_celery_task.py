@@ -1,14 +1,16 @@
-from Services.redis_service import get_val
-import urllib.request
-from Services.stt_api_call_service import stt_api_call
-from tasks.audio_file_upload_rq_task import audio_save_to_db
 import os
-import uuid
 import shutil
-from db_models.models.notes_model import NotesModel
+import urllib.request
+import uuid
+from Services.audio_upload_helper import audio_save_to_db
+from Services.redis_service import get_val
+from Services.stt_api_call_service import stt_api_call
+from db_models.models import NotesModel
 from db_models.mongo_setup import global_init
+from task_worker_config.celery import app
 
 
+@app.task(soft_time_limit=500, max_retries=3)
 def audio_preprocess(file_url,  note_id, file_name, blob_size):
     global_init()
     print("in enqueue")

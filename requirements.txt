@@ -17,3 +17,4 @@ rq
 rq-dashboard
 beautifulsoup4
 icecream
+celery

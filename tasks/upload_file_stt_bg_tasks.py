@@ -4,8 +4,8 @@ from Services.stt_api_call_service import stt_api_call
 from redis import Redis, StrictRedis
 from settings import REDIS_PASSWORD, REDIS_HOSTNAME, REDIS_PORT
 from rq import Queue
-from tasks.audio_process_rq_task import audio_preprocess
-from tasks.audio_file_upload_rq_task import audio_save_to_db
+from tasks.audio_process_celery_task import audio_preprocess
+from Services.audio_upload_helper import audio_save_to_db
 from Services.redis_service import get_list, get_val
 import json
 
