@@ -1,6 +1,5 @@
 import mongoengine
 import settings
-import ssl
 
 
 def global_init():

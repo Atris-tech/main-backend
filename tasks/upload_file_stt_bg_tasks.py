@@ -1,32 +1,21 @@
 import uuid
 from Services.storage_services import upload_file_blob_storage
 from Services.stt_api_call_service import stt_api_call
-from redis import Redis, StrictRedis
-from settings import REDIS_PASSWORD, REDIS_HOSTNAME, REDIS_PORT
-from rq import Queue
-from tasks.audio_process_celery_task import audio_preprocess
 from Services.audio_upload_helper import audio_save_to_db
 from Services.redis_service import get_list, get_val
-import json
-
-
-redis_conn = Redis(
-            host=REDIS_HOSTNAME,
-            port=6379,
-            password=REDIS_PASSWORD,
-        )
+from task_worker_config.celery import app
 
 
 def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
     print("in upload task")
     file_name = str(uuid.uuid4()) + file_name
     data = upload_file_blob_storage(email=user_obj.email_id, file_data=file_data,
-                                   file_name=file_name, bg=True)
+                                    file_name=file_name, bg=True)
     print("data")
     print(data)
     if data:
         print("in data")
-        container_name = data["container_name"]
+        #container_name = data["container_name"]
         url = data["url"]
         direct_api_supported_plans = get_list("DIRECT_STT_API_PLANS")
         if user_obj.plan in direct_api_supported_plans:
@@ -39,5 +28,11 @@ def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
             audio_save_to_db(file_size=blob_size, stt_data=stt_data, note_obj=notes_obj, url=url)
             """websocket code here"""
         else:
-            q = Queue("public", connection=redis_conn)
-            job = q.enqueue(audio_preprocess, args=(str(url), str(notes_obj.id), str(file_name), blob_size))
+            app.send_task("tasks.audio_process_celery_task.audio_preprocess",
+                          queue="stt_queue",
+                          kwargs={
+                              "file_url": str(url),
+                              "note_id": str(notes_obj.id),
+                              "file_name": str(file_name),
+                              "blob_size": blob_size
+                          })

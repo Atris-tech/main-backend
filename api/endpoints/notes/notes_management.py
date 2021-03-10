@@ -7,8 +7,10 @@ from typing import Optional
 from error_constants import BAD_REQUEST
 import base64
 from icecream import ic
+from .child_api_routes import routing
 
-router = APIRouter()
+
+router = routing()
 
 
 class NotesEditingModel(BaseModel):

@@ -13,8 +13,6 @@ python-dateutil
 redis
 python-magic
 emoji
-rq
-rq-dashboard
 beautifulsoup4
 icecream
 celery

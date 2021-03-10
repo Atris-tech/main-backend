@@ -8,7 +8,8 @@ import uuid
 from mongoengine.queryset.visitor import Q
 from error_constants import BAD_REQUEST
 from Services.plan_helper import check_space
-from .notes_management import router
+
+router = APIRouter()
 
 
 def valid_content_length(content_length: int = Header(..., lt=50_000_000)):
@@ -27,13 +28,13 @@ def upload_audio(
     user_dict = token_check(request)
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
-        work_space_obj = WorkSpaceModel.objects.get(id=work_space_id)
+        work_space_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=work_space_id))
         notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(workspace_id=work_space_obj) & Q(id=notes_id))
         print("*********************************************************")
         print(content_length)
         check_space(user_model_obj=user_obj, blob_size=content_length)
 
-    except NotesModel.DoesNotExist:
+    except (NotesModel.DoesNotExist, WorkSpaceModel.DoesNotExist):
         raise HTTPException(
             status_code=BAD_REQUEST["status_code"],
             detail=BAD_REQUEST["detail"]
