@@ -12,8 +12,8 @@ class NotesModel(mongoengine.Document):
     workspace_id = mongoengine.ReferenceField(WorkSpaceModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     notes_name = mongoengine.StringField(default="untitled")
     tags = mongoengine.ListField(mongoengine.ReferenceField('TagModel'))
-    data = mongoengine.StringField(required=True)
-    clean_text = mongoengine.StringField(required=True)
+    note_blob_id = mongoengine.StringField(required=True)
+    clean_text = mongoengine.StringField(default="", required=True)
     summary_data = mongoengine.StringField()
     key_words = mongoengine.ListField()
     entity_data = mongoengine.DictField()
@@ -21,7 +21,7 @@ class NotesModel(mongoengine.Document):
     images = mongoengine.ListField(mongoengine.EmbeddedDocumentField(Image))
     audios = mongoengine.ListField(mongoengine.ReferenceField(Audio))
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
-    note_size = mongoengine.FloatField()
+    note_size = mongoengine.FloatField(default=0)
     meta = {
         'db_alias': 'core',
         'collection': 'notes'

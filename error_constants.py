@@ -56,5 +56,9 @@ BAD_REQUEST = {
 }
 SPACE_EXHAUSTED = {
     "status_code": 422,
-    "detail": "plan limit exceeded"
+    "detail": "plan storage limit exceeded"
+}
+NOTE_SIZE_EXCEEDED = {
+    "status_code": 422,
+    "detail": "note size exceeded"
 }

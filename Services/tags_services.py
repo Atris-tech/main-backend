@@ -1,3 +1,5 @@
+from icecream import ic
+
 from db_models.models.tags_model import TagModel
 from db_models.models.notes_model import NotesModel
 from db_models.models.workspace_model import WorkSpaceModel
@@ -7,7 +9,7 @@ import error_constants
 from error_constants import BAD_REQUEST
 from mongoengine.queryset.visitor import Q
 from Services.auth.auth_services import check_user
-1
+
 
 
 def add_tag(name, user_obj):
@@ -61,11 +63,16 @@ def create_new_tag(email, tag_name, notes_id, workspace_id):
     user_obj = check_user(email=email)
     if not user_obj:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
+            detail=error_constants.TOKEN_NOT_EXIST["detail"]
         )
-
-    workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=workspace_id))
+    try:
+        workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=workspace_id))
+    except WorkSpaceModel.DoesNotExist:
+        raise HTTPException(
+            status_code=error_constants.BAD_REQUEST["status_code"],
+            detail=error_constants.BAD_REQUEST["detail"]
+        )
     note_obj = check_user_notes(notes_id=notes_id, user_obj=user_obj, workspace_obj = workspace_obj)
     ic()
     ic(note_obj)
@@ -112,6 +119,3 @@ def remove_tag(tag_id, notes_id, email):
             status_code=BAD_REQUEST["status_code"],
             detail=BAD_REQUEST["detail"]
         )
-
-
-

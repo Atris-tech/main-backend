@@ -11,7 +11,27 @@ from azure.core.exceptions import ResourceNotFoundError
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_BLOB_STORAGE_CONNECTION_STRING)
 
 
-def upload_file_blob_storage(file_data, file_name, email=False, profile=False, container_name=False, bg=False):
+def get_or_create_container(email=False, notes_cont=False, user_model_obj=False):
+    if not user_model_obj:
+        user_model_obj = UserModel.objects.get(email_id=email)
+    if notes_cont:
+        container_name = user_model_obj.user_storage_notes_container_name
+        if container_name is None:
+            container_name = str(uuid.uuid1())
+            user_model_obj.update(user_storage_notes_container_name=container_name)
+        blob_service_client.create_container(name=container_name)
+    else:
+        container_name = user_model_obj.user_storage_container_name
+        if container_name is None:
+            container_name = str(uuid.uuid1())
+            user_model_obj.update(user_storage_container_name=container_name)
+        blob_service_client.create_container(name=container_name,
+                                             public_access=PublicAccess.Container)
+    return {"container_name": container_name, "user_model_obj": user_model_obj}
+
+
+def upload_file_blob_storage(file_data, file_name, email=False, profile=False, save_note=False, bg=False,
+                             container_name=False, user_model_obj=False):
     print("in upload blob storage")
     if profile:
         if len(file_data) > MAX_PROFILE_PHOTO_SIZE:
@@ -20,57 +40,44 @@ def upload_file_blob_storage(file_data, file_name, email=False, profile=False, c
                 detail=FILE_SIZE_EXCEEDED["detail"]
             )
     else:
-        print("in else")
-        file_extension = None
-        mime_type = magic.from_buffer(buffer=file_data, mime=True)
-        print(mime_type)
-        if profile:
-            to_check = settings.MIME_TYPES_IMAGES.items()
-        else:
-            to_check = settings.MIME_TYPES_AUDIO.items()
-        for key, val in to_check:
-            if str(mime_type) == val:
-                file_extension = key
-                break
-        print(file_extension)
-        if file_extension is None:
-            print("file_extension none")
-            if bg:
-                print("none bg")
-                """get file_data"""
-                return None
-            else:
-                raise HTTPException(
-                    status_code=INVALID_FILE_TYPE["status_code"],
-                    detail=INVALID_FILE_TYPE["detail"]
-                )
-        user_model_obj = UserModel.objects.get(email_id=email)
-        if not container_name:
-            print("in not container")
-
-            container_name = user_model_obj.user_storage_container_name
-            if container_name is None:
-                container_name = str(uuid.uuid1())
-                user_model_obj.update(user_storage_container_name=container_name)
-                blob_service_client.create_container(name=container_name,
-                                                     public_access=PublicAccess.Container)
-
-            blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
-            blob_client.upload_blob(file_data, overwrite=True)
-            url = blob_client.url
-            data = {"container_name": container_name, "url": url}
-            print(data)
-            print("blob uploaded")
+        if not save_note:
+            print("in else")
+            file_extension = None
+            mime_type = magic.from_buffer(buffer=file_data, mime=True)
+            print(mime_type)
             if profile:
-                user_model_obj.update(image=url)
-            return data
-            # else:
-            #     print("in else container")
-            #     blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
-            #     blob_client.upload_blob(file_data, overwrite=True)
-            #     url = blob_client.url
-            #     data = {"container_name": container_name, "url": url}
-            #     return data
+                to_check = settings.MIME_TYPES_IMAGES.items()
+            else:
+                to_check = settings.MIME_TYPES_AUDIO.items()
+            for key, val in to_check:
+                if str(mime_type) == val:
+                    file_extension = key
+                    break
+            print(file_extension)
+            if file_extension is None:
+                print("file_extension none")
+                if bg:
+                    print("none bg")
+                    """get file_data"""
+                    return None
+                else:
+                    raise HTTPException(
+                        status_code=INVALID_FILE_TYPE["status_code"],
+                        detail=INVALID_FILE_TYPE["detail"]
+                    )
+        if not container_name:
+            container_data = get_or_create_container(email=email, notes_cont=save_note, user_model_obj=user_model_obj)
+            container_name = container_data["container_name"]
+            user_model_obj = container_data["user_model_obj"]
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=file_name)
+        blob_client.upload_blob(file_data, overwrite=True)
+        url = blob_client.url
+        data = {"container_name": container_name, "url": url}
+        print(data)
+        print("blob uploaded")
+        if profile:
+            user_model_obj.update(image=url)
+        return data
 
 
 def delete_blob(container_name, blob_name):

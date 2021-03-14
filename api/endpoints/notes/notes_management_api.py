@@ -1,14 +1,10 @@
-import binascii
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import Request
 from pydantic import BaseModel
-from Services.notes.notes_saving_service import new_notes, rename_notes, delete_notes
+from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note
 from Services.auth.auth_services import token_check
 from typing import Optional
-from error_constants import BAD_REQUEST
-import base64
-from icecream import ic
 from .child_api_routes import routing
-
+from Services.notes.notes_parsing_service import b64_to_html
 
 router = routing()
 
@@ -16,31 +12,41 @@ router = routing()
 class NotesEditingModel(BaseModel):
     work_space_id: str
     notes_name:  Optional[str] = "untitled"
-    data: str
 
 
 @router.post("/create_note/", status_code=200)
-def create_user_notes(
+def create_user_note(
         notes_editing_obj: NotesEditingModel,
         request: Request,
 
 ):
-    try:
-        binary_html = base64.b64decode(notes_editing_obj.data)
-        html = binary_html.decode('utf8')
-    except (binascii.Error, UnicodeDecodeError, Exception) as e:
-        ic()
-        ic(e)
-        raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
-        )
     print(notes_editing_obj.notes_name)
     user_dict = token_check(request)
-    return new_notes(
+    return new_note(
         user_dict=user_dict,
         work_space_id=notes_editing_obj.work_space_id,
         notes_name=notes_editing_obj.notes_name,
+    )
+
+
+class NotesSavingModel(BaseModel):
+    notes_id:  str
+    work_space_id: str
+    data: str
+
+
+@router.post("/save_note/", status_code=200)
+def create_user_notes(
+        notes_saving_obj: NotesSavingModel,
+        request: Request,
+
+):
+    html = b64_to_html(notes_saving_obj.data)
+    user_dict = token_check(request)
+    return save_note(
+        user_dict=user_dict,
+        work_space_id=notes_saving_obj.work_space_id,
+        notes_id=notes_saving_obj.notes_id,
         to_save_data=html
     )
 

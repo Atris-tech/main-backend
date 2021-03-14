@@ -9,13 +9,11 @@ from task_worker_config.celery import app
 def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
     print("in upload task")
     file_name = str(uuid.uuid4()) + file_name
-    data = upload_file_blob_storage(email=user_obj.email_id, file_data=file_data,
-                                    file_name=file_name, bg=True)
+    data = upload_file_blob_storage(file_data=file_data, file_name=file_name, email=user_obj.email_id, bg=True)
     print("data")
     print(data)
     if data:
         print("in data")
-        #container_name = data["container_name"]
         url = data["url"]
         direct_api_supported_plans = get_list("DIRECT_STT_API_PLANS")
         if user_obj.plan in direct_api_supported_plans:

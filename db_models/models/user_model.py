@@ -1,5 +1,6 @@
 import mongoengine
 import datetime
+import settings
 
 
 class UserModel(mongoengine.Document):
@@ -13,7 +14,9 @@ class UserModel(mongoengine.Document):
     account_created_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     verified = mongoengine.BooleanField(default=False)
     plan = mongoengine.StringField(required=True, default="Free")
-    space = mongoengine.FloatField(required=True, default=314572800)
+    space = mongoengine.FloatField(default=settings.MAX_FREE_ACCOUNT_USER_SPACE)
+    space_occupied = mongoengine.FloatField(default=0)
+    user_storage_notes_container_name = mongoengine.StringField()
     user_storage_container_name = mongoengine.StringField()
     meta = {
         'db_alias': 'core',

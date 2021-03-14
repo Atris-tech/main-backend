@@ -54,7 +54,7 @@ def change_dp(
 ):
     user_dict = token_check(request)
     file_data = file.file.read()
-    return upload_file_blob_storage(email=user_dict["email_id"], file_data=file_data, file_name=file.filename,
+    return upload_file_blob_storage(file_data=file_data, file_name=file.filename, email=user_dict["email_id"],
                                     profile=True)
 
 

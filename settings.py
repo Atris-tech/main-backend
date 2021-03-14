@@ -49,3 +49,5 @@ MIME_TYPES_AUDIO = {
     "aac": "audio/x-hx-aac-adts"
 }
 MAX_PROFILE_PHOTO_SIZE = int(os.getenv("MAX_PROFILE_PHOTO_SIZE"))
+MAX_NOTE_SIZE = int(os.getenv("MAX_NOTE_SIZE"))
+MAX_FREE_ACCOUNT_USER_SPACE = int(os.getenv("MAX_FREE_ACCOUNT_USER_SPACE"))
