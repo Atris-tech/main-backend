@@ -82,7 +82,7 @@ stages:
               azureSubscription: 'Visual Studio Enterprise (eb2efe4b-e398-44ab-95c5-6d4d708553af)'
               appType: 'webAppLinux'
               WebAppName: 'main-endpoint'
-              packageForLinux: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+              packageForLinux: drop
               RuntimeStack: 'PYTHON|3.7'
               StartupCommand: 'uvicorn main:app --host 0.0.0.0 --port 80'
               AppSettings: |
