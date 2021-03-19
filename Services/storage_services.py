@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from fastapi import HTTPException
 from settings import AZURE_BLOB_STORAGE_CONNECTION_STRING, MAX_PROFILE_PHOTO_SIZE
 from azure.storage.blob import BlobServiceClient, PublicAccess
@@ -7,8 +9,19 @@ import settings
 from error_constants import INVALID_FILE_TYPE, FILE_SIZE_EXCEEDED
 import uuid
 from azure.core.exceptions import ResourceNotFoundError
+from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions
 
-blob_service_client = BlobServiceClient.from_connection_string(AZURE_BLOB_STORAGE_CONNECTION_STRING)
+sas_token = generate_account_sas(
+    account_name="atris",
+    account_key="E006F6BUrtSJqZU+MljsXMDEvRABCip+jp5MCtWbrfw1WAWDZ1Mi+3dGFEik9pZEsIMo/uO7fscFjrMLIYlDEA==",
+    resource_types=ResourceTypes(service=True, container=True, object=True),
+    permission=AccountSasPermissions(read=True, write=True, update=True, delete=True, list=True, add=True, create=True),
+    expiry=datetime.utcnow() + timedelta(minutes=1)
+)
+
+print(sas_token)
+
+blob_service_client = BlobServiceClient(account_url="https://atris.blob.core.windows.net", credential=sas_token)
 
 
 def get_or_create_container(email=False, notes_cont=False, user_model_obj=False):
@@ -19,7 +32,8 @@ def get_or_create_container(email=False, notes_cont=False, user_model_obj=False)
         if container_name is None:
             container_name = str(uuid.uuid1())
             user_model_obj.update(user_storage_notes_container_name=container_name)
-        blob_service_client.create_container(name=container_name)
+        blob_service_client.create_container(name=container_name,
+                                             public_access=PublicAccess.Container)
     else:
         container_name = user_model_obj.user_storage_container_name
         if container_name is None:

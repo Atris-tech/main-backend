@@ -43,5 +43,6 @@ def upload_audio(
     """upload file in background task and call rq process in background"""
 
     background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
-                              file_data=file_data, file_name=str(uuid.uuid4()) + file.filename, blob_size=content_length)
+                              file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
+                              blob_size=content_length)
     return True
