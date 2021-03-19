@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from error_constants import BAD_REQUEST
 import emoji
 from mongoengine.queryset.visitor import Q
+from db_models.models.cache_display_model import CacheModel
 
 
 def check_workspace(name, user_obj, create_check=False):
@@ -37,6 +38,12 @@ def check_emoji(string):
             status_code=BAD_REQUEST["status_code"],
             detail=BAD_REQUEST["detail"]
         )
+
+def add_workspace_catch(workspace_obj, email_id):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+
+
+
 
 
 def new_workspace(user_dict, name, emoji):

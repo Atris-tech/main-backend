@@ -119,3 +119,26 @@ def remove_tag(tag_id, notes_id, email):
             status_code=BAD_REQUEST["status_code"],
             detail=BAD_REQUEST["detail"]
         )
+
+
+def recommend_tag(tag_query_name, email):
+    user_obj = check_user(email=email)
+    if not user_obj:
+        raise HTTPException(
+            status_code=error_constants.INVALID_EMAIL["status_code"],
+            detail=error_constants.INVALID_EMAIL["detail"]
+        )
+    try:
+        tag_objs = TagModel.objects.filter(Q(user_id=user_obj) & Q(tag_name__istartswith=tag_query_name))
+        resp = list()
+        for tag_obj in tag_objs:
+            resp.append({
+                "tag_id": str(tag_obj.id),
+                "tag_name": tag_obj.tag_name
+            })
+        return resp
+    except TagModel.DoesNotExist:
+        raise HTTPException(
+            status_code=BAD_REQUEST["status_code"],
+            detail=BAD_REQUEST["detail"]
+        )

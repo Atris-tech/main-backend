@@ -1,4 +1,6 @@
+from db_models.models.cache_display_model import CacheModel
 from db_models.models.notes_model import NotesModel
+from db_models.models.tags_model import TagModel
 from db_models.models.workspace_model import WorkSpaceModel
 from fastapi import HTTPException
 import error_constants
@@ -76,8 +78,18 @@ def delete_notes(notes_id, email):
     check_notes_data = check_notes(notes_id, email, get_user=True)
     check_space(user_model_obj=check_notes_data["user_obj"], note_obj=check_notes_data["notes_obj"],
                 new_size_note=0, note_space_check=True)
+
+    """DELETE ALL TAGS AND CATCH FROM HERE"""
+    catch_obj = CacheModel.objects.get(notes_id=notes_id)
+    print("here 1")
+    for tag_obj in catch_obj.tags:
+        tag_obj.notes.remove(catch_obj)
+        tag_obj.count -= 1
+        if tag_obj.count == 0:
+            tag_obj.delete()
+        else:
+            tag_obj.save()
+    catch_obj.delete()
     check_notes_data["notes_obj"].delete()
     delete_blob(container_name=check_notes_data["user_obj"].user_storage_notes_container_name,
                 blob_name=check_notes_data["notes_obj"].note_blob_id)
-    """DELETE ALL TAGS AND CATCH FROM HERE"""
-    return True
