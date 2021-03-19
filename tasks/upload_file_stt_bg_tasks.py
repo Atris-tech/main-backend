@@ -9,7 +9,7 @@ from task_worker_config.celery import app
 def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
     print("in upload task")
     file_name = str(uuid.uuid4()) + file_name
-    data = upload_file_blob_storage(file_data=file_data, file_name=file_name, email=user_obj.email_id, bg=True)
+    data = upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
     print("data")
     print(data)
     if data:

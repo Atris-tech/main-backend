@@ -8,6 +8,7 @@ import uuid
 from mongoengine.queryset.visitor import Q
 from error_constants import BAD_REQUEST
 from Services.plan_helper import check_space
+from settings import MIN_AUDIO_LENGTH
 
 router = APIRouter()
 
@@ -27,6 +28,11 @@ def upload_audio(
 ):
     user_dict = token_check(request)
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
+    if content_length < MIN_AUDIO_LENGTH:
+        raise HTTPException(
+            status_code=BAD_REQUEST["status_code"],
+            detail=BAD_REQUEST["detail"]
+        )
     try:
         work_space_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=work_space_id))
         notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(workspace_id=work_space_obj) & Q(id=notes_id))
@@ -40,7 +46,6 @@ def upload_audio(
             detail=BAD_REQUEST["detail"]
         )
     file_data = file.file.read()
-    """upload file in background task and call rq process in background"""
 
     background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
                               file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
