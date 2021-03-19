@@ -11,8 +11,9 @@ fastapi-mail
 coolname
 python-dateutil
 redis
-python-magic
 emoji
 beautifulsoup4
 icecream
 celery
+gunicorn
+python-multipart
