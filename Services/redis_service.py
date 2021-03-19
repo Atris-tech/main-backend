@@ -7,8 +7,11 @@ redis_obj = redis.StrictRedis(host=settings.REDIS_HOSTNAME, port=settings.REDIS_
 
 
 def set_val(key, val, json_type=False):
+    print("set_value")
     if json_type:
+        print("set_value")
         redis_obj.set(key, json.dumps(val))
+        print("set value done1")
     else:
         redis_obj.set(key, str(val))
 
@@ -26,3 +29,14 @@ def get_val(key, json_type=False):
             return False
     else:
         return redis_obj.get(key)
+
+
+def get_list(list_name):
+    results = list()
+    for i in range(0, redis_obj.llen(list_name)):
+        results.append(redis_obj.lindex(list_name, i))
+    return results
+
+
+def add_to_list(list_name, val):
+    redis_obj.lpush(list_name, val)

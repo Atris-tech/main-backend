@@ -54,3 +54,11 @@ BAD_REQUEST = {
     "status_code": 400,
     "detail": "incorrect or bad request"
 }
+SPACE_EXHAUSTED = {
+    "status_code": 422,
+    "detail": "plan storage limit exceeded"
+}
+NOTE_SIZE_EXCEEDED = {
+    "status_code": 422,
+    "detail": "note size exceeded"
+}

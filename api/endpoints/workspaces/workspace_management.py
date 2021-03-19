@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 from Services.workspace_services import new_workspace, delete_workspace, rename_workspace
 from Services.auth.auth_services import token_check
@@ -7,7 +7,6 @@ from error_constants import BAD_REQUEST
 
 
 router = APIRouter()
-app = FastAPI()
 
 
 class WorkspaceEditingModel(BaseModel):
@@ -17,15 +16,15 @@ class WorkspaceEditingModel(BaseModel):
 
 @router.post("/create_workspace/", status_code=200)
 def create_user_workspace(
-        workspace_editting_obj:WorkspaceEditingModel,
+        workspace_editing_obj: WorkspaceEditingModel,
         request: Request,
 
 ):
     user_dict = token_check(request)
     return new_workspace(
         user_dict=user_dict,
-        name=workspace_editting_obj.workspace_name,
-        emoji=workspace_editting_obj.emoji
+        name=workspace_editing_obj.workspace_name,
+        emoji=workspace_editing_obj.emoji
     )
 
 
@@ -41,17 +40,25 @@ def rename_user_workspace(
         request: Request,
 
 ):
-    token_check(request)
-    if not workspace_rename_obj.new_workspace_name and not workspace_rename_obj.emoji:
+    if workspace_rename_obj.old_workspace_name and workspace_rename_obj.new_workspace_name or \
+            workspace_rename_obj.emoji:
+        user_dict = token_check(request)
+        if not workspace_rename_obj.new_workspace_name and not workspace_rename_obj.emoji:
+            raise HTTPException(
+                status_code=BAD_REQUEST["status_code"],
+                detail=BAD_REQUEST["detail"]
+            )
+        return rename_workspace(
+            old_workspace_name=workspace_rename_obj.old_workspace_name,
+            new_workspace_name=workspace_rename_obj.new_workspace_name,
+            emoji=workspace_rename_obj.emoji,
+            user_dict=user_dict,
+        )
+    else:
         raise HTTPException(
             status_code=BAD_REQUEST["status_code"],
             detail=BAD_REQUEST["detail"]
         )
-    return rename_workspace(
-        old_workspace_name=workspace_rename_obj.old_workspace_name,
-        new_workspace_name=workspace_rename_obj.new_workspace_name,
-        emoji=workspace_rename_obj.emoji
-    )
 
 
 class WorkspaceDeleteModel(BaseModel):
@@ -64,7 +71,8 @@ def delete_user_workspace(
         request: Request,
 
 ):
-    token_check(request)
+    user_dict = token_check(request)
     return delete_workspace(
-        workspace_name=workspace_delete_obj.workspace_name
+        workspace_name=workspace_delete_obj.workspace_name,
+        user_dict=user_dict,
     )

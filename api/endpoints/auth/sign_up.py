@@ -29,7 +29,7 @@ def register(background_tasks: BackgroundTasks, register_obj: SignUpModel):
         password=register_obj.password
     )
 
-    token_data = create_verify_token(user_obj)
+    token_data = create_verify_token(user_obj, verify=True)
     token = token_data["token"]
     url = create_auth_url(token, type="verify")
     data = {"user": username, "url": url}

@@ -31,6 +31,7 @@ LOGIN_PAGE = os.getenv("LOGIN_PAGE")
 REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_DB = os.getenv("REDIS_DB")
 MAX_NAME_LENGTH = int(os.getenv("MAX_NAME_LENGTH"))
 MIN_NAME_LENGTH = int(os.getenv("MIN_NAME_LENGTH"))
 AZURE_BLOB_STORAGE_CONNECTION_STRING = os.getenv('AZURE_BLOB_STORAGE_CONNECTION_STRING')
@@ -39,7 +40,14 @@ MIME_TYPES_IMAGES = {
     "jpg": "image/jpeg",
     "png": "image/png"
 }
+MIME_TYPES_AUDIO = {
+    "mp3": "audio/mpeg",
+    "wav": "audio/x-wav",
+    "m4a": "audio/m4a",
+    "mp4": "audio/mp4",
+    "aiff": "audio/x-aiff",
+    "aac": "audio/x-hx-aac-adts"
+}
 MAX_PROFILE_PHOTO_SIZE = int(os.getenv("MAX_PROFILE_PHOTO_SIZE"))
-TENDIS_HOSTNAME = os.getenv("TENDIS_HOSTNAME")
-TENDIS_PORT = int(os.getenv("TENDIS_PORT"))
-TENDIS_PASSWORD = os.getenv("TENDIS_PASSWORD")
+MAX_NOTE_SIZE = int(os.getenv("MAX_NOTE_SIZE"))
+MAX_FREE_ACCOUNT_USER_SPACE = int(os.getenv("MAX_FREE_ACCOUNT_USER_SPACE"))

@@ -13,3 +13,6 @@ python-dateutil
 redis
 python-magic
 emoji
+beautifulsoup4
+icecream
+celery
