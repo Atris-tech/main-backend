@@ -15,11 +15,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-
     - name: Set up Python version
       uses: actions/setup-python@v1
       with:
         python-version: '3.8'
+    - name: 'install magic dependencies'
+      run: apt-get install libmagic1
 
     - name: Build using AppService-Build
       uses: azure/appservice-build@v2
