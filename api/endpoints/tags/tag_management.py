@@ -1,5 +1,7 @@
-from fastapi import FastAPI, APIRouter, Request
-from pydantic import BaseModel
+from fastapi import APIRouter, Request, HTTPException
+from pydantic import AnyStrMinLengthError, AnyStrMaxLengthError, BaseModel, validator
+
+import error_constants
 from Services.auth.auth_services import token_check
 from Services.tags_services import create_new_tag, remove_tag, recommend_tag
 
@@ -11,6 +13,20 @@ class TagsApiModel(BaseModel):
     tag_name: str
     workspace_id: str
     notes_id: str
+
+    @validator('tag_name')
+    def has_max_length(cls, v):
+        max_length = 15
+        if len(v) > max_length:
+            raise AnyStrMaxLengthError(limit_value=max_length)
+        return v
+
+    @validator('workspace_id', 'notes_id')
+    def has_min_length(cls, v):
+        min_length = 24
+        if len(v) < min_length:
+            raise AnyStrMinLengthError(limit_value=min_length)
+        return v
 
 
 @router.post("/add_tags/", status_code=200)
@@ -27,6 +43,12 @@ def create_new_tag_method(
 class TagsDeleteModel(BaseModel):
     tag_id: str
     notes_id: str
+
+    class Config:
+        min_anystr_length = 24
+        error_msg_templates = {
+            'value_error.any_str.min_length': 'min_length:{limit_value}',
+        }
 
 
 @router.post("/delete_tags/", status_code=200)
@@ -49,6 +71,12 @@ def remove_tag_method(
         request: Request,
 
 ):
+    max_length = 15
+    if len(tag_name) > max_length:
+        raise HTTPException(
+            status_code=error_constants.MAX_TAGS_NAME_EXCEEDED["status_code"],
+            detail=error_constants.MAX_TAGS_NAME_EXCEEDED["detail"]
+        )
     user_dict = token_check(request)
     return recommend_tag(
         tag_query_name=tag_name,

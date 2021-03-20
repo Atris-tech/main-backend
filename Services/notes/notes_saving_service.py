@@ -1,6 +1,5 @@
 from db_models.models.cache_display_model import CacheModel
 from db_models.models.notes_model import NotesModel
-from db_models.models.tags_model import TagModel
 from db_models.models.workspace_model import WorkSpaceModel
 from fastapi import HTTPException
 import error_constants
@@ -10,6 +9,7 @@ from Services.notes.notes_parsing_service import html_to_text
 from Services.storage_services import upload_file_blob_storage, delete_blob
 from Services.plan_helper import check_space
 import uuid
+from settings import MAX_CACHE_TEXT_WORDS
 
 
 def check_notes(note_id, email, get_user=False):
@@ -47,9 +47,15 @@ def new_note(user_dict, work_space_id, notes_name=False):
     print(workspace_data["workspace_obj"])
     notes_model_obj.workspace_id = workspace_data["workspace_obj"]
     notes_model_obj.user_id = workspace_data["user_obj"]
-    notes_model_obj.work_space_name = notes_name
+    notes_model_obj.notes_name = notes_name
     notes_model_obj.note_blob_id = str(uuid.uuid4())
     notes_model_obj.save()
+    cache_model_obj = CacheModel()
+    cache_model_obj.notes_name = notes_name
+    cache_model_obj.notes_id = notes_model_obj
+    cache_model_obj.user_id = workspace_data["user_obj"]
+    cache_model_obj.workspace_id = workspace_data["workspace_obj"]
+    cache_model_obj.save()
     return str(notes_model_obj.id)
 
 
@@ -65,6 +71,15 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
     clean_txt = html_to_text(to_save_data)
     notes_model_obj.clean_text = clean_txt
     notes_model_obj.save()
+    cache_model_obj = CacheModel.objects.get(notes_id=notes_model_obj)
+    clean_txt_list = clean_txt.split()
+    if len(clean_txt_list) < MAX_CACHE_TEXT_WORDS:
+        cache_model_obj.cache_notes_summary = clean_txt
+    else:
+        clean_txt_list = clean_txt_list[:MAX_CACHE_TEXT_WORDS]
+        cache_notes_text = ' '.join(word for word in clean_txt_list)
+        cache_model_obj.cache_notes_summary = cache_notes_text
+    cache_model_obj.save()
     return str(notes_model_obj.id)
 
 

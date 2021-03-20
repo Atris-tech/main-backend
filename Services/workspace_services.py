@@ -5,11 +5,15 @@ from error_constants import BAD_REQUEST
 import emoji
 from mongoengine.queryset.visitor import Q
 from db_models.models.cache_display_model import CacheModel
+import json
 
 
-def check_workspace(name, user_obj, create_check=False):
+def check_workspace(user_obj, id=False, name=False, create_check=False):
     try:
-        workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(work_space_name=name))
+        if name:
+            workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(work_space_name=name))
+        else:
+            workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=id))
         return workspace_obj
     except WorkSpaceModel.DoesNotExist:
         if create_check:
@@ -39,17 +43,11 @@ def check_emoji(string):
             detail=BAD_REQUEST["detail"]
         )
 
-def add_workspace_catch(workspace_obj, email_id):
-    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
-
-
-
-
 
 def new_workspace(user_dict, name, emoji):
     check_emoji(emoji)
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
-    if check_workspace(name, user_object_model, create_check=True):
+    if check_workspace(name = name, user_obj=user_object_model, create_check=True):
         raise HTTPException(
             status_code=200,
             detail="workspace exists"
@@ -82,8 +80,8 @@ def rename_workspace(user_dict, old_workspace_name, new_workspace_name=False, em
     return True
 
 
-def delete_workspace(workspace_name, user_dict):
+def delete_workspace(workspace_id, user_dict):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
-    workspace_model_obj = check_workspace(name=workspace_name, user_obj=user_object_model)
+    workspace_model_obj = check_workspace(id=workspace_id, user_obj=user_object_model)
     workspace_model_obj.delete()
     return True

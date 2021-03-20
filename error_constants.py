@@ -62,3 +62,7 @@ NOTE_SIZE_EXCEEDED = {
     "status_code": 422,
     "detail": "note size exceeded"
 }
+MAX_TAGS_NAME_EXCEEDED = {
+    "status_code": 422,
+    "detail": "tag_name should not be more than 15 characters long"
+}

@@ -1,5 +1,5 @@
 from fastapi import Request
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, AnyStrMinLengthError, AnyStrMaxLengthError
 from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note
 from Services.auth.auth_services import token_check
 from typing import Optional
@@ -12,6 +12,20 @@ router = routing()
 class NotesEditingModel(BaseModel):
     work_space_id: str
     notes_name:  Optional[str] = "untitled"
+
+    @validator('notes_name')
+    def has_max_length(cls, v):
+        max_length = 300
+        if len(v) > max_length:
+            raise AnyStrMaxLengthError(limit_value=max_length)
+        return v
+
+    @validator('workspace_id')
+    def has_min_length(cls, v):
+        min_length = 24
+        if len(v) < min_length:
+            raise AnyStrMinLengthError(limit_value=min_length)
+        return v
 
 
 @router.post("/create_note/", status_code=200)
@@ -34,6 +48,13 @@ class NotesSavingModel(BaseModel):
     work_space_id: str
     data: str
 
+    @validator('workspace_id', 'notes_id')
+    def has_min_length(cls, v):
+        min_length = 24
+        if len(v) < min_length:
+            raise AnyStrMinLengthError(limit_value=min_length)
+        return v
+
 
 @router.post("/save_note/", status_code=200)
 def create_user_notes(
@@ -55,6 +76,20 @@ class NotesRenameModel(BaseModel):
     old_notes_id: str
     new_notes_name: str
 
+    @validator('old_notes_id')
+    def has_min_length(cls, v):
+        min_length = 24
+        if len(v) < min_length:
+            raise AnyStrMinLengthError(limit_value=min_length)
+        return v
+
+    @validator('new_notes_name')
+    def has_max_length(cls, v):
+        max_length = 300
+        if len(v) > max_length:
+            raise AnyStrMaxLengthError(limit_value=max_length)
+        return v
+
 
 @router.post("/rename_note/", status_code=200)
 def rename_user_notes(
@@ -72,6 +107,13 @@ def rename_user_notes(
 
 class NotesDeleteModel(BaseModel):
     notes_id:  str
+
+    @validator('notes_id')
+    def has_min_length(cls, v):
+        min_length = 24
+        if len(v) < min_length:
+            raise AnyStrMinLengthError(limit_value=min_length)
+        return v
 
 
 @router.post("/delete_note/", status_code=200)

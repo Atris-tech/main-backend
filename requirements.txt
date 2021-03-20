@@ -17,3 +17,4 @@ icecream
 celery
 gunicorn
 python-multipart
+mongoengine_goodjson

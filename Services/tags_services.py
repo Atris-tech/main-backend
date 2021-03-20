@@ -1,5 +1,4 @@
 from icecream import ic
-
 from db_models.models.tags_model import TagModel
 from db_models.models.notes_model import NotesModel
 from db_models.models.workspace_model import WorkSpaceModel
@@ -11,17 +10,14 @@ from mongoengine.queryset.visitor import Q
 from Services.auth.auth_services import check_user
 
 
-
 def add_tag(name, user_obj):
     try:
         tag_obj = TagModel.objects.get(Q(user_id=user_obj) & Q(tag_name=name))
-        # tag_obj.notes.append(notes_obj)
         ic()
         ic(tag_obj.notes)
         return tag_obj
     except TagModel.DoesNotExist:
         tag_obj = TagModel(user_id=user_obj, tag_name=name)
-        #tag_obj.notes.append(notes_obj)
         return tag_obj
 
 
@@ -44,6 +40,7 @@ def add_tag_catch(user_obj, tag_obj, notes_obj, workspace_obj):
         cache_model_obj = CacheModel.objects.get(Q(user_id=user_obj) & Q(notes_id=notes_obj))
         if tag_obj not in cache_model_obj.tags:
             cache_model_obj.tags.append(tag_obj)
+            cache_model_obj.tags_name.append(tag_obj.tag_name)
         cache_model_obj.save()
         return cache_model_obj
     except CacheModel.DoesNotExist:
@@ -69,6 +66,7 @@ def create_new_tag(email, tag_name, notes_id, workspace_id):
     try:
         workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=workspace_id))
     except WorkSpaceModel.DoesNotExist:
+        print("%%%%%%%%%%")
         raise HTTPException(
             status_code=error_constants.BAD_REQUEST["status_code"],
             detail=error_constants.BAD_REQUEST["detail"]
@@ -106,6 +104,7 @@ def remove_tag(tag_id, notes_id, email):
         note_obj.save()
         catch_model_obj = CacheModel.objects.get(notes_id=note_obj)
         catch_model_obj.tags.remove(tag_obj)
+        catch_model_obj.tags_name.remove(tag_obj.tag_name)
         catch_model_obj.save()
         tag_obj.notes.remove(catch_model_obj)
         tag_obj.count -= 1

@@ -1,21 +1,10 @@
-from redis import StrictRedis
-from settings import REDIS_PASSWORD, REDIS_HOSTNAME, REDIS_PORT
-from rq import Queue
-from test1 import count_words_at_url
-import time
+from db_models.mongo_setup import global_init
+from db_models.models.cache_display_model import CacheModel
 
 
-redis_conn = StrictRedis(
-            host=REDIS_HOSTNAME,
-            port=REDIS_PORT,
-            password=REDIS_PASSWORD
-        )
+global_init()
 
-q = Queue("MYQUEUE", connection=redis_conn)
-print("MYQUEUE")
-for i in range(10):
-    job = q.enqueue(count_words_at_url, 'http://nvie.com')
-# print(job.result)
+cache_model_objs = CacheModel.objects.filter(workspace_id="604d5b355be0b61c1304fb97")
+data = cache_model_objs.to_json()
 
-#time.sleep(2)
-#print(job.result)
+    

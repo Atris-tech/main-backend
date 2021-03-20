@@ -3,16 +3,17 @@ import datetime
 from .user_model import UserModel
 from .workspace_model import WorkSpaceModel
 from db_models.models import NotesModel
+import mongoengine_goodjson as gj
 
 
-class CacheModel(mongoengine.Document):
+class CacheModel(gj.Document):
     notes_name = mongoengine.StringField(required=True)
     user_id = mongoengine.ReferenceField(UserModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     workspace_id = mongoengine.ReferenceField(WorkSpaceModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     notes_id = mongoengine.ReferenceField(NotesModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
-    cache_notes_summary = mongoengine.StringField()# can be summary text or for small text, actual text
+    cache_notes_summary = mongoengine.StringField()
     tags = mongoengine.ListField(mongoengine.ReferenceField('TagModel'))
-    # text = mongoengine.StringField(max_length=None, default=None)
+    tags_name = mongoengine.ListField()
     audio_url = mongoengine.StringField()
     forced_alignment_for_first_audio = mongoengine.DictField()
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
