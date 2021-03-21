@@ -60,8 +60,8 @@ def create_new_tag(email, tag_name, notes_id, workspace_id):
     user_obj = check_user(email=email)
     if not user_obj:
         raise HTTPException(
-            status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
-            detail=error_constants.TOKEN_NOT_EXIST["detail"]
+            status_code=error_constants.TokenDoesNotExist.code,
+            detail=error_constants.TokenDoesNotExist.detail
         )
     try:
         workspace_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=workspace_id))
@@ -94,8 +94,8 @@ def remove_tag(tag_id, notes_id, email):
     user_obj = check_user(email=email)
     if not user_obj:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
     try:
         note_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=notes_id))
@@ -124,8 +124,8 @@ def recommend_tag(tag_query_name, email):
     user_obj = check_user(email=email)
     if not user_obj:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
     try:
         tag_objs = TagModel.objects.filter(Q(user_id=user_obj) & Q(tag_name__istartswith=tag_query_name))

@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from Services.auth.auth_services import check_user, user_name_gen, sign_up
 from random import randrange
 from Services.auth.auth_services import login
+from error_constants import UserBanned
 
 
 router = APIRouter()
@@ -55,7 +56,7 @@ async def auth(request: Request):
                 user_check=False
             )
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
-                                    token_dict["ref_token"])
+                                        token_dict["ref_token"])
         else:
             token_dict = sign_up(
                 user_name=user["given_name"].replace(" ", "").lower(),
@@ -70,7 +71,10 @@ async def auth(request: Request):
     else:
         token_dict = login(email_id=user["email"], password=False, user_obj=get_user, new_user=False)
         if token_dict == "user_banned":
-            return HTTPException(status_code=400, detail="user_banned")
+            return HTTPException(
+                status_code=UserBanned.code,
+                detail=UserBanned.detail
+            )
         else:
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
                                         token_dict["ref_token"])

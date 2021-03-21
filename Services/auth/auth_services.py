@@ -139,8 +139,8 @@ def get_ref_token(user_obj):
         print(ref_token)
         if token_obj.token_status == "Dead":
             raise HTTPException(
-                status_code=error_constants.USER_BANNED["status_code"],
-                detail=error_constants.USER_BANNED["detail"]
+                status_code=error_constants.UserBanned.code,
+                detail=error_constants.UserBanned.detail
             )
         if ref_token is None:
             return create_ref_token(user_obj=user_obj, token_obj=token_obj)
@@ -154,8 +154,8 @@ def get_ref_token(user_obj):
                 if user_dict is not None:
                     if "banned" in user_dict:
                         raise HTTPException(
-                            status_code=error_constants.USER_BANNED["status_code"],
-                            detail=error_constants.USER_BANNED["detail"]
+                            status_code=error_constants.UserBanned.code,
+                            detail=error_constants.UserBanned.detail
                         )
                     expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
                     access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
@@ -187,13 +187,13 @@ def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
             user_dict = get_val(ref_token, json_type=True)
             if user_dict is None:
                 raise HTTPException(
-                    status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
-                    detail=error_constants.TOKEN_NOT_EXIST["detail"]
+                    status_code=error_constants.TokenDoesNotExist.code,
+                    detail=error_constants.TokenDoesNotExist.detail
                 )
             if "banned" in user_dict:
                 raise HTTPException(
-                    status_code=error_constants.USER_BANNED["status_code"],
-                    detail=error_constants.USER_BANNED["detail"]
+                    status_code=error_constants.UserBanned.code,
+                    detail=error_constants.UserBanned.detail
                 )
             else:
                 expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -201,8 +201,8 @@ def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
                 return access_token
         else:
             raise HTTPException(
-                status_code=error_constants.RF_TOKEN_EXPIRED_INVALID["status_code"],
-                detail=error_constants.RF_TOKEN_EXPIRED_INVALID["detail"]
+                status_code=error_constants.RfTokenExpiredInvalid.code,
+                detail=error_constants.RfTokenExpiredInvalid.detail
             )
     if not new_user:
         return get_ref_token(user_obj)
@@ -326,13 +326,13 @@ def login(email_id, password=True, user_obj=False, new_user=True):
             print(a)
             if not a:
                 raise HTTPException(
-                    status_code=error_constants.INCORRECT_PASSWORD["status_code"],
-                    detail=error_constants.INCORRECT_PASSWORD["detail"]
+                    status_code=error_constants.IncorrectPassword.code,
+                    detail=error_constants.IncorrectPassword.detail
                 )
             if not user_model_obj.verified:
                 raise HTTPException(
-                    status_code=error_constants.VERIFICATION_ERROR["status_code"],
-                    detail=error_constants.VERIFICATION_ERROR["detail"]
+                    status_code=error_constants.VerificationError.code,
+                    detail=error_constants.VerificationError.detail
                 )
 
         if not new_user:
@@ -341,8 +341,8 @@ def login(email_id, password=True, user_obj=False, new_user=True):
         return refresh_token_utils(user_obj=user_obj)
     except UserModel.DoesNotExist:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
 
 
@@ -382,8 +382,8 @@ def update_user(email=False, user_name=False, first_name=False, last_name=False)
         return True
     except UserModel.DoesNotExist:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
 
 
@@ -396,8 +396,8 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
     token = request.headers.get("Authorization")
     if token is None:
         raise HTTPException(
-            status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
-            detail=error_constants.TOKEN_NOT_EXIST["detail"]
+            status_code=error_constants.TokenDoesNotExist.code,
+            detail=error_constants.TokenDoesNotExist.detail
         )
     token = token.split()
     token = token[1]

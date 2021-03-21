@@ -2,18 +2,9 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 from Services.auth.auth_services import sign_up, create_auth_url, check_user,\
     update_user_verification, token_check, create_verify_token
 from Services.mail.mail_service import send_mail
-from pydantic import EmailStr, BaseModel
 from starlette.requests import Request
 import error_constants
-
-
-class SignUpModel(BaseModel):
-    user_name: str
-    email: EmailStr
-    first_name: str
-    last_name: str
-    password: str
-
+from api.endpoints.auth.models import SignUpModel, VerificationModel, ForgotPasswordModel
 
 router = APIRouter()
 
@@ -35,11 +26,6 @@ def register(background_tasks: BackgroundTasks, register_obj: SignUpModel):
     data = {"user": username, "url": url}
     background_tasks.add_task(send_mail, [str(register_obj.email)], "verify", data, "Verify your Atris Account")
     return True
-
-
-class VerificationModel(BaseModel):
-    type: str
-    email: EmailStr
 
 
 @router.post("/resend-verification/", status_code=200)
@@ -77,8 +63,8 @@ def resend(
             return HTTPException(status_code=400)
     else:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
 
 
@@ -92,10 +78,6 @@ def verification(
         return True
     else:
         raise HTTPException(status_code=400)
-
-
-class ForgotPasswordModel(BaseModel):
-    password: str
 
 
 @router.post("/forgot-password/", status_code=200)
