@@ -21,8 +21,8 @@ def check_notes(note_id, email, get_user=False):
         return notes_obj
     except (UserModel.DoesNotExist, NotesModel.DoesNotExist):
         raise HTTPException(
-            status_code=error_constants.BAD_REQUEST["status_code"],
-            detail=error_constants.BAD_REQUEST["detail"]
+            status_code=error_constants.BadRequest.code,
+            detail=error_constants.BadRequest.detail
         )
 
 
@@ -35,8 +35,8 @@ def check_user_workspace(workspace_id, email):
         return {"user_obj": user_obj, "workspace_obj": workspace_obj}
     except (UserModel.DoesNotExist, WorkSpaceModel.DoesNotExist):
         raise HTTPException(
-            status_code=error_constants.BAD_REQUEST["status_code"],
-            detail=error_constants.BAD_REQUEST["detail"]
+            status_code=error_constants.BadRequest.detail,
+            detail=error_constants.BadRequest.detail
         )
 
 
@@ -108,3 +108,10 @@ def delete_notes(notes_id, email):
     check_notes_data["notes_obj"].delete()
     delete_blob(container_name=check_notes_data["user_obj"].user_storage_notes_container_name,
                 blob_name=check_notes_data["notes_obj"].note_blob_id)
+
+# def starred_notes():
+#     notes_model_obj = NotesModel.objects.get(Q(id=notes_id) & Q(workspace_id=workspace_data["workspace_obj"]))
+#     star = False
+#
+#
+# def display_starred_catch():

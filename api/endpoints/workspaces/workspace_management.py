@@ -60,8 +60,8 @@ def rename_user_workspace(
         user_dict = token_check(request)
         if not workspace_rename_obj.new_workspace_name and not workspace_rename_obj.emoji:
             raise HTTPException(
-                status_code=BAD_REQUEST["status_code"],
-                detail=BAD_REQUEST["detail"]
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
             )
         return rename_workspace(
             old_workspace_name=workspace_rename_obj.old_workspace_name,
@@ -71,8 +71,8 @@ def rename_user_workspace(
         )
     else:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
 
 

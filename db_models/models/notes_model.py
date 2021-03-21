@@ -5,6 +5,7 @@ from .canvas_model import Canvas
 from .audio_model import Audio
 from .images_model import Image
 import datetime
+import mongoengine_goodjson
 
 
 class NotesModel(mongoengine.Document):
@@ -22,6 +23,7 @@ class NotesModel(mongoengine.Document):
     audios = mongoengine.ListField(mongoengine.ReferenceField(Audio))
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     note_size = mongoengine.FloatField(default=0)
+
     meta = {
         'db_alias': 'core',
         'collection': 'notes'

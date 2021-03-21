@@ -3,7 +3,7 @@ from settings import MAX_NAME_LENGTH, MIN_NAME_LENGTH
 from pydantic import BaseModel, StrictStr
 from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
 from Services.storage_services import upload_file_blob_storage
-from typing import Optional
+from api.endpoints.auth.models import UserSettingModel
 
 
 router = APIRouter()

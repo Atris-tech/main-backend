@@ -5,7 +5,7 @@ from db_models.models.workspace_model import WorkSpaceModel
 from db_models.models.cache_display_model import CacheModel
 from fastapi import HTTPException
 import error_constants
-from error_constants import BAD_REQUEST
+from error_constants import BadRequest
 from mongoengine.queryset.visitor import Q
 from Services.auth.auth_services import check_user
 
@@ -30,8 +30,8 @@ def check_user_notes(notes_id, user_obj, workspace_obj):
         return note_obj
     except NotesModel.DoesNotExist:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.BadRequest.code,
+            detail=error_constants.BadRequest.detail
         )
 
 
@@ -68,8 +68,8 @@ def create_new_tag(email, tag_name, notes_id, workspace_id):
     except WorkSpaceModel.DoesNotExist:
         print("%%%%%%%%%%")
         raise HTTPException(
-            status_code=error_constants.BAD_REQUEST["status_code"],
-            detail=error_constants.BAD_REQUEST["detail"]
+            status_code=error_constants.BadRequest.code,
+            detail=error_constants.BadRequest.detail
         )
     note_obj = check_user_notes(notes_id=notes_id, user_obj=user_obj, workspace_obj = workspace_obj)
     ic()
@@ -115,8 +115,8 @@ def remove_tag(tag_id, notes_id, email):
         return True
     except (TagModel.DoesNotExist, NotesModel.DoesNotExist, ValueError):
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
 
 
@@ -138,6 +138,6 @@ def recommend_tag(tag_query_name, email):
         return resp
     except TagModel.DoesNotExist:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )

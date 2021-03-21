@@ -74,8 +74,8 @@ def remove_tag_method(
     max_length = 15
     if len(tag_name) > max_length:
         raise HTTPException(
-            status_code=error_constants.MAX_TAGS_NAME_EXCEEDED["status_code"],
-            detail=error_constants.MAX_TAGS_NAME_EXCEEDED["detail"]
+            status_code=error_constants.MaxTagsNameExceeded.code,
+            detail=error_constants.MaxTagsNameExceeded.detail
         )
     user_dict = token_check(request)
     return recommend_tag(

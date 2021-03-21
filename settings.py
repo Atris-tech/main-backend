@@ -32,11 +32,32 @@ REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 REDIS_DB = os.getenv("REDIS_DB")
+# name
 MAX_NAME_LENGTH = int(os.getenv("MAX_NAME_LENGTH"))
 MIN_NAME_LENGTH = int(os.getenv("MIN_NAME_LENGTH"))
+MAX_USERNAME_LENGTH = int(os.getenv("MAX_USERNAME_LENGTH"))
+# workspace
+MAX_WORKSPACE_NAME_LENGTH = int(os.getenv("MAX_WORKSPACE_NAME_LENGTH"))
+MIN_WORKSPACE_NAME_LENGTH = int(os.getenv("MIN_WORKSPACE_NAME_LENGTH"))
+MIN_WORKSPACE_ID = int(os.getenv("MIN_WORKSPACE_ID"))
+MAX_WORKSPACE_ID = int(os.getenv("MAX_WORKSPACE_ID"))
+# notes
+MAX_NOTES_NAME_LENGTH = int(os.getenv("MAX_NOTES_NAME_LENGTH"))
+MAX_NOTES_ID = int(os.getenv("MAX_NOTES_ID"))
+MIN_NOTES_ID = int(os.getenv("MIN_NOTES_ID"))
+MAX_NOTE_SIZE = int(os.getenv("MAX_NOTE_SIZE"))
+# tags
+MAX_TAGS_NAME = int(os.getenv("MAX_TAGS_NAME"))
+MAX_TAGS_ID = int(os.getenv("MAX_TAGS_ID"))
+MIN_TAGS_ID = int(os.getenv("MIN_TAGS_ID"))
+# password
+MAX_PASSWORD_LENGTH = int(os.getenv("MAX_PASSWORD_LENGTH"))
+MIN_PASSWORD_LENGTH = int(os.getenv("MIN_PASSWORD_LENGTH"))
+# Azure blob storage
 AZURE_BLOB_STORAGE_NAME = os.getenv('AZURE_BLOB_STORAGE_NAME')
 AZURE_BLOB_STORAGE_URL = os.getenv("AZURE_BLOB_STORAGE_URL")
 AZURE_STORAGE_KEY = os.getenv("AZURE_STORAGE_KEY")
+# Image/audio extensions
 MIME_TYPES_IMAGES = {
     "jpg": "image/jpeg",
     "png": "image/png"
@@ -49,8 +70,8 @@ MIME_TYPES_AUDIO = {
     "aiff": "audio/x-aiff",
     "aac": "audio/x-hx-aac-adts"
 }
+# MAX FILE/NOTE SIZES
 MAX_PROFILE_PHOTO_SIZE = int(os.getenv("MAX_PROFILE_PHOTO_SIZE"))
-MAX_NOTE_SIZE = int(os.getenv("MAX_NOTE_SIZE"))
 MAX_FREE_ACCOUNT_USER_SPACE = int(os.getenv("MAX_FREE_ACCOUNT_USER_SPACE"))
 MIN_AUDIO_LENGTH = int(os.getenv("MIN_AUDIO_LENGTH"))
 MAX_CACHE_TEXT_WORDS = int(os.getenv("MAX_CACHE_TEXT_WORDS"))

@@ -1,7 +1,7 @@
 from db_models.models.workspace_model import WorkSpaceModel
 from db_models.models.user_model import UserModel
 from fastapi import HTTPException
-from error_constants import BAD_REQUEST
+from error_constants import BadRequest
 import emoji
 from mongoengine.queryset.visitor import Q
 from db_models.models.cache_display_model import CacheModel
@@ -20,8 +20,8 @@ def check_workspace(user_obj, id=False, name=False, create_check=False):
             return False
         else:
             raise HTTPException(
-                status_code=BAD_REQUEST["status_code"],
-                detail=BAD_REQUEST["detail"]
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
             )
 
 
@@ -29,18 +29,18 @@ def check_emoji(string):
     emoji_dict = emoji.emoji_lis(string)
     if len(emoji_dict) == 0:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
     elif len(emoji_dict) > 1:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
     if emoji_dict[0]["emoji"] != string:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
 
 
@@ -74,8 +74,8 @@ def rename_workspace(user_dict, old_workspace_name, new_workspace_name=False, em
         workspace_model_object.update(work_space_emoji=emoji)
     if not emoji and not new_workspace_name:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
     return True
 
@@ -85,3 +85,15 @@ def delete_workspace(workspace_id, user_dict):
     workspace_model_obj = check_workspace(id=workspace_id, user_obj=user_object_model)
     workspace_model_obj.delete()
     return True
+
+
+def display_all_caches(workspace_id, user_dict):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    try:
+        cache_model_objs = CacheModel.objects.filter(Q(user_id=user_object_model) & Q(workspace_id=workspace_id))
+        return json.loads(cache_model_objs.to_json())
+    except CacheModel.DoesNotExist:
+        raise HTTPException(
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
+        )

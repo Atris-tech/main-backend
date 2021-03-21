@@ -36,14 +36,14 @@ def verify_jwt_token(token, verify=False, forgot_password=False, refresh_token=F
         elif verify and payload["token_type"] != "verify":
             print("here in verify and not verify")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         elif not verify and payload["token_type"] == "verify":
             print("here in not verify and token verify")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         if forgot_password and payload["token_type"] == "forgot_password":
             print("here in forgot password")
@@ -51,14 +51,14 @@ def verify_jwt_token(token, verify=False, forgot_password=False, refresh_token=F
         elif forgot_password and payload["token_type"] != "forgot_password":
             print("print here in forgot password and token not forgot password")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         elif not forgot_password and payload["token_type"] == "forgot_password":
             print("print here in not forgot password and token forgot password")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         if refresh_token and payload["token_type"] == "refresh_token":
             print("print here in refresh token")
@@ -66,14 +66,14 @@ def verify_jwt_token(token, verify=False, forgot_password=False, refresh_token=F
         elif refresh_token and payload["token_type"] != "refresh_token":
             print("print here in refresh token and token not refresh token")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         elif not refresh_token and payload["token_type"] == "refresh_token":
             print("print here in not refresh token and token refresh token")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         print("access token")
         return payload
@@ -247,13 +247,13 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
     if user_check:
         if check_user(user_name=user_name):
             raise HTTPException(
-                status_code=error_constants.USER_NAME_TAKEN["status_code"],
-                detail=error_constants.USER_NAME_TAKEN["detail"]
+                status_code=error_constants.UserNameTaken.code,
+                detail=error_constants.UserNameTaken.detail
             )
         elif check_user(email=email):
             raise HTTPException(
-                status_code=error_constants.EMAIL_ID_EXISTS["status_code"],
-                detail=error_constants.EMAIL_ID_EXISTS["detail"]
+                status_code=error_constants.EmailIdExists.code,
+                detail=error_constants.EmailIdExists.detail
             )
     user_model_obj = UserModel()
     user_model_obj.user_name = user_name.lower()
@@ -369,8 +369,8 @@ def update_user(email=False, user_name=False, first_name=False, last_name=False)
             try:
                 UserModel.objects.get(user_name=user_name)
                 raise HTTPException(
-                    status_code=error_constants.USER_NAME_TAKEN["status_code"],
-                    detail=error_constants.USER_NAME_TAKEN["detail"]
+                    status_code=error_constants.UserNameTaken.code,
+                    detail=error_constants.UserNameTaken.detail
                 )
             except UserModel.DoesNotExist:
                 user_model_obj.user_name = user_name
@@ -416,6 +416,6 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
         return payload
     else:
         raise HTTPException(
-            status_code=error_constants.TOKEN_EXPIRED["status_code"],
-            detail=error_constants.TOKEN_EXPIRED["detail"]
+            status_code=error_constants.TokenExpired.code,
+            detail=error_constants.TokenExpired.detail
         )

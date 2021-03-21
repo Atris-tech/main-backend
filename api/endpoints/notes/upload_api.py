@@ -6,7 +6,7 @@ from tasks.upload_file_stt_bg_tasks import upload_task
 from db_models.models.notes_model import NotesModel
 import uuid
 from mongoengine.queryset.visitor import Q
-from error_constants import BAD_REQUEST
+from error_constants import BadRequest
 from Services.plan_helper import check_space
 from settings import MIN_AUDIO_LENGTH
 
@@ -30,8 +30,8 @@ def upload_audio(
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
     if content_length < MIN_AUDIO_LENGTH:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
     try:
         work_space_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=work_space_id))
@@ -42,8 +42,8 @@ def upload_audio(
 
     except (NotesModel.DoesNotExist, WorkSpaceModel.DoesNotExist):
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
     file_data = file.file.read()
 

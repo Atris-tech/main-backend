@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from fastapi import HTTPException
 from settings import MAX_PROFILE_PHOTO_SIZE, AZURE_STORAGE_KEY, AZURE_BLOB_STORAGE_NAME, AZURE_BLOB_STORAGE_URL
 from db_models.models.user_model import UserModel
-from error_constants import FILE_SIZE_EXCEEDED
+from error_constants import FileSizeExceeded
 import uuid
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions, \
@@ -48,8 +48,8 @@ def upload_file_blob_storage(file_data, file_name, email=False, profile=False, s
     if profile:
         if len(file_data) > MAX_PROFILE_PHOTO_SIZE:
             raise HTTPException(
-                status_code=FILE_SIZE_EXCEEDED["status_code"],
-                detail=FILE_SIZE_EXCEEDED["detail"]
+                status_code=FileSizeExceeded.code,
+                detail=FileSizeExceeded.detail
             )
     if not container_name:
         container_data = get_or_create_container(email=email, notes_cont=save_note, user_model_obj=user_model_obj)

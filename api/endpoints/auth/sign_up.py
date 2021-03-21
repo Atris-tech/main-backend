@@ -56,8 +56,8 @@ def resend(
             data = token_data["user_data"]
             if user_obj.verified:
                 raise HTTPException(
-                    status_code=error_constants.EMAIL_ALREADY_VERIFIED["status_code"],
-                    detail=error_constants.EMAIL_ALREADY_VERIFIED["detail"]
+                    status_code=error_constants.EmailAlreadyVerified.code,
+                    detail=error_constants.EmailAlreadyVerified.detail
                 )
             url = create_auth_url(token, type="verify")
             data = {"user": data["user_name"], "url": url}

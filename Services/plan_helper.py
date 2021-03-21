@@ -19,8 +19,8 @@ def check_space(user_model_obj, note_obj=False, new_size_note=False, note_space_
         print(old_size_note)
         if new_size_note > MAX_NOTE_SIZE:
             raise HTTPException(
-                status_code=NOTE_SIZE_EXCEEDED["status_code"],
-                detail=NOTE_SIZE_EXCEEDED["detail"]
+                status_code=NoteSizeExceeded.code,
+                detail=NoteSizeExceeded.detail
             )
         difference = new_size_note - old_size_note
         print("difference")
