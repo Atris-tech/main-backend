@@ -38,3 +38,20 @@ rq-dashboard -u redis://:D9iQsiD+4qUfmL9kQGIgvhLGB2tZnrv+tqoyo5prVfU=@paper.redi
 
 rq worker -c worker_config
 ```
+NLP Deployment authentication.
+
+Entity
+```
+id: shazam22
+password : Infamous123
+```
+Summarization
+```
+id: beyonder99
+password : Infamous123
+```
+Emotion
+```
+id : faizanshk
+Password : 4nSH4VHE;KvBap%
+```
