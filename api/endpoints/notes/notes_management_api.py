@@ -1,9 +1,11 @@
 from fastapi import Request
-from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note
+from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data
 from Services.auth.auth_services import token_check
 from .child_api_routes import routing
 from Services.notes.notes_parsing_service import b64_to_html
 from .models import NotesEditingModel, NotesSavingModel, NotesRenameModel, NotesDeleteModel
+from Services.workspace_services import star_notes, get_star_notes
+
 
 router = routing()
 
@@ -63,4 +65,38 @@ def delete_user_notes(
     return delete_notes(
         notes_id=notes_delete_obj.notes_id,
         email=user_dict["email_id"]
+    )
+
+
+@router.post("/star_note/", status_code=200)
+def star_note_api(
+        notes_id_obj: NotesDeleteModel,
+        request: Request,
+):
+    user_dict = token_check(request)
+    return star_notes(
+        user_dict=user_dict,
+        notes_id=notes_id_obj.notes_id
+    )
+
+
+@router.get("/get_note/", status_code=200)
+def get_notes_data_api(
+        notes_id: str,
+        request: Request,
+):
+    user_dict = token_check(request)
+    return get_notes_data(
+        user_dict=user_dict,
+        note_id=notes_id
+    )
+
+
+@router.get("/starred_notes/", status_code=200)
+def get_all_stared_notes(
+        request: Request
+):
+    user_dict = token_check(request)
+    return get_star_notes(
+        user_dict=user_dict
     )

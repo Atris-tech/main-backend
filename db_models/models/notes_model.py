@@ -5,10 +5,10 @@ from .canvas_model import Canvas
 from .audio_model import Audio
 from .images_model import Image
 import datetime
-import mongoengine_goodjson
+import mongoengine_goodjson as gj
 
 
-class NotesModel(mongoengine.Document):
+class NotesModel(gj.Document):
     user_id = mongoengine.ReferenceField(UserModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     workspace_id = mongoengine.ReferenceField(WorkSpaceModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     notes_name = mongoengine.StringField(default="untitled")
@@ -23,6 +23,7 @@ class NotesModel(mongoengine.Document):
     audios = mongoengine.ListField(mongoengine.ReferenceField(Audio))
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     note_size = mongoengine.FloatField(default=0)
+    emotion = mongoengine.StringField()
 
     meta = {
         'db_alias': 'core',

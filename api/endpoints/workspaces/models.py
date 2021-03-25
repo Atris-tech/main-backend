@@ -28,10 +28,10 @@ class WorkspaceEditingModel(BaseModel):
         return v
 
     @validator('workspace_name')
-    def has_max_length(cls, v, field):
-        max_length = MIN_WORKSPACE_NAME_LENGTH
-        if len(v) > max_length:
-            error_obj = EntityLengthError(entity=str(field.name), length=max_length, your_length=len(v))
+    def has_min_length(cls, v, field):
+        min_length = MIN_WORKSPACE_NAME_LENGTH
+        if len(v) < min_length:
+            error_obj = EntityLengthError(entity=str(field.name), length=min_length, your_length=len(v))
             raise HTTPException(
                 status_code=error_obj.code,
                 detail=error_obj.detail
@@ -66,7 +66,7 @@ class WorkspaceRenameModel(BaseModel):
 class WorkspaceDeleteModel(BaseModel):
     workspace_id:  str
 
-    @validator('work_space_id')
+    @validator('workspace_id')
     def has_min_length(cls, v):
         min_length = MIN_WORKSPACE_ID
         max_length = MAX_WORKSPACE_ID
@@ -81,7 +81,7 @@ class WorkspaceDeleteModel(BaseModel):
 class WorkspaceCacheModel(BaseModel):
     workspace_id:  str
 
-    @validator('work_space_id')
+    @validator('workspace_id')
     def has_min_length(cls, v):
         min_length = MIN_WORKSPACE_ID
         max_length = MAX_WORKSPACE_ID

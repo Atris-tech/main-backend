@@ -6,10 +6,12 @@ import error_constants
 from mongoengine.queryset.visitor import Q
 from db_models.models.user_model import UserModel
 from Services.notes.notes_parsing_service import html_to_text
-from Services.storage_services import upload_file_blob_storage, delete_blob
+from Services.storage_services import upload_file_blob_storage, delete_blob, download_blob
 from Services.plan_helper import check_space
 import uuid
 from settings import MAX_CACHE_TEXT_WORDS
+import base64
+import json
 
 
 def check_notes(note_id, email, get_user=False):
@@ -35,7 +37,7 @@ def check_user_workspace(workspace_id, email):
         return {"user_obj": user_obj, "workspace_obj": workspace_obj}
     except (UserModel.DoesNotExist, WorkSpaceModel.DoesNotExist):
         raise HTTPException(
-            status_code=error_constants.BadRequest.detail,
+            status_code=error_constants.BadRequest.code,
             detail=error_constants.BadRequest.detail
         )
 
@@ -61,7 +63,7 @@ def new_note(user_dict, work_space_id, notes_name=False):
 
 def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
     workspace_data = check_user_workspace(work_space_id, user_dict["email_id"])
-    notes_model_obj = NotesModel.objects.get(Q(id=notes_id) & Q(workspace_id=workspace_data["workspace_obj"]))
+    notes_model_obj = check_notes(note_id=notes_id, email=user_dict["email_id"])
     check_space(user_model_obj=workspace_data["user_obj"], note_obj=notes_model_obj,
                 new_size_note=len(to_save_data), note_space_check=True)
     upload_file_blob_storage(file_data=to_save_data,
@@ -109,9 +111,32 @@ def delete_notes(notes_id, email):
     delete_blob(container_name=check_notes_data["user_obj"].user_storage_notes_container_name,
                 blob_name=check_notes_data["notes_obj"].note_blob_id)
 
-# def starred_notes():
-#     notes_model_obj = NotesModel.objects.get(Q(id=notes_id) & Q(workspace_id=workspace_data["workspace_obj"]))
-#     star = False
-#
-#
-# def display_starred_catch():
+
+def get_notes_data(user_dict, note_id):
+    to_send_data = dict()
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    try:
+        notes_model_obj = NotesModel.objects.get(Q(id=note_id) & Q(user_id=user_object_model))
+        notes_raw = download_blob(container_name=user_object_model.user_storage_notes_container_name,
+                                  blob_id=notes_model_obj.note_blob_id)
+        notes_dict = json.loads(notes_model_obj.to_json())
+        if notes_raw is not None:
+            to_send_data["notes_data"] = base64.b64encode(notes_raw)
+        else:
+            to_send_data["notes_data"] = None
+        to_send_data["tags_id"] = notes_dict["tags"]
+        if "summary_data" in notes_dict:
+            to_send_data["notes_summary"] = notes_dict["summary_data"]
+        to_send_data["entity_data"] = notes_dict["entity_data"]
+        to_send_data["audio_id"] = notes_dict["audios"]
+        to_send_data["last_edited_date"] = notes_dict["last_edited_date"]
+        to_send_data["notes_name"] = notes_dict["notes_name"]
+        to_send_data["canvases"] = notes_dict["canvases"]
+        if "emotion" in notes_dict:
+            to_send_data["emotion"] = notes_dict["emotion"]
+        return to_send_data
+    except NotesModel.DoesNotExist:
+        raise HTTPException(
+            status_code=error_constants.BadRequest.code,
+            detail=error_constants.BadRequest.detail
+        )

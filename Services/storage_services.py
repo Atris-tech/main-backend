@@ -66,6 +66,14 @@ def upload_file_blob_storage(file_data, file_name, email=False, profile=False, s
     return data
 
 
+def download_blob(container_name, blob_id):
+    try:
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_id)
+        return blob_client.download_blob().readall()
+    except ResourceNotFoundError:
+        return None
+
+
 def delete_blob(container_name, blob_name):
     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
     try:

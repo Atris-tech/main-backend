@@ -6,6 +6,7 @@ import emoji
 from mongoengine.queryset.visitor import Q
 from db_models.models.cache_display_model import CacheModel
 import json
+from db_models.models.starred_model import StarModel
 
 
 def check_workspace(user_obj, id=False, name=False, create_check=False):
@@ -97,3 +98,30 @@ def display_all_caches(workspace_id, user_dict):
             status_code=BadRequest.code,
             detail=BadRequest.detail
         )
+
+
+def star_notes(user_dict, notes_id):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    try:
+        cache_model_objs = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
+        StarModel(user_id=user_object_model, cache_id=cache_model_objs).save()
+        return True
+    except CacheModel.DoesNotExist:
+        raise HTTPException(
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
+        )
+
+
+def get_star_notes(user_dict):
+    try:
+        user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+        starred_notes_objs = StarModel.objects.filter(user_id=user_object_model)
+        print(starred_notes_objs)
+        data = list()
+        for obj in starred_notes_objs:
+            cache_obj = obj.cache_id
+            data.append(json.loads(cache_obj.to_json()))
+        return data
+    except StarModel.DoesNotExist:
+        return None

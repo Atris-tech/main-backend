@@ -115,7 +115,7 @@ class UserSettingModel(BaseModel):
     firstname: StrictStr
     lastname: StrictStr
 
-    @validator('first_name', 'last_name', 'user_name')
+    @validator('firstname', 'lastname', 'username')
     def has_max_length(cls, v, field):
         if field.name == "user_name":
             max_length = MAX_USERNAME_LENGTH
@@ -129,7 +129,7 @@ class UserSettingModel(BaseModel):
             )
         return v
 
-    @validator('first_name', 'last_name')
+    @validator('firstname', 'lastname')
     def has_min_length(cls, v, field):
         min_length = MIN_NAME_LENGTH
         if len(v) < min_length:
