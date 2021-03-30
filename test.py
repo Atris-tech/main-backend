@@ -1,10 +1,25 @@
-from db_models.mongo_setup import global_init
-from db_models.models.cache_display_model import CacheModel
+import typesense
+import settings
 
+client = typesense.Client({
+    'nodes': [{
+        'host': settings.TYPESENSE_HOST,
+        'port': '8108',
+        'protocol': 'http'
+    }],
+    'api_key': settings.TYPESENSE_API_KEY,
+    'connection_timeout_seconds': 5
+})
 
-global_init()
+books_schema = {
+    'name': 'notes11',
+    'fields': [
+        {'name': 'title', 'type': 'string'},
+        {'name': 'id', 'type': 'string'},
+        {'name': 'user_id', 'type': 'string', "facet": True},
+        {'name': 'date', 'type': 'int32'},
+    ],
+    'default_sorting_field': 'date'
+}
 
-cache_model_objs = CacheModel.objects.filter(workspace_id="604d5b355be0b61c1304fb97")
-data = cache_model_objs.to_json()
-
-    
+print(client.collections.create(books_schema))

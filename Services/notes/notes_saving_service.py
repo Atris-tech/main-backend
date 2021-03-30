@@ -12,6 +12,30 @@ import uuid
 from settings import MAX_CACHE_TEXT_WORDS
 import base64
 import json
+from settings import TYPESENSE_NOTES_INDEX
+from Services.type_sense.type_sense_crud_service import create_collection, get_collection, update_collection
+from Services.notes.generate_notes_difference import compare
+from Services.type_sense.typesense_dic_generator import generate_typsns_data
+
+
+def generate_summary_from_clean_text(clean_txt):
+    clean_txt_list = clean_txt.split()
+    if len(clean_txt_list) < MAX_CACHE_TEXT_WORDS:
+        summary = clean_txt
+    else:
+        clean_txt_list = clean_txt_list[:MAX_CACHE_TEXT_WORDS]
+        cache_notes_text = ' '.join(word for word in clean_txt_list)
+        summary = cache_notes_text
+    return summary
+
+
+def handle_clean_text(notes_obj, old_clean_text, new_clean_text, summary):
+    difference = compare(str1=old_clean_text, str2=new_clean_text)
+    notes_obj.difference = difference
+    notes_obj.save()
+    typesense_data = generate_typsns_data(notes=True, summary=summary,
+                                          clean_text=new_clean_text, obj=notes_obj)
+    update_collection(data=typesense_data, index=TYPESENSE_NOTES_INDEX)
 
 
 def check_notes(note_id, email, get_user=False):
@@ -71,17 +95,21 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
                              user_model_obj=workspace_data["user_obj"], file_name=notes_model_obj.note_blob_id,
                              save_note=True)
     clean_txt = html_to_text(to_save_data)
-    notes_model_obj.clean_text = clean_txt
-    notes_model_obj.save()
+    clean_text_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=str(notes_model_obj.id))
     cache_model_obj = CacheModel.objects.get(notes_id=notes_model_obj)
-    clean_txt_list = clean_txt.split()
-    if len(clean_txt_list) < MAX_CACHE_TEXT_WORDS:
-        cache_model_obj.cache_notes_summary = clean_txt
+    if clean_text_data is not None:
+        summary = clean_txt["clean_text"]
+        old_clean_text = clean_text_data["clean_text"]
     else:
-        clean_txt_list = clean_txt_list[:MAX_CACHE_TEXT_WORDS]
-        cache_notes_text = ' '.join(word for word in clean_txt_list)
-        cache_model_obj.cache_notes_summary = cache_notes_text
+        # first time saving note
+        old_clean_text = ""
+        summary = generate_summary_from_clean_text(clean_txt)
+    if not cache_model_obj.uds:
+        cache_notes_summary = generate_summary_from_clean_text(clean_txt)
+        cache_model_obj.cache_notes_summary = cache_notes_summary
     cache_model_obj.save()
+    handle_clean_text(notes_model_obj, new_clean_text=clean_txt, old_clean_text=old_clean_text,
+                      summary=summary)
     return str(notes_model_obj.id)
 
 

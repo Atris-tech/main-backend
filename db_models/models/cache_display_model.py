@@ -17,6 +17,8 @@ class CacheModel(gj.Document):
     audio_url = mongoengine.StringField()
     forced_alignment_for_first_audio = mongoengine.DictField()
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
+    uds = mongoengine.BooleanField(default=False)
+    # uds = User Defined Summary -> True if user has ever generated a summary or manually added one
     meta = {
         'db_alias': 'core',
         'collection': 'cache'

@@ -14,15 +14,14 @@ class NotesModel(gj.Document):
     notes_name = mongoengine.StringField(default="untitled")
     tags = mongoengine.ListField(mongoengine.ReferenceField('TagModel'))
     note_blob_id = mongoengine.StringField(required=True)
-    clean_text = mongoengine.StringField(default="", required=True)
-    summary_data = mongoengine.StringField()
     key_words = mongoengine.ListField()
     entity_data = mongoengine.DictField()
-    canvases = mongoengine.ListField(mongoengine.EmbeddedDocumentField(Canvas))
-    images = mongoengine.ListField(mongoengine.EmbeddedDocumentField(Image))
+    canvases = mongoengine.ListField(mongoengine.ReferenceField(Canvas))
+    images = mongoengine.ListField(mongoengine.ReferenceField(Image))
     audios = mongoengine.ListField(mongoengine.ReferenceField(Audio))
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     note_size = mongoengine.FloatField(default=0)
+    difference = mongoengine.FloatField(default=0)
     emotion = mongoengine.StringField()
 
     meta = {
