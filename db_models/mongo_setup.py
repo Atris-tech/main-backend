@@ -4,13 +4,11 @@ import settings
 import os
 
 
-def string_to_bool(val:str)-> bool:
+def string_to_bool(val: str) -> bool:
     if val == "True":
         return True
-    elif val == "False":
-        return False
     else:
-        raise ValueError
+        return False
 
 
 def global_init():

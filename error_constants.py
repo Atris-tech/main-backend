@@ -105,3 +105,8 @@ class EntityLengthError:
 class MaxSummaryLength:
     code = 422
     detail = "Max Summary Length Reached"
+
+
+class WorkspaceExist:
+    code = 422
+    detail = "Workspace Already Exist"

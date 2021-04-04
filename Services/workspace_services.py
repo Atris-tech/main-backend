@@ -1,7 +1,7 @@
 from db_models.models.workspace_model import WorkSpaceModel
 from db_models.models.user_model import UserModel
 from fastapi import HTTPException
-from error_constants import BadRequest
+from error_constants import BadRequest, WorkspaceExist
 import emoji
 from mongoengine.queryset.visitor import Q
 from db_models.models.cache_display_model import CacheModel
@@ -21,24 +21,34 @@ def check_workspace(user_obj, id=False, name=False, create_check=False):
             return False
         else:
             raise HTTPException(
-                status_code=BadRequest.code,
-                detail=BadRequest.detail
+                status_code=WorkspaceExist.code,
+                detail=WorkspaceExist.detail
             )
 
 
 def check_emoji(string):
+    demojized_string = emoji.demojize(string)
+    print(string)
+    print(type(string))
     emoji_dict = emoji.emoji_lis(string)
+    print("emoji dict")
+    print(emoji_dict)
     if len(emoji_dict) == 0:
+        print("emoji length 0")
         raise HTTPException(
             status_code=BadRequest.code,
             detail=BadRequest.detail
         )
     elif len(emoji_dict) > 1:
+        print("emoji length > 1")
         raise HTTPException(
             status_code=BadRequest.code,
             detail=BadRequest.detail
         )
-    if emoji_dict[0]["emoji"] != string:
+    valid_emoji_found = emoji_dict[0]["emoji"]
+    demojized_valid_emoji = emoji.demojize(valid_emoji_found)
+    if demojized_valid_emoji != demojized_string:
+        print("bad emoji")
         raise HTTPException(
             status_code=BadRequest.code,
             detail=BadRequest.detail
@@ -48,7 +58,7 @@ def check_emoji(string):
 def new_workspace(user_dict, name, emoji):
     check_emoji(emoji)
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
-    if check_workspace(name = name, user_obj=user_object_model, create_check=True):
+    if check_workspace(name=name, user_obj=user_object_model, create_check=True):
         raise HTTPException(
             status_code=200,
             detail="workspace exists"
