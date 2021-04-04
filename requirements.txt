@@ -21,3 +21,4 @@ mongoengine_goodjson
 typesense
 html5lib
 pytest
+mongomock
