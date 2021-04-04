@@ -237,6 +237,7 @@ def check_user(email=False, user_name=False):
             return False
     else:
         try:
+            user_name = str(user_name).lower()
             user_obj = UserModel.objects.get(user_name=user_name)
             return user_obj
         except UserModel.DoesNotExist:
@@ -312,9 +313,10 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
         return data
 
 
-def login(email_id, password=True, user_obj=False, new_user=True):
+def login(email_id: str, password: bool = True, user_obj=False, new_user=True):
     try:
         print(email_id)
+        email_id = email_id.lower()
         user_model_obj = UserModel.objects.get(email_id=email_id)
         print(user_model_obj.user_name)
         print(user_model_obj.password_hash)

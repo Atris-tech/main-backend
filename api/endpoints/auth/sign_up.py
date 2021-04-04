@@ -15,8 +15,8 @@ def register(background_tasks: BackgroundTasks, register_obj: SignUpModel):
     user_obj = sign_up(
         user_name=username,
         email=register_obj.email.replace(" ", "").lower(),
-        first_name=register_obj.first_name.replace(" ", "").lower(),
-        last_name=register_obj.last_name.replace(" ", "").lower(),
+        first_name=register_obj.first_name.replace(" ", ""),
+        last_name=register_obj.last_name.replace(" ", ""),
         password=register_obj.password
     )
 
