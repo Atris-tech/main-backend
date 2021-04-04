@@ -100,3 +100,8 @@ class EntityLengthError:
             error_data["length"] = length
             error_data["param_length"] = your_length
         self.detail = error_data
+
+
+class MaxSummaryLength:
+    code = 422
+    detail = "Max Summary Length Reached"

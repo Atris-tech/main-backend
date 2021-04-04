@@ -1,8 +1,8 @@
 from typing import Optional
 from pydantic import BaseModel, validator
 from fastapi import HTTPException
-from error_constants import BadRequest, EntityLengthError
-from settings import MAX_NOTES_NAME_LENGTH, MIN_NOTES_ID, MAX_NOTES_ID
+from error_constants import BadRequest, EntityLengthError, MaxSummaryLength
+from settings import MAX_NOTES_NAME_LENGTH, MIN_NOTES_ID, MAX_NOTES_ID, MAX_SUMMARY_ENTITY_LENGTH
 
 
 class NotesEditingModel(BaseModel):
@@ -103,3 +103,28 @@ class NotesDeleteModel(BaseModel):
             )
         return v
 
+
+class SmmryEntityModel(BaseModel):
+    notes_id: str
+    summary: Optional[str]
+
+    @validator('notes_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+    @validator('summary')
+    def has_max_length(cls, v):
+        max_length = MAX_SUMMARY_ENTITY_LENGTH
+        if len(v) > max_length:
+            raise HTTPException(
+                status_code=MaxSummaryLength.code,
+                detail=MaxSummaryLength.detail
+        )
+        return v

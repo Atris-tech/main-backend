@@ -1,13 +1,12 @@
-from Services.notes.date_time_string_to_unix_time import convert_dt_to_unixt
-
-
-def generate_typsns_data(obj, notes=False, summary=False, clean_text=False):
+def generate_typsns_data(obj, notes_name=False, summary=False, clean_text=False):
+    print(obj.last_edited_date)
     data = {
         "id": str(obj.id),
-        "date": convert_dt_to_unixt(obj.last_edited_date),
+        "date": int(obj.last_edited_date.timestamp()),
         "user_id": str(obj.user_id)
     }
-    if notes:
+    if notes_name:
         data["summary"] = summary
         data["clean_text"] = clean_text
+        data["notes_name"] = notes_name
         return data

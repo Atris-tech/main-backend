@@ -19,6 +19,7 @@ notes_schema = {
     'name': TYPESENSE_NOTES_INDEX,
     'fields': [
         {'name': 'id', 'type': 'string'},
+        {'name': 'notes_name', 'type': 'string'},
         {'name': 'user_id', 'type': 'string'},
         {'name': 'date', 'type': 'int32'},
         {'name': 'clean_text', 'type': 'string'},
@@ -26,8 +27,6 @@ notes_schema = {
     ],
     'default_sorting_field': 'date'
 }
-
-print(client.collections.create(notes_schema))
 
 images_schema = {
     'name': TYPESENSE_IMAGES_INDEX,
@@ -41,7 +40,7 @@ images_schema = {
     ],
     'default_sorting_field': 'date'
 }
-print(client.collections.create(images_schema))
+
 audio_schema = {
     'name': TYPESENSE_AUDIO_INDEX,
     'fields': [
@@ -54,4 +53,8 @@ audio_schema = {
     ],
     'default_sorting_field': 'date'
 }
-print(client.collections.create(audio_schema))
+
+if __name__ == '__main__':
+    print(client.collections.create(notes_schema))
+    # print(client.collections.create(images_schema))
+    # print(client.collections.create(audio_schema))

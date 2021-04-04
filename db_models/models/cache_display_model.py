@@ -18,7 +18,10 @@ class CacheModel(gj.Document):
     forced_alignment_for_first_audio = mongoengine.DictField()
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     uds = mongoengine.BooleanField(default=False)
-    # uds = User Defined Summary -> True if user has ever generated a summary or manually added one
+    # uds ==> User Defined Summary
+    # AUTO if user has generated an ai summary
+    # MANUAL -> manually added one
+    # False -> Never Generated Summary
     meta = {
         'db_alias': 'core',
         'collection': 'cache'

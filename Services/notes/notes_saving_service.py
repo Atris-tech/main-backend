@@ -13,7 +13,8 @@ from settings import MAX_CACHE_TEXT_WORDS
 import base64
 import json
 from settings import TYPESENSE_NOTES_INDEX
-from Services.type_sense.type_sense_crud_service import create_collection, get_collection, update_collection
+from Services.type_sense.type_sense_crud_service import get_collection, update_collection, delete_collection, \
+    create_collection
 from Services.notes.generate_notes_difference import compare
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
 
@@ -33,7 +34,7 @@ def handle_clean_text(notes_obj, old_clean_text, new_clean_text, summary):
     difference = compare(str1=old_clean_text, str2=new_clean_text)
     notes_obj.difference = difference
     notes_obj.save()
-    typesense_data = generate_typsns_data(notes=True, summary=summary,
+    typesense_data = generate_typsns_data(notes_name=notes_obj.notes_name, summary=summary,
                                           clean_text=new_clean_text, obj=notes_obj)
     update_collection(data=typesense_data, index=TYPESENSE_NOTES_INDEX)
 
@@ -76,6 +77,9 @@ def new_note(user_dict, work_space_id, notes_name=False):
     notes_model_obj.notes_name = notes_name
     notes_model_obj.note_blob_id = str(uuid.uuid4())
     notes_model_obj.save()
+    tp_data = generate_typsns_data(obj=notes_model_obj, notes_name=notes_model_obj.notes_name, summary="",
+                                   clean_text="")
+    create_collection(index=TYPESENSE_NOTES_INDEX, data=tp_data)
     cache_model_obj = CacheModel()
     cache_model_obj.notes_name = notes_name
     cache_model_obj.notes_id = notes_model_obj
@@ -115,6 +119,11 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
 
 def rename_notes(notes_id, new_notes_name, email):
     notes_model_object = check_notes(notes_id, email)
+    data = get_collection(index=TYPESENSE_NOTES_INDEX, id=str(notes_model_object.id))
+    if data is not None:
+        tp_data = generate_typsns_data(obj=notes_model_object, notes_name=new_notes_name, summary=data["summary"],
+                                       clean_text=data["clean_text"])
+        update_collection(index=TYPESENSE_NOTES_INDEX, data=tp_data)
     notes_model_object.update(notes_name=new_notes_name)
     return True
 
@@ -123,7 +132,7 @@ def delete_notes(notes_id, email):
     check_notes_data = check_notes(notes_id, email, get_user=True)
     check_space(user_model_obj=check_notes_data["user_obj"], note_obj=check_notes_data["notes_obj"],
                 new_size_note=0, note_space_check=True)
-
+    delete_collection(index=TYPESENSE_NOTES_INDEX, collections_id=str(notes_id))
     """DELETE ALL TAGS AND CATCH FROM HERE"""
     catch_obj = CacheModel.objects.get(notes_id=notes_id)
     print("here 1")
@@ -160,6 +169,16 @@ def get_notes_data(user_dict, note_id):
         to_send_data["last_edited_date"] = notes_dict["last_edited_date"]
         to_send_data["notes_name"] = notes_dict["notes_name"]
         to_send_data["canvases"] = notes_dict["canvases"]
+        if notes_dict["uds"] == "AUTO":
+            to_send_data["summary"] = notes_dict["summary"]
+        elif notes_dict["uds"] == "MANUAL":
+            data = get_collection(index=TYPESENSE_NOTES_INDEX, id=note_id)
+            if data is not None:
+                to_send_data["summary"] = data["summary"]
+            else:
+                to_send_data["summary"] = None
+        else:
+            to_send_data["summary"] = None
         if "emotion" in notes_dict:
             to_send_data["emotion"] = notes_dict["emotion"]
         return to_send_data

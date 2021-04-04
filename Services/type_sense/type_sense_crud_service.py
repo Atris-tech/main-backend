@@ -22,3 +22,10 @@ def update_collection(data, index):
         client.collections[index].documents[data['id']].update(data)
     except ObjectNotFound:
         client.collections[index].documents.create(data)
+
+
+def delete_collection(collections_id, index):
+    try:
+        client.collections[index].documents[collections_id].delete()
+    except ObjectNotFound:
+        print("no such index")

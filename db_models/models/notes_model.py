@@ -23,6 +23,12 @@ class NotesModel(gj.Document):
     note_size = mongoengine.FloatField(default=0)
     difference = mongoengine.FloatField(default=0)
     emotion = mongoengine.StringField()
+    summary = mongoengine.StringField()
+    uds = mongoengine.StringField(default=False)
+    # uds ==> User Defined Summary
+    # AUTO if user has generated an ai summary
+    # MANUAL -> manually added one
+    # False -> Never Generated Summary
 
     meta = {
         'db_alias': 'core',
