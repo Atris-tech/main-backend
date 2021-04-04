@@ -20,7 +20,7 @@ def entity_emotion_call(request: Request, smmry_reqst_obj: SmmryEntityModel):
         EMOTION_ANALYSIS_ENDPOINT = get_val(key="EMOTION_ANALYSIS_ENDPOINT")
         ENTITY_ENDPOINT = get_val(key="ENTITY_ENDPOINT")
         app.send_task("tasks.entity_emotion_task.generate_entity_emotion",
-                      queue="stt_queue",
+                      queue="entity_queue",
                       kwargs={
                           "entity_endpoint": str(ENTITY_ENDPOINT),
                           "note_id": str(notes_obj.id),

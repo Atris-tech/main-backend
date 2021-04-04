@@ -9,4 +9,6 @@ app = Celery(
 )
 
 app.conf.update(task_track_started=True)
-app.conf.imports = ['tasks.audio_process_celery_task']
+app.conf.imports = ['tasks.audio_process_celery_task',
+                    'tasks.summary_keyword_task',
+                    'tasks.entity_emotion_task']

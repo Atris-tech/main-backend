@@ -56,8 +56,8 @@ def handle_summary(user_obj, smmry_reqst_obj):
                 else:
                     url = get_val(key="SUMMARY_KEYWORDS_ENDPOINT")
                     """generate_summary_from_clean_text"""
-                    app.send_task("tasks.summary_keywords_task.summary_task",
-                                  queue="stt_queue",
+                    app.send_task("tasks.summary_keyword_task.summary_task",
+                                  queue="summary_queue",
                                   kwargs={
                                       "summary_api_endpoint": str(url),
                                       "note_id": str(notes_obj.id)
