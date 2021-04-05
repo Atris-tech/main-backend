@@ -3,7 +3,7 @@ def generate_typsns_data(obj, notes_name=False, summary=False, clean_text=False)
     data = {
         "id": str(obj.id),
         "date": int(obj.last_edited_date.timestamp()),
-        "user_id": str(obj.user_id)
+        "user_id": str(obj.user_id.id)
     }
     if notes_name:
         data["summary"] = summary

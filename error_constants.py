@@ -1,3 +1,6 @@
+from settings import MAX_AUDIO_LENGTH, MIN_AUDIO_LENGTH, MAX_IMAGE_LENGTH
+
+
 class UserBanned:
     code = 400
     detail = "user_banned"
@@ -110,3 +113,18 @@ class MaxSummaryLength:
 class WorkspaceExist:
     code = 422
     detail = "Workspace Already Exist"
+
+
+class MaxAudioLength:
+    code = 422
+    detail = "Too Big Audio File. Max Audio Size allowed is " + str(MAX_AUDIO_LENGTH/1073741824) + " gb"
+
+
+class MinAudioLength:
+    code = 422
+    detail = "Too Small Audio File. Min Audio Size allowed is " + str(MIN_AUDIO_LENGTH/1000) + " kb"
+
+
+class MaxImageLength:
+    code = 422
+    detail = "Too Big Image File. Max Image Size allowed is " + str(MAX_IMAGE_LENGTH/100000000) + " mb"

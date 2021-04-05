@@ -108,7 +108,7 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
         # first time saving note
         old_clean_text = ""
         summary = generate_summary_from_clean_text(clean_txt)
-    if not cache_model_obj.uds:
+    if cache_model_obj.uds == "False":
         cache_notes_summary = generate_summary_from_clean_text(clean_txt)
         cache_model_obj.cache_notes_summary = cache_notes_summary
     cache_model_obj.save()

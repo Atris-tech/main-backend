@@ -1,5 +1,8 @@
 import typesense
 import settings
+from Services.summarization_api_call import summary_and_keywords_or_entity_api_call
+import json
+
 
 client = typesense.Client({
     'nodes': [{
@@ -11,4 +14,7 @@ client = typesense.Client({
     'connection_timeout_seconds': 5
 })
 
-print(client.collections['notes11'].documents['4545452343111'].retrieve())
+data = client.collections[settings.TYPESENSE_NOTES_INDEX].documents['6069d522ab33f1969265049a'].retrieve()
+print(type(data["clean_text"]))
+print(data["clean_text"])
+# print(summary_and_keywords_or_entity_api_call(, url="http://20.39.54.134:8005/get_summery/"))

@@ -4,6 +4,9 @@ from Services.type_sense.type_sense_crud_service import get_collection
 from settings import TYPESENSE_NOTES_INDEX
 from db_models.models.notes_model import NotesModel
 from db_models.models.cache_display_model import CacheModel
+from db_models.mongo_setup import global_init
+
+global_init()
 
 
 @app.task(soft_time_limit=500, max_retries=3)
@@ -22,6 +25,6 @@ def summary_task(notes_id, summary_api_endpoint):
         cache_model_obj.save()
         keywords = data["keywords"]
         """socket send for keywords"""
-    except NotesModel.objects.DoesNotExist:
+    except NotesModel.DoesNotExist:
         print("the person deleted the note")
 

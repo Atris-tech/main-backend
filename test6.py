@@ -95,6 +95,6 @@ for val_array in data["text"]:
     for val in val_array:
         if len(val.strip()) != 0:
             #print(val)
-            results = results + " " +  val
+            results = results + " " + val
 
 print(results)

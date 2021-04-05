@@ -17,7 +17,7 @@ class CacheModel(gj.Document):
     audio_url = mongoengine.StringField()
     forced_alignment_for_first_audio = mongoengine.DictField()
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
-    uds = mongoengine.BooleanField(default=False)
+    uds = mongoengine.StringField(default="False")
     # uds ==> User Defined Summary
     # AUTO if user has generated an ai summary
     # MANUAL -> manually added one

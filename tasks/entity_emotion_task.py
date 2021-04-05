@@ -3,6 +3,9 @@ from Services.type_sense.type_sense_crud_service import get_collection
 from db_models.models import NotesModel
 from settings import TYPESENSE_NOTES_INDEX
 from task_worker_config.celery import app
+from db_models.mongo_setup import global_init
+
+global_init()
 
 
 @app.task(soft_time_limit=500, max_retries=3)
@@ -16,5 +19,5 @@ def generate_entity_emotion(notes_id, entity_endpoint, emotion_endpoint):
         notes_model_obj.emotion = emotion
         notes_model_obj.entity_endpoint = entity_data
         notes_model_obj.save()
-    except NotesModel.objects.DoesNotExist:
+    except NotesModel.DoesNotExist:
         print("the person deleted the note")
