@@ -12,3 +12,4 @@ def audio_save_to_db(file_size, stt_data, note_obj, url):
     audio_model_obj.save()
     note_obj.audios.append(audio_model_obj)
     note_obj.save()
+    return str(audio_model_obj.id)

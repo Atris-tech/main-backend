@@ -12,6 +12,7 @@ from Services.redis_service import get_val
 router = APIRouter()
 
 
+@router.post("/generate_entity_emotion/", status_code=200)
 def entity_emotion_call(request: Request, smmry_reqst_obj: SmmryEntityModel):
     user_dict = token_check(request)
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
@@ -23,7 +24,7 @@ def entity_emotion_call(request: Request, smmry_reqst_obj: SmmryEntityModel):
                       queue="entity_queue",
                       kwargs={
                           "entity_endpoint": str(ENTITY_ENDPOINT),
-                          "note_id": str(notes_obj.id),
+                          "notes_id": str(notes_obj.id),
                           "emotion_endpoint": str(EMOTION_ANALYSIS_ENDPOINT)
                       })
     except NotesModel.DoesNotExist:

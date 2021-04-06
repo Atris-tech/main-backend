@@ -6,7 +6,7 @@ from Services.redis_service import get_list, get_val
 from task_worker_config.celery import app
 
 
-def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
+def upload_task(user_obj, file_data, file_name, notes_obj, blob_size, audio_request_id):
     print("in upload task")
     file_name = str(uuid.uuid4()) + file_name
     data = upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
@@ -32,5 +32,7 @@ def upload_task(user_obj, file_data, file_name, notes_obj, blob_size):
                               "file_url": str(url),
                               "note_id": str(notes_obj.id),
                               "file_name": str(file_name),
-                              "blob_size": blob_size
+                              "blob_size": blob_size,
+                              "audio_request_id": audio_request_id,
+                              "container_name": data["container_name"],
                           })

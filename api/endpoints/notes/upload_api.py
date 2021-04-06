@@ -1,5 +1,6 @@
 from fastapi import Request, File, UploadFile, HTTPException, Header, Depends, BackgroundTasks, Form, APIRouter
 from Services.auth.auth_services import token_check
+from Services.storage_services import upload_file_blob_storage
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
 from tasks.upload_file_stt_bg_tasks import upload_task
@@ -21,6 +22,7 @@ def valid_content_length(content_length: int = Header(..., lt=50_000_000)):
 def upload_audio(
         background_tasks: BackgroundTasks,
         request: Request,
+        audio_request_id: str = Form(...),
         file: UploadFile = File(...),
         notes_id: str = Form(...),
         work_space_id: str = Form(...),
@@ -55,7 +57,7 @@ def upload_audio(
 
     background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
                               file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
-                              blob_size=content_length)
+                              blob_size=content_length, audio_request_id=audio_request_id)
     return True
 
 @router.post("/upload_image/", status_code=200)
@@ -64,7 +66,6 @@ background_tasks: BackgroundTasks,
         request: Request,
         file: UploadFile = File(...),
         notes_id: str = Form(...),
-        work_space_id: str = Form(...),
         content_length: int = Depends(valid_content_length)
 
 ):
@@ -81,8 +82,7 @@ background_tasks: BackgroundTasks,
             detail=MaxImageLength.detail
         )
     try:
-        notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(workspace_id=work_space_obj) & Q(id=notes_id))
-        print("*********************************************************")
+        notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=notes_id))
         print(content_length)
         check_space(user_model_obj=user_obj, blob_size=content_length)
 
@@ -92,10 +92,13 @@ background_tasks: BackgroundTasks,
             detail=BadRequest.detail
         )
     file_data = file.file.read()
-
-    background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
-                              file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
-                              blob_size=content_length)
-    return True
-
-
+    print("in upload task")
+    file_name = str(uuid.uuid4()) + file.filename
+    data = upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
+    print("data")
+    print(data)
+    url = data["url"]
+    # background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
+    #                           file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
+    #                           blob_size=content_length)
+    return url

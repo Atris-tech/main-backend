@@ -17,7 +17,7 @@ def generate_entity_emotion(notes_id, entity_endpoint, emotion_endpoint):
         entity_data = summary_and_keywords_or_entity_api_call(text=clean_text, url=entity_endpoint)
         emotion = summary_and_keywords_or_entity_api_call(text=clean_text, url=emotion_endpoint)
         notes_model_obj.emotion = emotion
-        notes_model_obj.entity_endpoint = entity_data
+        notes_model_obj.entity_data = entity_data
         notes_model_obj.save()
     except NotesModel.DoesNotExist:
         print("the person deleted the note")
