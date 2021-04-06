@@ -233,3 +233,6 @@ dmypy.json
 .prof
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python
+/1.wav
+/false.wav
+/recording 1.aac
