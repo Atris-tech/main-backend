@@ -102,7 +102,7 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
     clean_text_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=str(notes_model_obj.id))
     cache_model_obj = CacheModel.objects.get(notes_id=notes_model_obj)
     if clean_text_data is not None:
-        summary = clean_txt["clean_text"]
+        summary = clean_txt
         old_clean_text = clean_text_data["clean_text"]
     else:
         # first time saving note

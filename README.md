@@ -7,27 +7,63 @@ docker stop `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'`
 ```
 
 ```
+screen -S d_gentle
 docker run -p 8765:8765 lowerquality/gentle
-docker run -p 5000:5000 -it quay.io/codait/max-audio-classifier
+```
+
+```
+screen -S d_stt
 docker run --gpus all -p 7000:7000 jainal09/nemo:latest
+```
+```
+screen -S d_max-audio
+docker run -p 5000:5000 -it quay.io/codait/max-audio-classifier
+```
+
+```
+screen -S d_image_label
+docker run -p 9000:5000 -it quay.io/codait/max-resnet-50
+```
+
+```
+screen -S d_emotion
+docker run --gpus all -p 8007:8007 faizanshk/atris-emotion
+```
+```
+screen -S d_entity
+docker run --gpus all -p 8006:8006 shazam22/atris-entity
+```
+```
+screen -S d_summary
+docker run --gpus all -p 8005:8005 beyonder99/atris_summerization
+```
+```
+screen -S d_ocr
+docker run -it -p 1000:5000 quay.io/codait/max-ocr
+```
+
+```
+screen -S celery-stt
 celery -A task_worker_config worker -l INFO -Q stt_queue -c 20 -n worker1 -E
 ```
 ```
-docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
+screen -S celery-entity
+celery -A task_worker_config worker -l INFO -Q entity_queue -c 4 -n worker2 -E
 ```
-
 ```
-screen -S gentle
-screen -S celery-stt
-screen -S stt
-screen -S max-audio
+screen -S celery-summary
+celery -A task_worker_config worker -l INFO -Q summary_queue -c 4 -n worker3 -E
 ```
 `Ctrl+a` `d`
-
 ```
 screen -ls
 screen -r {{id}}
 ```
+
+```
+docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
+```
+
 ```json
 {
   "nemo": "http://20.39.54.134:7000/uploadfile/",

@@ -1,4 +1,4 @@
-from type_sense_configs.typesense_client import client
+from Services.type_sense.type_sense_configs.typesense_client import client
 from typesense.exceptions import ObjectAlreadyExists, ObjectNotFound
 
 

@@ -2,7 +2,7 @@ import typesense
 
 client = typesense.Client({
     'nodes': [{
-        'host': "52.188.18.233",
+        'host': "52.150.19.245",
         'port': '8108',
         'protocol': 'http'
     }],
@@ -56,5 +56,5 @@ audio_schema = {
 
 if __name__ == '__main__':
     print(client.collections.create(notes_schema))
-    # print(client.collections.create(images_schema))
-    # print(client.collections.create(audio_schema))
+    print(client.collections.create(images_schema))
+    print(client.collections.create(audio_schema))

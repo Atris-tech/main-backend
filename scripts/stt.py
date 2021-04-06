@@ -11,7 +11,7 @@ import requests
 import json
 
 
-app = FastAPI(host='0.0.0.0', port = 8080)
+app = FastAPI(host='0.0.0.0', port=8080)
 
 
 MIME_TYPES_AUDIO = {

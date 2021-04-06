@@ -8,8 +8,9 @@ def audio_save_to_db(file_size, stt_data, note_obj, url):
         f_align_data = stt_data["f_align"]
     sound_recog = stt_data["sound_recog_results"]
     audio_model_obj = Audio(url=url, blob_name=str(uuid.uuid4()) + ".wav", blob_size=file_size,
-                            sound_recog_results=sound_recog, forced_alignment_data=f_align_data, stt=stt)
+                            sound_recog_results=sound_recog, user_id=note_obj.user_id,
+                            forced_alignment_data=f_align_data, stt=stt)
     audio_model_obj.save()
     note_obj.audios.append(audio_model_obj)
     note_obj.save()
-    return str(audio_model_obj.id)
+    return audio_model_obj

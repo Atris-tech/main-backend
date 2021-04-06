@@ -3,6 +3,7 @@ from Services.auth.auth_services import token_check
 from Services.storage_services import upload_file_blob_storage
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
+from tasks.image_process_bg_task import index_image
 from tasks.upload_file_stt_bg_tasks import upload_task
 from db_models.models.notes_model import NotesModel
 import uuid
@@ -25,7 +26,6 @@ def upload_audio(
         audio_request_id: str = Form(...),
         file: UploadFile = File(...),
         notes_id: str = Form(...),
-        work_space_id: str = Form(...),
         content_length: int = Depends(valid_content_length)
 ):
     user_dict = token_check(request)
@@ -42,8 +42,7 @@ def upload_audio(
         )
 
     try:
-        work_space_obj = WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=work_space_id))
-        notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(workspace_id=work_space_obj) & Q(id=notes_id))
+        notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=notes_id))
         print("*********************************************************")
         print(content_length)
         check_space(user_model_obj=user_obj, blob_size=content_length)
@@ -60,9 +59,10 @@ def upload_audio(
                               blob_size=content_length, audio_request_id=audio_request_id)
     return True
 
+
 @router.post("/upload_image/", status_code=200)
 def upload_image(
-background_tasks: BackgroundTasks,
+        background_tasks: BackgroundTasks,
         request: Request,
         file: UploadFile = File(...),
         notes_id: str = Form(...),
@@ -98,7 +98,7 @@ background_tasks: BackgroundTasks,
     print("data")
     print(data)
     url = data["url"]
-    # background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
-    #                           file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
-    #                           blob_size=content_length)
+    background_tasks.add_task(index_image, file_data=file_data, url=url, notes_model_obj=notes_obj,
+                              content_length=content_length, user_obj=user_obj,
+                              file_name=file_name)
     return url

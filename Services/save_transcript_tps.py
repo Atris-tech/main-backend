@@ -1,0 +1,1 @@
+from Services.type_sense.typesense_dic_generator import generate_typsns_data
