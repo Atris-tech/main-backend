@@ -1,3 +1,4 @@
+from Services.audios.delete_audio_service import delete_audios
 from db_models.models.cache_display_model import CacheModel
 from db_models.models.notes_model import NotesModel
 from db_models.models.workspace_model import WorkSpaceModel
@@ -130,8 +131,8 @@ def rename_notes(notes_id, new_notes_name, email):
 
 def delete_notes(notes_id, email):
     check_notes_data = check_notes(notes_id, email, get_user=True)
-    check_space(user_model_obj=check_notes_data["user_obj"], note_obj=check_notes_data["notes_obj"],
-                new_size_note=0, note_space_check=True)
+    notes_obj = check_space(user_model_obj=check_notes_data["user_obj"], note_obj=check_notes_data["notes_obj"],
+                            new_size_note=0, note_space_check=True)
     delete_collection(index=TYPESENSE_NOTES_INDEX, collections_id=str(notes_id))
     """DELETE ALL TAGS AND CATCH FROM HERE"""
     catch_obj = CacheModel.objects.get(notes_id=notes_id)
@@ -143,10 +144,16 @@ def delete_notes(notes_id, email):
             tag_obj.delete()
         else:
             tag_obj.save()
-    catch_obj.delete()
-    check_notes_data["notes_obj"].delete()
-    delete_blob(container_name=check_notes_data["user_obj"].user_storage_notes_container_name,
-                blob_name=check_notes_data["notes_obj"].note_blob_id)
+    delete_audios(notes_obj,
+                  check_notes_data["user_obj"].user_storage_container_name)
+    """DELETE IMAGES"""
+    """DELETE DRAWINGS"""
+    notes_container_name = check_notes_data["user_obj"].user_storage_notes_container_name
+    if notes_container_name is not None:
+        delete_blob(container_name=notes_container_name,
+                    blob_name=check_notes_data["notes_obj"].note_blob_id)
+    notes_obj.delete()
+    return True
 
 
 def get_notes_data(user_dict, note_id):
@@ -154,21 +161,21 @@ def get_notes_data(user_dict, note_id):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
         notes_model_obj = NotesModel.objects.get(Q(id=note_id) & Q(user_id=user_object_model))
-        notes_raw = download_blob(container_name=user_object_model.user_storage_notes_container_name,
-                                  blob_id=notes_model_obj.note_blob_id)
+        notes_container_name = user_object_model.user_storage_notes_container_name
         notes_dict = json.loads(notes_model_obj.to_json())
-        if notes_raw is not None:
+        if notes_container_name is not None:
+            notes_raw = download_blob(container_name=user_object_model.user_storage_notes_container_name,
+                                      blob_id=notes_model_obj.note_blob_id)
             to_send_data["notes_data"] = base64.b64encode(notes_raw)
         else:
             to_send_data["notes_data"] = None
         to_send_data["tags_id"] = notes_dict["tags"]
+        to_send_data["tags_name"] = notes_dict["tags_name"]
         if "summary_data" in notes_dict:
             to_send_data["notes_summary"] = notes_dict["summary_data"]
         to_send_data["entity_data"] = notes_dict["entity_data"]
-        to_send_data["audio_id"] = notes_dict["audios"]
         to_send_data["last_edited_date"] = notes_dict["last_edited_date"]
         to_send_data["notes_name"] = notes_dict["notes_name"]
-        to_send_data["canvases"] = notes_dict["canvases"]
         if notes_dict["uds"] == "AUTO":
             to_send_data["summary"] = notes_dict["summary"]
         elif notes_dict["uds"] == "MANUAL":

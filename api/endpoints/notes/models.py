@@ -128,3 +128,46 @@ class SmmryEntityModel(BaseModel):
                 detail=MaxSummaryLength.detail
         )
         return v
+
+
+class AudioDeleteModel(BaseModel):
+    audio_id: str
+    notes_id: str
+
+    @validator('audio_id', 'notes_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+
+class AudioRenameModel(BaseModel):
+    audio_id: str
+    new_name: str
+
+    @validator('audio_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+    @validator('new_name')
+    def has_max_length(cls, v, field):
+        max_length = MAX_NOTES_NAME_LENGTH
+        if len(v) > max_length:
+            error_obj = EntityLengthError(entity=str(field.name), length=max_length, your_length=len(v))
+            raise HTTPException(
+                status_code=error_obj.code,
+                detail=error_obj.detail
+            )
+        return v

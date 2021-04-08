@@ -71,7 +71,7 @@ def create_new_tag(email, tag_name, notes_id, workspace_id):
             status_code=error_constants.BadRequest.code,
             detail=error_constants.BadRequest.detail
         )
-    note_obj = check_user_notes(notes_id=notes_id, user_obj=user_obj, workspace_obj = workspace_obj)
+    note_obj = check_user_notes(notes_id=notes_id, user_obj=user_obj, workspace_obj=workspace_obj)
     ic()
     ic(note_obj)
     ic(note_obj.tags)
@@ -86,6 +86,7 @@ def create_new_tag(email, tag_name, notes_id, workspace_id):
         tag_obj.count = tag_obj.count + 1
         tag_obj.save()
         note_obj.tags.append(tag_obj)
+        note_obj.tags_name.append(tag_obj.tag_name)
         note_obj.save()
     return str(tag_obj.id)
 

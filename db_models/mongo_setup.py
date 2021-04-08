@@ -18,7 +18,7 @@ def global_init():
         print("test env")
         connect(db='atris_test', host='mongomock://localhost', alias='core')
     else:
-        print("not test env")
+        print("Production Environment")
         mongoengine.register_connection(
             db=settings.MONGO_DB,
             host=settings.MONGO_HOST,

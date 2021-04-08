@@ -50,10 +50,18 @@ celery -A task_worker_config worker -l INFO -Q stt_queue -c 20 -n worker1 -E
 screen -S celery-entity
 celery -A task_worker_config worker -l INFO -Q entity_queue -c 4 -n worker2 -E
 ```
+
 ```
 screen -S celery-summary
 celery -A task_worker_config worker -l INFO -Q summary_queue -c 4 -n worker3 -E
 ```
+```
+screen -S celery-flower
+source env1/bin/activate
+cd main-backend
+flower -A task_worker_config -port=5555 --basic_auth=admin:atris_admin
+```
+
 `Ctrl+a` `d`
 ```
 screen -ls

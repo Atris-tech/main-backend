@@ -26,8 +26,10 @@ def upload_audio(
         audio_request_id: str = Form(...),
         file: UploadFile = File(...),
         notes_id: str = Form(...),
-        content_length: int = Depends(valid_content_length)
+        content_length: int = Depends(valid_content_length),
+        y_axis: str = Form(default=None)
 ):
+    print(y_axis)
     user_dict = token_check(request)
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
     if content_length < MIN_AUDIO_LENGTH:
@@ -54,9 +56,10 @@ def upload_audio(
         )
     file_data = file.file.read()
 
-    background_tasks.add_task(upload_task, user_obj=user_obj, notes_obj=notes_obj,
+    background_tasks.add_task(upload_task, user_obj=user_obj, notes_id=str(notes_obj.id),
                               file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
-                              blob_size=content_length, audio_request_id=audio_request_id)
+                              original_file_name=file.filename,
+                              blob_size=content_length, audio_request_id=audio_request_id, y_axis=y_axis)
     return True
 
 

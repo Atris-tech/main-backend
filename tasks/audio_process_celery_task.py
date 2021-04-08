@@ -2,7 +2,7 @@ import os
 import shutil
 import urllib.request
 import uuid
-from Services.audio_upload_helper import audio_save_to_db
+from Services.audios.audio_upload_helper import audio_save_to_db
 from Services.redis_service import get_val
 from Services.api_call_service import api_call
 from Services.storage_services import delete_blob
@@ -18,9 +18,11 @@ from settings import TYPESENSE_AUDIO_INDEX
 global_init()
 
 
-def after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id):
-    audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, note_obj=notes_obj, url=file_url)
-    tps_dic = generate_typsns_data(obj=audio_model_obj, notes_obj=notes_obj, audio_data=stt_data)
+def after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id, file_name, name):
+    audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, note_obj=notes_obj, url=file_url,
+                                       blob_name=file_name, name=name)
+    tps_dic = generate_typsns_data(obj=audio_model_obj, notes_obj=notes_obj, audio_data=stt_data,
+                                   audio_name=file_name)
     print(tps_dic)
     create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
     print("SAVED TO DB")
@@ -75,12 +77,12 @@ def audio_preprocess(file_url,  note_id, file_name, blob_size, audio_request_id,
         print("folder deleted")
         try:
             notes_obj = NotesModel.objects.get(id=note_id)
-            to_send_ws_data = after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id)
+            to_send_ws_data = after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id, file_name)
             print(to_send_ws_data)
         except NotesModel.DoesNotExist:
             try:
                 notes_obj = NotesModel.objects.get(id=note_id)
-                to_send_ws_data = after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id)
+                to_send_ws_data = after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id, file_name)
                 print(to_send_ws_data)
             except NotesModel.DoesNotExist:
                 """NOTE is deleted"""

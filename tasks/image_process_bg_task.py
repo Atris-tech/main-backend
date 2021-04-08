@@ -11,16 +11,15 @@ def index_image(file_data, url, notes_model_obj, content_length, user_obj, file_
     image_model_obj.url = url
     image_model_obj.image_size = content_length
     image_model_obj.user_id = user_obj
+    image_model_obj.notes_id = notes_model_obj
     image_model_obj.save()
-    notes_model_obj.images.append(image_model_obj)
-    notes_model_obj.save()
     ocr_results = str()
     image_labels_results_list = list()
     OCR_ENDPOINT = get_val(key="OCR_ENDPOINT")
     IMAGE_LABEL_ENPOINT = get_val("IMAGE_LABEL_ENPOINT")
 
     ocr_results_data = api_call(file_to_process=file_data, binary=True, end_point=OCR_ENDPOINT,
-                               file_name=file_name, status=True)
+                                file_name=file_name, status=True)
     if ocr_results_data["status_code"] == 200:
         ocr_results_raw = ocr_results_data["response_data"]
         print(ocr_results_raw)
@@ -30,7 +29,7 @@ def index_image(file_data, url, notes_model_obj, content_length, user_obj, file_
                     ocr_results = ocr_results + " " + val
         print(ocr_results)
     image_labels_results_data = api_call(file_to_process=file_data, binary=True, end_point=IMAGE_LABEL_ENPOINT,
-                                    file_name=file_name, status=True)
+                                         file_name=file_name, status=True)
     if image_labels_results_data["status_code"] == 200:
         image_labels_results = image_labels_results_data["response_data"]
         print(image_labels_results)

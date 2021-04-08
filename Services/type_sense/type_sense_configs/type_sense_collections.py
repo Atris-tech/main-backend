@@ -45,6 +45,7 @@ audio_schema = {
     'name': TYPESENSE_AUDIO_INDEX,
     'fields': [
         {'name': 'id', 'type': 'string'},
+        {'name': 'name', 'type': 'string'},
         {'name': 'user_id', 'type': 'string'},
         {'name': 'date', 'type': 'int32'},
         {'name': 'notes_id', 'type': 'string'},

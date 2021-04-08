@@ -14,8 +14,6 @@ class CacheModel(gj.Document):
     cache_notes_summary = mongoengine.StringField()
     tags = mongoengine.ListField(mongoengine.ReferenceField('TagModel'))
     tags_name = mongoengine.ListField()
-    audio_url = mongoengine.StringField()
-    forced_alignment_for_first_audio = mongoengine.DictField()
     last_edited_date = mongoengine.DateTimeField(default=datetime.datetime.now)
     uds = mongoengine.StringField(default="False")
     # uds ==> User Defined Summary
