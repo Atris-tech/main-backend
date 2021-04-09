@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Query
 import error_constants
 from Services.auth.auth_services import token_check
 from Services.tags_services import create_new_tag, remove_tag, recommend_tag
@@ -14,8 +14,12 @@ def create_new_tag_method(
 
 ):
     user_dict = token_check(request)
-    return create_new_tag(email=user_dict["email_id"], tag_name=add_tags_obj.tag_name, notes_id=add_tags_obj.notes_id,
-                          workspace_id=add_tags_obj.workspace_id)
+    tags_ids = list()
+    for tag_name in add_tags_obj.tags_name:
+        tag_id = create_new_tag(email=user_dict["email_id"], tag_name=tag_name, notes_id=add_tags_obj.notes_id,
+                                workspace_id=add_tags_obj.workspace_id)
+        tags_ids.append(tag_id)
+    return tags_ids
 
 
 @router.post("/delete_tags/", status_code=200)
@@ -34,15 +38,14 @@ def remove_tag_method(
 
 @router.get("/get_matching_tags/", status_code=200)
 def remove_tag_method(
-        tag_name: str,
         request: Request,
+        tag_name: str = Query(None, max_length=15),
 
 ):
-    max_length = 15
-    if len(tag_name) > max_length:
+    if tag_name is None:
         raise HTTPException(
-            status_code=error_constants.MaxTagsNameExceeded.code,
-            detail=error_constants.MaxTagsNameExceeded.detail
+            status_code=error_constants.NoneValue.code,
+            detail=error_constants.NoneValue.detail
         )
     user_dict = token_check(request)
     return recommend_tag(

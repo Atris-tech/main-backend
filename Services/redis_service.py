@@ -40,3 +40,9 @@ def get_list(list_name):
 
 def add_to_list(list_name, val):
     redis_obj.lpush(list_name, val)
+
+
+def redis_publisher_serv(channel, data):
+    redis_obj1 = redis.StrictRedis(host=settings.REDIS_HOSTNAME, port=settings.REDIS_PORT,
+                                   password=settings.REDIS_PASSWORD, ssl=True, decode_responses=True)
+    redis_obj1.publish(channel, json.dumps(data))

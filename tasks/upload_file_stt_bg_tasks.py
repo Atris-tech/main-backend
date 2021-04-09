@@ -2,7 +2,7 @@ import uuid
 from Services.storage_services import upload_file_blob_storage, delete_blob
 from Services.api_call_service import api_call
 from Services.audios.audio_upload_helper import audio_save_to_db
-from Services.redis_service import get_list, get_val
+from Services.redis_service import get_list, get_val, redis_publisher_serv
 from Services.type_sense.type_sense_crud_service import create_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from settings import TYPESENSE_AUDIO_INDEX
@@ -30,27 +30,47 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
             if stt_data:
                 audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=notes_id,
                                                    url=url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
-                """websocket code here"""
-                to_send_ws_data = {
-                    "status": "PROCESSED",
-                    "audio_request_id": audio_request_id,
-                    "audio_id": str(audio_model_obj.id)
-                }
-                print(to_send_ws_data)
-                tps_dic = generate_typsns_data(obj=audio_model_obj, audio_data=stt_data)
-                print(tps_dic)
-                create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
+                if audio_model_obj is not None:
+                    """websocket code here"""
+                    to_send_ws_data = {
+                        "client_id": str(user_obj.id),
+                        "data": {
+                            "status": "PROCESSED",
+                            "audio_request_id": audio_request_id,
+                            "audio_id": str(audio_model_obj.id)
+                        }
+                    }
+                    print(to_send_ws_data)
+                    tps_dic = generate_typsns_data(obj=audio_model_obj, audio_data=stt_data)
+                    print(tps_dic)
+                    create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
+                    redis_publisher_serv(channel=str(user_obj.id), data=to_send_ws_data)
+                else:
+                    to_send_ws_data = {
+                        "client_id": str(user_obj.id),
+                        "data": {
+                            "status": "FAILED",
+                            "audio_request_id": audio_request_id,
+                            "detail": "Unknown Error Occurred or Note Deleted",
+                        }
+                    }
+                    print(to_send_ws_data)
+                    redis_publisher_serv(channel=str(user_obj.id), data=to_send_ws_data)
             else:
                 """WRONG FILE FORMAT"""
                 delete_blob(container_name=data["container_name"], blob_name=file_name)
                 print("BAD FILE")
                 print(audio_request_id)
                 to_send_ws_data = {
-                    "status": "FAILED",
-                    "audio_request_id": audio_request_id,
-                    "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
+                    "client_id": str(user_obj.id),
+                    "data": {
+                        "status": "FAILED",
+                        "audio_request_id": audio_request_id,
+                        "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
+                    }
                 }
                 print(to_send_ws_data)
+                redis_publisher_serv(channel=str(user_obj.id), data=to_send_ws_data)
         else:
             app.send_task("tasks.audio_process_celery_task.audio_preprocess",
                           queue="stt_queue",
@@ -61,5 +81,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                               "blob_size": blob_size,
                               "audio_request_id": audio_request_id,
                               "container_name": data["container_name"],
-                              "name": original_file_name,
+                              "original_file_name": original_file_name,
+                              "y_axis": y_axis,
+                              "user_id": str(user_obj.id)
                           })

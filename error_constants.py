@@ -128,3 +128,8 @@ class MinAudioLength:
 class MaxImageLength:
     code = 422
     detail = "Too Big Image File. Max Image Size allowed is " + str(MAX_IMAGE_LENGTH/100000000) + " mb"
+
+
+class NoneValue:
+    code = 400
+    detail = "got no or none value in request"

@@ -16,3 +16,4 @@ def audio_save_to_db(file_size, stt_data, notes_id, url, blob_name, name, y_axis
         return audio_model_obj
     except NotesModel.DoesNotExist:
         print("Note Deleted")
+        return None

@@ -5,7 +5,7 @@ from settings import MAX_TAGS_NAME, MIN_NOTES_ID, MAX_NOTES_ID
 
 
 class TagsApiModel(BaseModel):
-    tag_name: str
+    tags_name: list
     workspace_id: str
     notes_id: str
 
@@ -16,16 +16,22 @@ class TagsApiModel(BaseModel):
             raise HTTPException(status_code=error_obj.code, detail=error_obj.detail)
         return v
 
-    @validator('tag_name')
+    @validator('tags_name')
     def has_max_length(cls, v, field):
         max_length = MAX_TAGS_NAME
-        if len(v) > max_length:
-            error_obj = EntityLengthError(entity=str(field.name), length=max_length, your_length=len(v))
-            raise HTTPException(
-                status_code=error_obj.code,
-                detail=error_obj.detail
-            )
-        return v
+        for val in v:
+            if type(val) != str:
+                raise HTTPException(
+                    status_code=BadRequest.code,
+                    detail=BadRequest.detail
+                )
+            if len(val) > max_length:
+                error_obj = EntityLengthError(entity=str(field.name), length=max_length, your_length=len(v))
+                raise HTTPException(
+                    status_code=error_obj.code,
+                    detail=error_obj.detail
+                )
+            return v
 
     @validator('workspace_id', 'notes_id')
     def has_min_length(cls, v):

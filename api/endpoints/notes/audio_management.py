@@ -5,7 +5,6 @@ from Services.audios.delete_audio_service import delete_single_audio
 from Services.audios.get_audio_data import get_audio_data
 from Services.auth.auth_services import token_check
 from api.endpoints.notes.models import AudioDeleteModel, AudioRenameModel
-from db_models.models.notes_model import NotesModel
 from db_models.models.audio_model import Audio
 from db_models.models.user_model import UserModel
 from error_constants import BadRequest
@@ -32,15 +31,13 @@ def delete_audio(
     user_dict = token_check(request)
     try:
         user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
-        note_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=audio_delete_obj.notes_id))
         audio_obj = Audio.objects.get(Q(user_id=user_obj) & Q(id=audio_delete_obj.audio_id))
-        delete_single_audio(audio_obj=audio_obj, notes_obj=note_obj,
-                            container_name=user_obj.user_storage_container_name)
+        delete_single_audio(audio_obj=audio_obj, container_name=user_obj.user_storage_container_name)
         return True
-    except(NotesModel.DoesNotExist, Audio.DoesNotExist):
+    except Audio.DoesNotExist:
         raise HTTPException(
             status_code=BadRequest.code,
-            detail=BadRequest.detail
+            detail=BadRequest.detail + " or note deleted before"
         )
 
 

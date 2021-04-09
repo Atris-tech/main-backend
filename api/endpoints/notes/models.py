@@ -132,9 +132,8 @@ class SmmryEntityModel(BaseModel):
 
 class AudioDeleteModel(BaseModel):
     audio_id: str
-    notes_id: str
 
-    @validator('audio_id', 'notes_id')
+    @validator('audio_id')
     def has_min_length(cls, v):
         min_length = MIN_NOTES_ID
         max_length = MAX_NOTES_ID

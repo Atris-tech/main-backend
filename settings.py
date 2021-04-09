@@ -38,6 +38,7 @@ REDIS_HOSTNAME = os.getenv("REDIS_HOSTNAME")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 REDIS_DB = os.getenv("REDIS_DB")
+REDIS_URI = "redis://:" + REDIS_PASSWORD + "@" + REDIS_HOSTNAME + ":" + REDIS_PORT + "/" + REDIS_DB
 # name
 MAX_NAME_LENGTH = int(os.getenv("MAX_NAME_LENGTH"))
 MIN_NAME_LENGTH = int(os.getenv("MIN_NAME_LENGTH"))
@@ -96,3 +97,8 @@ TYPESENSE_AUDIO_INDEX = os.getenv("TYPESENSE_AUDIO_INDEX")
 
 PROJECT_DIR = os.path.dirname(__file__)
 IMAGE_RECOG_PROBABILITY_THRESHOLD = float(os.getenv("IMAGE_RECOG_PROBABILITY_THRESHOLD"))
+
+active_connections = []
+
+def get_ws_clients():
+    return active_connections

@@ -22,3 +22,4 @@ typesense
 html5lib
 pytest
 mongomock
+aioredis

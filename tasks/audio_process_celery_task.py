@@ -3,10 +3,9 @@ import shutil
 import urllib.request
 import uuid
 from Services.audios.audio_upload_helper import audio_save_to_db
-from Services.redis_service import get_val
+from Services.redis_service import get_val, redis_publisher_serv
 from Services.api_call_service import api_call
 from Services.storage_services import delete_blob
-from db_models.models import NotesModel
 from db_models.mongo_setup import global_init
 from task_worker_config.celery import app
 import magic
@@ -14,26 +13,7 @@ from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from Services.type_sense.type_sense_crud_service import create_collection
 from settings import TYPESENSE_AUDIO_INDEX
 
-
 global_init()
-
-
-def after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id, file_name, name):
-    audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, note_obj=notes_obj, url=file_url,
-                                       blob_name=file_name, name=name)
-    tps_dic = generate_typsns_data(obj=audio_model_obj, notes_obj=notes_obj, audio_data=stt_data,
-                                   audio_name=file_name)
-    print(tps_dic)
-    create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
-    print("SAVED TO DB")
-    print("###################EOT##################################")
-    print(audio_request_id)
-    to_send_ws_data = {
-        "status": "PROCESSED",
-        "audio_request_id": audio_request_id,
-        "audio_id": str(audio_model_obj.id)
-    }
-    return to_send_ws_data
 
 
 def check_file_type(file_to_check):
@@ -49,7 +29,8 @@ def remove_bad_file(new_folder, audio_request_id, container_name, file_name):
 
 
 @app.task(soft_time_limit=500, max_retries=3)
-def audio_preprocess(file_url,  note_id, file_name, blob_size, audio_request_id, container_name):
+def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, container_name, original_file_name,
+                     y_axis, user_id):
     print("note_id")
     print(note_id)
     print("in enqueue")
@@ -75,29 +56,48 @@ def audio_preprocess(file_url,  note_id, file_name, blob_size, audio_request_id,
         print("api call completed")
         shutil.rmtree(new_folder)
         print("folder deleted")
-        try:
-            notes_obj = NotesModel.objects.get(id=note_id)
-            to_send_ws_data = after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id, file_name)
+
+        audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=note_id,
+                                           url=file_url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
+        if audio_model_obj is not None:
+            tps_dic = generate_typsns_data(obj=audio_model_obj, audio_data=stt_data)
+            print(tps_dic)
+            create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
+            print("SAVED TO DB")
+            print("###################EOT##################################")
+            print(audio_request_id)
+            to_send_ws_data = {
+                "client_id": user_id,
+                "data": {
+                    "status": "PROCESSED",
+                    "audio_request_id": audio_request_id,
+                    "audio_id": str(audio_model_obj.id)
+                }
+            }
             print(to_send_ws_data)
-        except NotesModel.DoesNotExist:
-            try:
-                notes_obj = NotesModel.objects.get(id=note_id)
-                to_send_ws_data = after_save(blob_size, stt_data, notes_obj, file_url, audio_request_id, file_name)
-                print(to_send_ws_data)
-            except NotesModel.DoesNotExist:
-                """NOTE is deleted"""
-                remove_bad_file(new_folder, audio_request_id, container_name, file_name)
-                to_send_ws_data = {
+            redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
+        else:
+            remove_bad_file(new_folder, audio_request_id, container_name, file_name)
+            to_send_ws_data = {
+                "client_id": user_id,
+                "data": {
                     "status": "FAILED",
                     "audio_request_id": audio_request_id,
                     "detail": "Unknown Error Occurred or Note Deleted",
                 }
-                print(to_send_ws_data)
+            }
+            print(to_send_ws_data)
+            redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
+
     else:
         remove_bad_file(new_folder, audio_request_id, container_name, file_name)
         to_send_ws_data = {
-            "status": "FAILED",
-            "audio_request_id": audio_request_id,
-            "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
+            "client_id": user_id,
+            "data": {
+                "status": "FAILED",
+                "audio_request_id": audio_request_id,
+                "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
+            }
         }
         print(to_send_ws_data)
+        redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)

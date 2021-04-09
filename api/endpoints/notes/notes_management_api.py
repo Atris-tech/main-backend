@@ -1,6 +1,7 @@
-from fastapi import Request
+from fastapi import Request, Query
 from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data
 from Services.auth.auth_services import token_check
+from settings import MIN_NOTES_ID, MAX_NOTES_ID
 from .child_api_routes import routing
 from Services.notes.notes_parsing_service import b64_to_html
 from .models import NotesEditingModel, NotesSavingModel, NotesRenameModel, NotesDeleteModel
@@ -82,8 +83,8 @@ def star_note_api(
 
 @router.get("/get_note/", status_code=200)
 def get_notes_data_api(
-        notes_id: str,
         request: Request,
+        notes_id: str = Query(None, min_length=MIN_NOTES_ID, max_length=MAX_NOTES_ID)
 ):
     user_dict = token_check(request)
     return get_notes_data(
