@@ -1,3 +1,5 @@
+from Services.notes.notes_saving_service import delete_notes
+from db_models.models import NotesModel
 from db_models.models.workspace_model import WorkSpaceModel
 from db_models.models.user_model import UserModel
 from fastapi import HTTPException
@@ -94,6 +96,9 @@ def rename_workspace(user_dict, old_workspace_name, new_workspace_name=False, em
 def delete_workspace(workspace_id, user_dict):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     workspace_model_obj = check_workspace(id=workspace_id, user_obj=user_object_model)
+    notes_objs = NotesModel.objects.filter(workspace_id=workspace_model_obj)
+    for notes_obj in notes_objs:
+        delete_notes(notes_obj.id, user_dict["email_id"])
     workspace_model_obj.delete()
     return True
 

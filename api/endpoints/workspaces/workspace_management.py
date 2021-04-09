@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from Services.workspace_services import new_workspace, delete_workspace, rename_workspace, display_all_caches
 from Services.auth.auth_services import token_check
 from api.endpoints.workspaces.models import WorkspaceEditingModel, WorkspaceRenameModel, WorkspaceDeleteModel, \
@@ -54,19 +54,20 @@ def rename_user_workspace(
 def delete_user_workspace(
         workspace_delete_obj: WorkspaceDeleteModel,
         request: Request,
+        background_tasks: BackgroundTasks
 
 ):
     user_dict = token_check(request)
-    return delete_workspace(
-        workspace_id=workspace_delete_obj.workspace_id,
-        user_dict=user_dict,
-    )
+    background_tasks.add_task(delete_workspace,
+                              workspace_id=workspace_delete_obj.workspace_id,
+                              user_dict=user_dict)
+    return True
 
 
 @router.post("/display_all_notes", status_code=200)
 def display_notes(
-    workspace_obj: WorkspaceCacheModel,
-    request: Request
+        workspace_obj: WorkspaceCacheModel,
+        request: Request
 ):
     user_dict = token_check(request)
     return display_all_caches(
