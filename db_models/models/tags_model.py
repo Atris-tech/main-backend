@@ -1,9 +1,10 @@
 import mongoengine
 from .user_model import UserModel
 from db_models.models.cache_display_model import CacheModel
+import mongoengine_goodjson as gj
 
 
-class TagModel(mongoengine.Document):
+class TagModel(gj.Document):
     def __init__(self, *args, **values):
         super().__init__(*args, **values)
         print("tag_model_called")

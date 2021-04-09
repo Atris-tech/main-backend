@@ -4,17 +4,23 @@ import json
 
 
 def api_call(file_to_process, end_point=False, f_align_end_point=False, sound_recog_endpoint=False, binary=False,
-             file_name=False, no_payload=False, status=False):
+             file_name=False, no_payload=False, status=False, image=False):
     if not no_payload:
         print("in api call")
         payload = {'f_align_url': f_align_end_point,
                    'sound_recog_url': sound_recog_endpoint
                    }
     if binary:
-        print("in if")
-        files = [
-            ('file', (file_name, file_to_process, 'application/octet-stream'))
-        ]
+        if image:
+            print("in if")
+            files = [
+                ('image', (file_name, file_to_process, 'application/octet-stream'))
+            ]
+        else:
+            print("in if")
+            files = [
+                ('file', (file_name, file_to_process, 'application/octet-stream'))
+            ]
     else:
         print("in api else")
         print(str(Path(file_to_process).name))

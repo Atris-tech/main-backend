@@ -20,7 +20,7 @@ notes_schema = {
     'fields': [
         {'name': 'id', 'type': 'string'},
         {'name': 'notes_name', 'type': 'string'},
-        {'name': 'user_id', 'type': 'string'},
+        {'name': 'user_id', 'type': 'string', "facet": True},
         {'name': 'date', 'type': 'int32'},
         {'name': 'clean_text', 'type': 'string'},
         {'name': 'summary', 'type': 'string'}
@@ -32,7 +32,7 @@ images_schema = {
     'name': TYPESENSE_IMAGES_INDEX,
     'fields': [
         {'name': 'id', 'type': 'string'},
-        {'name': 'user_id', 'type': 'string'},
+        {'name': 'user_id', 'type': 'string', "facet": True},
         {'name': 'date', 'type': 'int32'},
         {'name': 'notes_id', 'type': 'string'},
         {'name': 'ocr', 'type': 'string'},
@@ -46,7 +46,7 @@ audio_schema = {
     'fields': [
         {'name': 'id', 'type': 'string'},
         {'name': 'name', 'type': 'string'},
-        {'name': 'user_id', 'type': 'string'},
+        {'name': 'user_id', 'type': 'string', "facet": True},
         {'name': 'date', 'type': 'int32'},
         {'name': 'notes_id', 'type': 'string'},
         {'name': 'transcribe', 'type': 'string'},

@@ -6,6 +6,11 @@ class UserBanned:
     detail = "user_banned"
 
 
+class NotFound:
+    code = 400
+    detail = "not found"
+
+
 class TokenDoesNotExist:
     code = 401
     detail = "token_not_exist"

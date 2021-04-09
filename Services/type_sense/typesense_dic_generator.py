@@ -22,7 +22,10 @@ def generate_typsns_data(obj, notes_name=False, summary=False, clean_text=False,
             print(obj.name)
             return data
         elif ocr_text or labels_list:
-            data["ocr"] = ocr_text,
+            print("ocr_text in tps")
+            print(ocr_text)
+            print(type(ocr_text))
+            data["ocr"] = ocr_text
             data["labels"] = labels_list
             return data
 

@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from error_constants import BadRequest, EntityLengthError
 from db_models.models.notes_model import NotesModel
 from db_models.models.cache_display_model import CacheModel
-from Services.type_sense.type_sense_crud_service import get_collection
+from Services.type_sense.type_sense_crud_service import get_collection, update_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from settings import TYPESENSE_NOTES_INDEX, NOTES_SUMMARY_DIFFERENCE_THRESHOLD, MAX_SUMMARY_ENTITY_LENGTH
 from Services.notes.notes_saving_service import generate_summary_from_clean_text
@@ -16,14 +16,18 @@ def handle_summary(user_obj, smmry_reqst_obj):
         notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=smmry_reqst_obj.notes_id))
         print(str(notes_obj.id))
         notes_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=str(notes_obj.id))
-        print(notes_data)
+        # print(notes_data)
         if smmry_reqst_obj.summary:
+            print("mannual summary")
+            print(smmry_reqst_obj.summary)
             if notes_data is None:
-                generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary, clean_text="",
+                tps_data = generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary, clean_text="",
                                      notes_name=notes_obj.notes_name)
             else:
-                generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary, notes_name=notes_obj.notes_name,
+                tps_data = generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary, notes_name=notes_obj.notes_name,
                                      clean_text=notes_data["clean_text"])
+
+            update_collection(index=TYPESENSE_NOTES_INDEX, data=tps_data)
             notes_obj.uds = "MANUAL"
             notes_obj.save()
             cache_display_model = CacheModel.objects.get(notes_id=notes_obj)
