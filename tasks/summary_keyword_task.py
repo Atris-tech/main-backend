@@ -1,3 +1,4 @@
+from Services.redis_service import redis_publisher_serv
 from task_worker_config.celery import app
 from Services.summarization_api_call import summary_and_keywords_or_entity_api_call
 from Services.type_sense.type_sense_crud_service import get_collection
@@ -10,7 +11,7 @@ global_init()
 
 
 @app.task(soft_time_limit=500, max_retries=3)
-def summary_task(notes_id, summary_api_endpoint):
+def summary_task(notes_id, summary_api_endpoint, user_id):
     try:
         notes_model_obj = NotesModel.objects.get(id=notes_id)
         notes_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=notes_id)
@@ -25,6 +26,30 @@ def summary_task(notes_id, summary_api_endpoint):
         cache_model_obj.save()
         keywords = data["keywords"]
         """socket send for keywords"""
+        to_send_ws_data = {
+            "client_id": user_id,
+            "data": {
+                "status": "PROCESSED",
+                "task": "Summary generation",
+                "keywords": keywords,
+                "notes_name": notes_model_obj.notes_name,
+                "notes_id": notes_id,
+                "workspace_id": str(notes_model_obj.workspace_id.id)
+                }
+        }
+        print(to_send_ws_data)
+        redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
     except NotesModel.DoesNotExist:
         print("the person deleted the note")
+        to_send_ws_data = {
+            "client_id": user_id,
+            "data": {
+                    "status": "FAILED",
+                    "task": "Summary generation",
+                    "notes_id": notes_id,
+                    "detail": "Unknown Error Occurred or Note has been Deleted",
+            }
+        }
+        print(to_send_ws_data)
+        redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
 

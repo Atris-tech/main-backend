@@ -36,6 +36,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                         "client_id": str(user_obj.id),
                         "data": {
                             "status": "PROCESSED",
+                            "task": "Audio Processing",
                             "audio_request_id": audio_request_id,
                             "audio_id": str(audio_model_obj.id)
                         }
@@ -50,6 +51,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                         "client_id": str(user_obj.id),
                         "data": {
                             "status": "FAILED",
+                            "task": "Audio Processing",
                             "audio_request_id": audio_request_id,
                             "detail": "Unknown Error Occurred or Note Deleted",
                         }
@@ -65,6 +67,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                     "client_id": str(user_obj.id),
                     "data": {
                         "status": "FAILED",
+                        "task": "Audio Processing",
                         "audio_request_id": audio_request_id,
                         "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
                     }

@@ -25,7 +25,8 @@ def entity_emotion_call(request: Request, smmry_reqst_obj: SmmryEntityModel):
                       kwargs={
                           "entity_endpoint": str(ENTITY_ENDPOINT),
                           "notes_id": str(notes_obj.id),
-                          "emotion_endpoint": str(EMOTION_ANALYSIS_ENDPOINT)
+                          "emotion_endpoint": str(EMOTION_ANALYSIS_ENDPOINT),
+                          "user_id": str(user_obj.id)
                       })
     except NotesModel.DoesNotExist:
         raise HTTPException(

@@ -66,7 +66,8 @@ def handle_summary(user_obj, smmry_reqst_obj):
                                   queue="summary_queue",
                                   kwargs={
                                       "summary_api_endpoint": str(url),
-                                      "notes_id": str(notes_obj.id)
+                                      "notes_id": str(notes_obj.id),
+                                      "user_id": str(user_obj.id)
                                   })
 
     except NotesModel.DoesNotExist:

@@ -70,6 +70,7 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                 "client_id": user_id,
                 "data": {
                     "status": "PROCESSED",
+                    "task": "Audio Processing",
                     "audio_request_id": audio_request_id,
                     "audio_id": str(audio_model_obj.id)
                 }
@@ -82,6 +83,7 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                 "client_id": user_id,
                 "data": {
                     "status": "FAILED",
+                    "task": "Audio Processing",
                     "audio_request_id": audio_request_id,
                     "detail": "Unknown Error Occurred or Note Deleted",
                 }
@@ -95,6 +97,7 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
             "client_id": user_id,
             "data": {
                 "status": "FAILED",
+                "task": "Audio Processing",
                 "audio_request_id": audio_request_id,
                 "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
             }
