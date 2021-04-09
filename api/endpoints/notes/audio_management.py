@@ -17,10 +17,10 @@ router = APIRouter()
 @router.get("/get_audio_data/", status_code=200)
 def get_audio_data_api(
         request: Request,
-        audio_id: str = Query(None, min_length=MIN_NOTES_ID, max_length=MAX_NOTES_ID),
+        notes_id: str = Query(None, min_length=MIN_NOTES_ID, max_length=MAX_NOTES_ID),
 ):
     user_dict = token_check(request)
-    return get_audio_data(audio_id, user_dict["email_id"])
+    return get_audio_data(notes_id, user_dict["email_id"])
 
 
 @router.post("/delete_audio/", status_code=200)

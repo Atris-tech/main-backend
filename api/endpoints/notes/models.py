@@ -145,6 +145,20 @@ class AudioDeleteModel(BaseModel):
         return v
 
 
+class ImageDeleteModel(BaseModel):
+    image_id: str
+
+    @validator('image_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
 class AudioRenameModel(BaseModel):
     audio_id: str
     new_name: str

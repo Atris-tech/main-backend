@@ -7,18 +7,24 @@ from error_constants import BadRequest
 from settings import TYPESENSE_AUDIO_INDEX
 
 
-def get_audio_data(audio_id, email):
+def get_audio_data(notes_id, email):
     try:
         user_obj = UserModel.objects.get(email_id=email)
-        audio_obj = Audio.objects.get(Q(user_id=user_obj) & Q(id=audio_id))
-        data = get_collection(id=str(audio_obj.id), index=TYPESENSE_AUDIO_INDEX)
-        to_send_data = dict()
-        to_send_data["url"] = audio_obj.url
-        to_send_data["transcribe"] = data["transcribe"]
-        to_send_data["sound_recog_results"] = data["sound_recog"]
-        to_send_data["alignments"] = audio_obj.forced_alignment_data
-        to_send_data["name"] = data["name"]
-        return to_send_data
+        audio_objs = Audio.objects.filter(Q(user_id=user_obj) & Q(notes_id=notes_id))
+        to_send_data_array = list()
+        for audio_obj in audio_objs:
+            data = get_collection(id=str(audio_obj.id), index=TYPESENSE_AUDIO_INDEX)
+            to_send_data = dict()
+            to_send_data["url"] = audio_obj.url
+            if "transcribe" in data:
+                to_send_data["transcribe"] = data["transcribe"]
+            if "sound_recog_results" in data:
+                to_send_data["sound_recog_results"] = data["sound_recog"]
+            if "alignments" in data:
+                to_send_data["alignments"] = audio_obj.forced_alignment_data
+            to_send_data["name"] = data["name"]
+            to_send_data_array.append(to_send_data)
+        return to_send_data_array
     except Audio.DoesNotExist:
         raise HTTPException(
             status_code=BadRequest.code,
