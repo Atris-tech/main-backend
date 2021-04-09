@@ -6,15 +6,11 @@ from settings import TYPESENSE_NOTES_INDEX
 from task_worker_config.celery import app
 from db_models.mongo_setup import global_init
 
-global_init()
 
-
-@app.task(soft_time_limit=500, max_retries=3)
-def generate_entity_emotion(notes_id, entity_endpoint, emotion_endpoint, user_id):
-    try:
-        notes_model_obj = NotesModel.objects.get(id=notes_id)
-        notes_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=notes_id)
-        clean_text = notes_data["clean_text"]
+def save_entity_emotiopns(notes_model_obj, notes_id, entity_endpoint, emotion_endpoint, user_id):
+    notes_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=notes_id)
+    clean_text = notes_data["clean_text"]
+    if len(clean_text) > 10:
         entity_data = summary_and_keywords_or_entity_api_call(text=clean_text, url=entity_endpoint)
         emotion = summary_and_keywords_or_entity_api_call(text=clean_text, url=emotion_endpoint)
         notes_model_obj.emotion = emotion
@@ -30,18 +26,41 @@ def generate_entity_emotion(notes_id, entity_endpoint, emotion_endpoint, user_id
                 "workspace_id": str(notes_model_obj.workspace_id.id)
             }
         }
-        print(to_send_ws_data)
-        redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
-    except NotesModel.DoesNotExist:
-        print("the person deleted the note")
+    else:
         to_send_ws_data = {
             "client_id": user_id,
             "data": {
                 "status": "FAILED",
                 "task": "Entity Emotion generation",
                 "notes_id": notes_id,
-                "detail": "Unknown Error Occurred or Note has been Deleted",
+                "detail": "not enough text to generate entity"
             }
         }
-        print(to_send_ws_data)
-        redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
+    return to_send_ws_data
+
+
+@app.task(soft_time_limit=500, max_retries=3)
+def generate_entity_emotion(notes_id, entity_endpoint, emotion_endpoint, user_id):
+    global_init()
+    try:
+        notes_model_obj = NotesModel.objects.get(id=notes_id)
+        to_send_ws_data = save_entity_emotiopns(notes_model_obj, notes_id, entity_endpoint, emotion_endpoint, user_id)
+
+    except NotesModel.DoesNotExist:
+        try:
+            notes_model_obj = NotesModel.objects.get(id=notes_id)
+            to_send_ws_data = save_entity_emotiopns(notes_model_obj, notes_id, entity_endpoint, emotion_endpoint,
+                                                    user_id)
+        except NotesModel.DoesNotExist:
+            print("the person deleted the note")
+            to_send_ws_data = {
+                "client_id": user_id,
+                "data": {
+                    "status": "FAILED",
+                    "task": "Entity Emotion generation",
+                    "notes_id": notes_id,
+                    "detail": "Unknown Error Occurred or Note has been Deleted",
+                }
+            }
+    print(to_send_ws_data)
+    redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)

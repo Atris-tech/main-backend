@@ -100,5 +100,6 @@ IMAGE_RECOG_PROBABILITY_THRESHOLD = float(os.getenv("IMAGE_RECOG_PROBABILITY_THR
 
 active_connections = []
 
+
 def get_ws_clients():
     return active_connections

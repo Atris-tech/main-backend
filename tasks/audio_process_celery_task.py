@@ -13,8 +13,6 @@ from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from Services.type_sense.type_sense_crud_service import create_collection
 from settings import TYPESENSE_AUDIO_INDEX
 
-global_init()
-
 
 def check_file_type(file_to_check):
     mime_type = magic.from_file(filename=file_to_check, mime=True)
@@ -31,6 +29,7 @@ def remove_bad_file(new_folder, audio_request_id, container_name, file_name):
 @app.task(soft_time_limit=500, max_retries=3)
 def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, container_name, original_file_name,
                      y_axis, user_id):
+    global_init()
     print("note_id")
     print(note_id)
     print("in enqueue")
