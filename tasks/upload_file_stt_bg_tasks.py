@@ -19,6 +19,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
         url = data["url"]
         direct_api_supported_plans = get_list("DIRECT_STT_API_PLANS")
         if user_obj.plan in direct_api_supported_plans:
+            print("background_tasks")
             stt_end_point = get_val(key="STT_UPLOAD_URL")
             f_align_end_point = get_val(key="FORCED_ALIGN_UPLOAD_URL")
             sound_recog_endpoint = get_val(key="SOUND_RECOG_ENDPOINT")
@@ -75,6 +76,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                 print(to_send_ws_data)
                 redis_publisher_serv(channel=str(user_obj.id), data=to_send_ws_data)
         else:
+            print("celery task called")
             app.send_task("tasks.audio_process_celery_task.audio_preprocess",
                           queue="stt_queue",
                           kwargs={

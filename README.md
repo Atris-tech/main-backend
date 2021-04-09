@@ -8,38 +8,38 @@ docker stop `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'`
 
 ```
 screen -S d_gentle
-docker run -p 8765:8765 lowerquality/gentle
+docker run --restart always -p 8765:8765 lowerquality/gentle
 ```
 
 ```
 screen -S d_stt
-docker run --gpus all -p 7000:7000 jainal09/nemo:latest
+docker run --restart always --gpus all -p 7000:7000 jainal09/nemo:latest
 ```
 ```
 screen -S d_max-audio
-docker run -p 5000:5000 -it quay.io/codait/max-audio-classifier
+docker run --restart always -p 5000:5000 -it quay.io/codait/max-audio-classifier
 ```
 
 ```
 screen -S d_image_label
-docker run -p 9000:5000 -it quay.io/codait/max-resnet-50
+docker run --restart always -p 9000:5000 -it quay.io/codait/max-resnet-50
 ```
 
 ```
 screen -S d_emotion
-docker run --gpus all -p 8007:8007 faizanshk/atris-emotion
+docker run --restart always --gpus all -p 8007:80 faizanshk/atris-emotion
 ```
 ```
 screen -S d_entity
-docker run --gpus all -p 8006:8006 shazam22/atris-entity
+docker run --restart always --gpus all -p 8006:8006 shazam22/atris-entity
 ```
 ```
 screen -S d_summary
-docker run --gpus all -p 8005:8005 beyonder99/atris_summerization
+docker run --restart always --gpus all -p 8005:8005 beyonder99/atris_summerization
 ```
 ```
 screen -S d_ocr
-docker run -it -p 1000:5000 quay.io/codait/max-ocr
+docker run --restart always -it -p 1000:5000 quay.io/codait/max-ocr
 ```
 
 ```
