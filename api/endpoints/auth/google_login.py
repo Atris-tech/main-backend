@@ -46,23 +46,31 @@ async def auth(request: Request):
                 if get_user.user_name == user_name:
                     print("fucked up name")
                     return RedirectResponse(url=settings.LOGIN_PAGE)
-
+            try:
+                last_name = user["name"].split()[1].replace(" ", "").capitalize()
+            except IndexError:
+                last_name = None
             token_dict = sign_up(
                 user_name=user_name.replace(" ", "").lower(),
                 email=user["email"].replace(" ", "").lower(),
-                first_name=user["name"].split()[0].replace(" ", "").lower(),
-                last_name=user["name"].split()[1].replace(" ", "").lower(),
+                first_name=user["name"].split()[0].replace(" ", "").capitalize(),
+                last_name=last_name,
                 picture=user["picture"],
                 user_check=False
             )
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
                                         token_dict["ref_token"])
         else:
+            print(user)
+            try:
+                last_name = user["name"].split()[1].replace(" ", "").capitalize()
+            except IndexError:
+                last_name = None
             token_dict = sign_up(
                 user_name=user["given_name"].replace(" ", "").lower(),
                 email=user["email"],
-                first_name=user["name"].split()[0].replace(" ", "").lower(),
-                last_name=user["name"].split()[1].replace(" ", "").lower(),
+                first_name=user["name"].split()[0].replace(" ", "").capitalize(),
+                last_name = last_name,
                 picture=user["picture"],
                 user_check=False
             )

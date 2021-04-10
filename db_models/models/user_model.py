@@ -7,7 +7,7 @@ class UserModel(mongoengine.Document):
     user_name = mongoengine.StringField(required=True)
     email_id = mongoengine.StringField(required=True)
     first_name = mongoengine.StringField(required=True)
-    last_name = mongoengine.StringField(required=True)
+    last_name = mongoengine.StringField()
     image = mongoengine.StringField()
     account_type = mongoengine.StringField(required=True)
     password_hash = mongoengine.StringField()
