@@ -47,6 +47,7 @@ audio_schema = {
         {'name': 'id', 'type': 'string'},
         {'name': 'name', 'type': 'string'},
         {'name': 'user_id', 'type': 'string', "facet": True},
+        {'name': 'audio_id', 'type': 'string'},
         {'name': 'date', 'type': 'int32'},
         {'name': 'notes_id', 'type': 'string'},
         {'name': 'transcribe', 'type': 'string'},
@@ -56,6 +57,15 @@ audio_schema = {
 }
 
 if __name__ == '__main__':
-    print(client.collections.create(notes_schema))
-    print(client.collections.create(images_schema))
-    print(client.collections.create(audio_schema))
+    try:
+        print(client.collections.create(notes_schema))
+    except typesense.exceptions.ObjectAlreadyExists:
+        print("notes exists")
+    try:
+        print(client.collections.create(images_schema))
+    except typesense.exceptions.ObjectAlreadyExists:
+        print("images exists")
+    try:
+        print(client.collections.create(audio_schema))
+    except typesense.exceptions.ObjectAlreadyExists:
+        print("audio exists")

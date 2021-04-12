@@ -5,7 +5,7 @@ import uuid
 from Services.audios.audio_upload_helper import audio_save_to_db
 from Services.redis_service import get_val, redis_publisher_serv
 from Services.api_call_service import api_call
-from Services.storage_services import delete_blob
+from Services.storage_services import StorageServices
 from db_models.mongo_setup import global_init
 from task_worker_config.celery import app
 import magic
@@ -21,7 +21,7 @@ def check_file_type(file_to_check):
 
 def remove_bad_file(new_folder, audio_request_id, container_name, file_name):
     shutil.rmtree(new_folder)
-    delete_blob(container_name=container_name, blob_name=file_name)
+    StorageServices().delete_blob(container_name=container_name, blob_name=file_name)
     print("BAD FILE")
     print(audio_request_id)
 
@@ -56,10 +56,12 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
         shutil.rmtree(new_folder)
         print("folder deleted")
 
-        audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=note_id,
-                                           url=file_url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
-        if audio_model_obj is not None:
-            tps_dic = generate_typsns_data(obj=audio_model_obj, audio_data=stt_data)
+        audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=note_id,
+                                          url=file_url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
+        if audio_obj_dict is not None:
+            tps_dic = generate_typsns_data(obj=audio_obj_dict["audio_results_obj"], audio_data=stt_data,
+                                           audio_id=str(audio_obj_dict["audio_obj"].id),
+                                           audio_name=audio_obj_dict["audio_obj"].name)
             print(tps_dic)
             create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
             print("SAVED TO DB")
@@ -71,7 +73,7 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                     "status": "PROCESSED",
                     "task": "Audio Processing",
                     "audio_request_id": audio_request_id,
-                    "audio_id": str(audio_model_obj.id)
+                    "audio_id": str(audio_obj_dict["audio_obj"].id)
                 }
             }
             print(to_send_ws_data)

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, File, UploadFile, HTTPException
 from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
-from Services.storage_services import upload_file_blob_storage
+from Services.storage_services import StorageServices
 from api.endpoints.auth.models import UserSettingModel
 
 router = APIRouter()
@@ -39,7 +39,7 @@ def change_dp(
 ):
     user_dict = token_check(request)
     file_data = file.file.read()
-    return upload_file_blob_storage(file_data=file_data, file_name=file.filename, email=user_dict["email_id"],
+    return StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file.filename, email=user_dict["email_id"],
                                     profile=True)
 
 

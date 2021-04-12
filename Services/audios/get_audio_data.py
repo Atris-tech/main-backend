@@ -1,3 +1,6 @@
+import datetime
+
+from dateutil.tz import tzutc
 from mongoengine import Q
 from Services.type_sense.type_sense_crud_service import get_collection
 from db_models.models.audio_model import Audio
@@ -5,6 +8,18 @@ from db_models.models.user_model import UserModel
 from fastapi.exceptions import HTTPException
 from error_constants import BadRequest
 from settings import TYPESENSE_AUDIO_INDEX
+from Services.storage_services import StorageServices
+import urllib.parse as urlparse
+from urllib.parse import parse_qs
+import dateutil.parser
+
+
+def check_audio_url_expired(url):
+    parsed = urlparse.urlparse(url)
+    params = parse_qs(parsed.query)
+    to_check_date = dateutil.parser.isoparse(params["se"][0])
+    current_date = datetime.datetime.now(tz=tzutc())
+    return current_date > to_check_date
 
 
 def get_audio_data(notes_id, email):
@@ -13,16 +28,22 @@ def get_audio_data(notes_id, email):
         audio_objs = Audio.objects.filter(Q(user_id=user_obj) & Q(notes_id=notes_id))
         to_send_data_array = list()
         for audio_obj in audio_objs:
-            data = get_collection(id=str(audio_obj.id), index=TYPESENSE_AUDIO_INDEX)
             to_send_data = dict()
-            to_send_data["url"] = audio_obj.url
-            if "transcribe" in data:
-                to_send_data["transcribe"] = data["transcribe"]
-            if "sound_recog_results" in data:
-                to_send_data["sound_recog_results"] = data["sound_recog"]
-            if "alignments" in data:
-                to_send_data["alignments"] = audio_obj.forced_alignment_data
-            to_send_data["name"] = data["name"]
+            to_send_data["name"] = audio_obj.name
+            if check_audio_url_expired(audio_obj.url):
+                url = StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
+                                                       blob_name=audio_obj.blob_name)
+                if url is not None:
+                    to_send_data["url"] = url
+                    audio_obj.url = url
+                    audio_obj.update(url=url)
+                    print("url updated")
+                else:
+                    print("None Url")
+            else:
+                to_send_data["url"] = audio_obj.url
+            to_send_data["sound_recog_results"] = audio_obj.sound_recog_results
+            to_send_data["alignments"] = audio_obj.forced_alignment_data
             to_send_data_array.append(to_send_data)
         return to_send_data_array
     except Audio.DoesNotExist:

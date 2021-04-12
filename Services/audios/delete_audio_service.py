@@ -1,5 +1,5 @@
 from Services.type_sense.type_sense_crud_service import delete_collection
-from Services.storage_services import delete_blob
+from Services.storage_services import StorageServices
 from settings import TYPESENSE_AUDIO_INDEX
 from db_models.models.audio_model import Audio
 
@@ -10,10 +10,10 @@ def delete_audios(notes_obj, container_name):
     for audio_obj in audio_objs:
         print(audio_obj.blob_name)
         delete_collection(collections_id=str(audio_obj.id), index=TYPESENSE_AUDIO_INDEX)
-        delete_blob(container_name=container_name, blob_name=audio_obj.blob_name)
+        StorageServices().delete_blob(container_name=container_name, blob_name=audio_obj.blob_name)
 
 
 def delete_single_audio(audio_obj, container_name):
     delete_collection(collections_id=str(audio_obj.id), index=TYPESENSE_AUDIO_INDEX)
-    delete_blob(container_name=container_name, blob_name=audio_obj.blob_name)
+    StorageServices().delete_blob(container_name=container_name, blob_name=audio_obj.blob_name)
     audio_obj.delete()

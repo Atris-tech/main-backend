@@ -70,7 +70,7 @@ async def auth(request: Request):
                 user_name=user["given_name"].replace(" ", "").lower(),
                 email=user["email"],
                 first_name=user["name"].split()[0].replace(" ", "").capitalize(),
-                last_name = last_name,
+                last_name=last_name,
                 picture=user["picture"],
                 user_check=False
             )

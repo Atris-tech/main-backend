@@ -1,6 +1,6 @@
 from fastapi import Request, File, UploadFile, HTTPException, Header, Depends, BackgroundTasks, Form, APIRouter
 from Services.auth.auth_services import token_check
-from Services.storage_services import upload_file_blob_storage
+from Services.storage_services import StorageServices
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
 from tasks.image_process_bg_task import index_image
@@ -55,7 +55,7 @@ def upload_audio(
             detail=BadRequest.detail
         )
     file_data = file.file.read()
-
+    check_space(user_model_obj=user_obj, blob_size=content_length)
     background_tasks.add_task(upload_task, user_obj=user_obj, notes_id=str(notes_obj.id),
                               file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
                               original_file_name=file.filename,
@@ -97,7 +97,7 @@ def upload_image(
     file_data = file.file.read()
     print("in upload task")
     file_name = str(uuid.uuid4()) + file.filename
-    data = upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
+    data = StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
     print("data")
     print(data)
     url = data["url"]

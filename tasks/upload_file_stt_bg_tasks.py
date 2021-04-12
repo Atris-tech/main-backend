@@ -1,5 +1,7 @@
 import uuid
-from Services.storage_services import upload_file_blob_storage, delete_blob
+
+from Services.plan_helper import check_space
+from Services.storage_services import StorageServices
 from Services.api_call_service import api_call
 from Services.audios.audio_upload_helper import audio_save_to_db
 from Services.redis_service import get_list, get_val, redis_publisher_serv
@@ -11,7 +13,8 @@ from task_worker_config.celery import app
 
 def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_request_id, original_file_name, y_axis):
     file_name = str(uuid.uuid4()) + file_name
-    data = upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
+    print(blob_size)
+    data = StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
     print("data")
     print(data)
     if data:
@@ -29,9 +32,9 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
             print("stt_data")
             print(stt_data)
             if stt_data:
-                audio_model_obj = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=notes_id,
-                                                   url=url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
-                if audio_model_obj is not None:
+                audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=notes_id,
+                                                  url=url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
+                if audio_obj_dict is not None:
                     """websocket code here"""
                     to_send_ws_data = {
                         "client_id": str(user_obj.id),
@@ -39,11 +42,13 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                             "status": "PROCESSED",
                             "task": "Audio Processing",
                             "audio_request_id": audio_request_id,
-                            "audio_id": str(audio_model_obj.id)
+                            "audio_id": str(audio_obj_dict["audio_obj"].id)
                         }
                     }
                     print(to_send_ws_data)
-                    tps_dic = generate_typsns_data(obj=audio_model_obj, audio_data=stt_data)
+                    tps_dic = generate_typsns_data(obj=audio_obj_dict["audio_results_obj"], audio_data=stt_data,
+                                                   audio_id=str(audio_obj_dict["audio_obj"].id),
+                                                   audio_name=audio_obj_dict["audio_obj"].name)
                     print(tps_dic)
                     create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
                     redis_publisher_serv(channel=str(user_obj.id), data=to_send_ws_data)
@@ -61,7 +66,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                     redis_publisher_serv(channel=str(user_obj.id), data=to_send_ws_data)
             else:
                 """WRONG FILE FORMAT"""
-                delete_blob(container_name=data["container_name"], blob_name=file_name)
+                StorageServices().delete_blob(container_name=data["container_name"], blob_name=file_name)
                 print("BAD FILE")
                 print(audio_request_id)
                 to_send_ws_data = {
