@@ -166,7 +166,10 @@ def get_notes_data(user_dict, note_id):
         if notes_container_name is not None:
             notes_raw = download_blob(container_name=user_object_model.user_storage_notes_container_name,
                                       blob_id=notes_model_obj.note_blob_id)
-            to_send_data["notes_data"] = base64.b64encode(notes_raw)
+            if notes_raw is not None:
+                to_send_data["notes_data"] = base64.b64encode(notes_raw)
+            else:
+                to_send_data["notes_data"] = None
         else:
             to_send_data["notes_data"] = None
         to_send_data["tags_id"] = notes_dict["tags"]
