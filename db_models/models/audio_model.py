@@ -1,6 +1,7 @@
 import mongoengine
-from db_models.models.user_model import UserModel
+
 from db_models.models.notes_model import NotesModel
+from db_models.models.user_model import UserModel
 
 
 class Audio(mongoengine.Document):

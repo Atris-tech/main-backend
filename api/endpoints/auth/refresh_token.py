@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from Services.auth.auth_services import token_check
 from starlette.requests import Request
 
+from Services.auth.auth_services import token_check
 
 router = APIRouter()
 

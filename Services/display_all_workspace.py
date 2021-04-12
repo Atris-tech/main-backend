@@ -1,6 +1,7 @@
-from db_models.models.workspace_model import WorkSpaceModel
-from db_models.models.user_model import UserModel
 import json
+
+from db_models.models.user_model import UserModel
+from db_models.models.workspace_model import WorkSpaceModel
 
 
 def display_workspace_catch(email):

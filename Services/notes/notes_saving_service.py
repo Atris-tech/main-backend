@@ -1,23 +1,25 @@
-from Services.audios.delete_audio_service import delete_audios
-from db_models.models.cache_display_model import CacheModel
-from db_models.models.notes_model import NotesModel
-from db_models.models.workspace_model import WorkSpaceModel
-from fastapi import HTTPException
-import error_constants
-from mongoengine.queryset.visitor import Q
-from db_models.models.user_model import UserModel
-from Services.notes.notes_parsing_service import html_to_text
-from Services.storage_services import StorageServices
-from Services.plan_helper import check_space
-import uuid
-from settings import MAX_CACHE_TEXT_WORDS
 import base64
 import json
-from settings import TYPESENSE_NOTES_INDEX
+import uuid
+
+from fastapi import HTTPException
+from mongoengine.queryset.visitor import Q
+
+import error_constants
+from Services.audios.delete_audio_service import delete_audios
+from Services.notes.generate_notes_difference import compare
+from Services.notes.notes_parsing_service import html_to_text
+from Services.plan_helper import check_space
+from Services.storage_services import StorageServices
 from Services.type_sense.type_sense_crud_service import get_collection, update_collection, delete_collection, \
     create_collection
-from Services.notes.generate_notes_difference import compare
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
+from db_models.models.cache_display_model import CacheModel
+from db_models.models.notes_model import NotesModel
+from db_models.models.user_model import UserModel
+from db_models.models.workspace_model import WorkSpaceModel
+from settings import MAX_CACHE_TEXT_WORDS
+from settings import TYPESENSE_NOTES_INDEX
 
 
 def generate_summary_from_clean_text(clean_txt):

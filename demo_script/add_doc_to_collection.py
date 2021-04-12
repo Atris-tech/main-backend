@@ -1,4 +1,5 @@
 import typesense
+
 import settings
 
 client = typesense.Client({

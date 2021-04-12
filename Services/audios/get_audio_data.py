@@ -1,17 +1,16 @@
 import datetime
-
-from dateutil.tz import tzutc
-from mongoengine import Q
-from Services.type_sense.type_sense_crud_service import get_collection
-from db_models.models.audio_model import Audio
-from db_models.models.user_model import UserModel
-from fastapi.exceptions import HTTPException
-from error_constants import BadRequest
-from settings import TYPESENSE_AUDIO_INDEX
-from Services.storage_services import StorageServices
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
+
 import dateutil.parser
+from dateutil.tz import tzutc
+from fastapi.exceptions import HTTPException
+from mongoengine import Q
+
+from Services.storage_services import StorageServices
+from db_models.models.audio_model import Audio
+from db_models.models.user_model import UserModel
+from error_constants import BadRequest
 
 
 def check_audio_url_expired(url):
@@ -51,4 +50,3 @@ def get_audio_data(notes_id, email):
             status_code=BadRequest.code,
             detail=BadRequest.detail
         )
-

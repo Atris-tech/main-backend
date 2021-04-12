@@ -1,9 +1,10 @@
-from jose import JWTError, jwt
-from fastapi import FastAPI, Request, HTTPException
-from pydantic import BaseModel
-import spacy
 import base64
 import re
+
+import spacy
+from fastapi import FastAPI, Request, HTTPException
+from jose import JWTError, jwt
+from pydantic import BaseModel
 
 print(spacy.prefer_gpu())
 nlp = spacy.load("en_core_web_lg")
@@ -42,7 +43,9 @@ async def entity_detection(text_obj: Text, request: Request):
         b64_string_binary = text_obj.text.encode('utf-8')
         binary_text = base64.b64decode(b64_string_binary)
         to_process_text = binary_text.decode('utf8')
-        to_process_text = to_process_text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace('\\n', ' ').replace('\\', ' ')
+        to_process_text = to_process_text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace('\\n',
+                                                                                                           ' ').replace(
+            '\\', ' ')
         to_process_text = re.sub(' +', ' ', to_process_text)
         to_process_text = to_process_text.replace('\\', ' ')
         doc = nlp(to_process_text)

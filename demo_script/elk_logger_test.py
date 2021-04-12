@@ -1,6 +1,8 @@
 import logging
-from logstash_async.handler import AsynchronousLogstashHandler
 import time
+
+from logstash_async.handler import AsynchronousLogstashHandler
+
 host = 'localhost'
 port = 5000
 # Get you a test logger

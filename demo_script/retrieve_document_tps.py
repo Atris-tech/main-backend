@@ -1,8 +1,6 @@
 import typesense
-import settings
-from Services.summarization_api_call import summary_and_keywords_or_entity_api_call
-import json
 
+import settings
 
 client = typesense.Client({
     'nodes': [{

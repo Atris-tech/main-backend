@@ -2,9 +2,9 @@ from Services.redis_service import redis_publisher_serv
 from Services.summarization_api_call import summary_and_keywords_or_entity_api_call
 from Services.type_sense.type_sense_crud_service import get_collection
 from db_models.models import NotesModel
+from db_models.mongo_setup import global_init
 from settings import TYPESENSE_NOTES_INDEX
 from task_worker_config.celery import app
-from db_models.mongo_setup import global_init
 
 
 def save_entity_emotiopns(notes_model_obj, notes_id, entity_endpoint, emotion_endpoint, user_id):

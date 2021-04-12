@@ -1,7 +1,7 @@
-from Services.type_sense.type_sense_crud_service import delete_collection
 from Services.storage_services import StorageServices
-from settings import TYPESENSE_AUDIO_INDEX
+from Services.type_sense.type_sense_crud_service import delete_collection
 from db_models.models.audio_model import Audio
+from settings import TYPESENSE_AUDIO_INDEX
 
 
 def delete_audios(notes_obj, container_name):

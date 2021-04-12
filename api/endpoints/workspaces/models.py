@@ -1,12 +1,14 @@
 from typing import Optional
-from pydantic import BaseModel, validator
-from settings import MAX_WORKSPACE_NAME_LENGTH, MIN_WORKSPACE_ID, MAX_WORKSPACE_ID, MIN_WORKSPACE_NAME_LENGTH
-from error_constants import BadRequest, EntityLengthError
+
 from fastapi import HTTPException
+from pydantic import BaseModel, validator
+
+from error_constants import BadRequest, EntityLengthError
+from settings import MAX_WORKSPACE_NAME_LENGTH, MIN_WORKSPACE_ID, MAX_WORKSPACE_ID, MIN_WORKSPACE_NAME_LENGTH
 
 
 class WorkspaceEditingModel(BaseModel):
-    workspace_name:  str
+    workspace_name: str
     emoji: str
 
     @validator('*')
@@ -64,7 +66,7 @@ class WorkspaceRenameModel(BaseModel):
 
 
 class WorkspaceDeleteModel(BaseModel):
-    workspace_id:  str
+    workspace_id: str
 
     @validator('workspace_id')
     def has_min_length(cls, v):
@@ -79,7 +81,7 @@ class WorkspaceDeleteModel(BaseModel):
 
 
 class WorkspaceCacheModel(BaseModel):
-    workspace_id:  str
+    workspace_id: str
 
     @validator('workspace_id')
     def has_min_length(cls, v):

@@ -1,16 +1,18 @@
+import uuid
+
 from fastapi import Request, File, UploadFile, HTTPException, Header, Depends, BackgroundTasks, Form, APIRouter
+from mongoengine.queryset.visitor import Q
+
 from Services.auth.auth_services import token_check
+from Services.plan_helper import check_space
 from Services.storage_services import StorageServices
+from db_models.models.notes_model import NotesModel
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
+from error_constants import BadRequest, MinAudioLength, MaxAudioLength, MaxImageLength
+from settings import MIN_AUDIO_LENGTH, MAX_AUDIO_LENGTH, MAX_IMAGE_LENGTH
 from tasks.image_process_bg_task import index_image
 from tasks.upload_file_stt_bg_tasks import upload_task
-from db_models.models.notes_model import NotesModel
-import uuid
-from mongoengine.queryset.visitor import Q
-from error_constants import BadRequest, MinAudioLength, MaxAudioLength, MaxImageLength
-from Services.plan_helper import check_space
-from settings import MIN_AUDIO_LENGTH, MAX_AUDIO_LENGTH, MIN_IMAGE_LENGTH, MAX_IMAGE_LENGTH
 
 router = APIRouter()
 

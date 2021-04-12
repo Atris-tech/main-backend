@@ -1,7 +1,9 @@
+import os
+
 import mongoengine
 from mongoengine import connect
+
 import settings
-import os
 
 
 def string_to_bool(val: str) -> bool:

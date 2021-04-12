@@ -1,8 +1,10 @@
 import os
 import subprocess
 import uuid
-from settings import MIME_TYPES_AUDIO
+
 import magic
+
+from settings import MIME_TYPES_AUDIO
 
 
 def check_mime_type(file):

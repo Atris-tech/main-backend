@@ -1,9 +1,11 @@
-from pydantic import EmailStr, StrictStr
-from pydantic import BaseModel, validator
-from settings import MAX_USERNAME_LENGTH, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, MAX_NAME_LENGTH, MIN_NAME_LENGTH
 from typing import Optional
+
 from fastapi import HTTPException
+from pydantic import BaseModel, validator
+from pydantic import EmailStr, StrictStr
+
 from error_constants import EntityLengthError
+from settings import MAX_USERNAME_LENGTH, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, MAX_NAME_LENGTH, MIN_NAME_LENGTH
 
 
 class SignUpModel(BaseModel):
@@ -86,7 +88,8 @@ class ForgotPasswordModel(BaseModel):
     def has_min_length(cls, v, field):
         min_length = MIN_PASSWORD_LENGTH
         if len(v) < min_length:
-            error_obj = EntityLengthError(entity=str(field.name), min_length=True, length=min_length, your_length=len(v))
+            error_obj = EntityLengthError(entity=str(field.name), min_length=True, length=min_length,
+                                          your_length=len(v))
             raise HTTPException(
                 status_code=error_obj.code,
                 detail=error_obj.detail
@@ -111,7 +114,7 @@ class Login(BaseModel):
 
 
 class UserSettingModel(BaseModel):
-    username:  Optional[StrictStr]
+    username: Optional[StrictStr]
     firstname: StrictStr
     lastname: StrictStr
 

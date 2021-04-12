@@ -1,6 +1,8 @@
-import redis
-import settings
 import json
+
+import redis
+
+import settings
 
 redis_obj = redis.StrictRedis(host=settings.REDIS_HOSTNAME, port=settings.REDIS_PORT,
                               password=settings.REDIS_PASSWORD, ssl=True, decode_responses=True)

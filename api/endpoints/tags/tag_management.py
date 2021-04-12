@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request, HTTPException, Query
+
 import error_constants
 from Services.auth.auth_services import token_check
 from Services.tags_services import create_new_tag, remove_tag, recommend_tag

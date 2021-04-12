@@ -1,6 +1,6 @@
-from db_models.models.images_model import Image
-from Services.type_sense.type_sense_crud_service import delete_collection
 from Services.storage_services import delete_blob
+from Services.type_sense.type_sense_crud_service import delete_collection
+from db_models.models.images_model import Image
 from settings import TYPESENSE_IMAGES_INDEX
 
 

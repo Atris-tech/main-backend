@@ -1,9 +1,10 @@
 from fastapi import APIRouter
+
 from .endpoints.auth import google_login, login, refresh_token, sign_up
 from .endpoints.auth import user_settings
-from .endpoints.workspaces import workspace_management
 from .endpoints.notes import notes_management_api
 from .endpoints.tags import tag_management
+from .endpoints.workspaces import workspace_management
 
 api_router = APIRouter()
 api_router.include_router(google_login.router, tags=["login"])

@@ -1,5 +1,6 @@
 import os
 import warnings
+
 warnings.filterwarnings('ignore')
 import nemo.collections.asr as nemo_asr
 from nemo.collections import nlp as nemo_nlp
@@ -10,9 +11,7 @@ import uuid
 import requests
 import json
 
-
 app = FastAPI(host='0.0.0.0', port=8080)
-
 
 MIME_TYPES_AUDIO = {
     "mp3": "audio/mpeg",
@@ -26,7 +25,8 @@ MIME_TYPES_AUDIO = {
 # Speech Recognition model - QuartzNet
 jasper = nemo_asr.models.EncDecCTCModel.from_pretrained(model_name="Jasper10x5Dr-En").cuda()
 # Punctuation and capitalization model
-punctuation = nemo_nlp.models.PunctuationCapitalizationModel.from_pretrained(model_name='Punctuation_Capitalization_with_DistilBERT').cuda()
+punctuation = nemo_nlp.models.PunctuationCapitalizationModel.from_pretrained(
+    model_name='Punctuation_Capitalization_with_DistilBERT').cuda()
 
 
 def convert_audio(source_format, file):
@@ -43,7 +43,6 @@ def convert_audio(source_format, file):
         subprocess.call(["ffmpeg", "-i", file, "-acodec", "pcm_s16le", "-ac", "1", "-ar", "16000", target_file])
     os.remove(file)
     return target_file
-
 
 
 def check_mime_type(file):
@@ -90,7 +89,7 @@ def transcribe(file_name, f_align_url, sound_recog_url):
         print("here")
         payload = {'transcript': text}
         files = [
-          ('audio', (file_name, open(file_name, 'rb'), 'application/octet-stream'))
+            ('audio', (file_name, open(file_name, 'rb'), 'application/octet-stream'))
         ]
         response = requests.request("POST", f_align_url, data=payload, files=files)
         f_align = response.text

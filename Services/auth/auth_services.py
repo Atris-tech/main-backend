@@ -1,19 +1,19 @@
-from dateutil.relativedelta import relativedelta
-from jose import JWTError, jwt
-from Services.redis_service import get_val, set_val, redis_obj
 from datetime import datetime
-import settings
-from db_models.models.user_model import UserModel
-from passlib.context import CryptContext
-from db_models.mongo_setup import global_init
-from coolname import generate_slug
-from db_models.models.token_model import TokenModel
-from fastapi import HTTPException
-import error_constants
 
+from coolname import generate_slug
+from dateutil.relativedelta import relativedelta
+from fastapi import HTTPException
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+import error_constants
+import settings
+from Services.redis_service import get_val, set_val, redis_obj
+from db_models.models.token_model import TokenModel
+from db_models.models.user_model import UserModel
+from db_models.mongo_setup import global_init
 
 global_init()
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

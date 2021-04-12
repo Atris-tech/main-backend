@@ -1,7 +1,9 @@
-import mongoengine
-from .user_model import UserModel
 import datetime
+
+import mongoengine
 import mongoengine_goodjson as gj
+
+from .user_model import UserModel
 
 
 class WorkSpaceModel(gj.Document):

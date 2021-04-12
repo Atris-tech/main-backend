@@ -1,13 +1,15 @@
 from typing import Optional
-from pydantic import BaseModel, validator
+
 from fastapi import HTTPException
+from pydantic import BaseModel, validator
+
 from error_constants import BadRequest, EntityLengthError, MaxSummaryLength
 from settings import MAX_NOTES_NAME_LENGTH, MIN_NOTES_ID, MAX_NOTES_ID, MAX_SUMMARY_ENTITY_LENGTH
 
 
 class NotesEditingModel(BaseModel):
     work_space_id: str
-    notes_name:  Optional[str] = "untitled"
+    notes_name: Optional[str] = "untitled"
 
     @validator('*')
     def never_empty(cls, v, field):
@@ -40,7 +42,7 @@ class NotesEditingModel(BaseModel):
 
 
 class NotesSavingModel(BaseModel):
-    notes_id:  str
+    notes_id: str
     work_space_id: str
     data: str
 
@@ -90,7 +92,7 @@ class NotesRenameModel(BaseModel):
 
 
 class NotesDeleteModel(BaseModel):
-    notes_id:  str
+    notes_id: str
 
     @validator('notes_id')
     def has_min_length(cls, v):
@@ -126,7 +128,7 @@ class SmmryEntityModel(BaseModel):
             raise HTTPException(
                 status_code=MaxSummaryLength.code,
                 detail=MaxSummaryLength.detail
-        )
+            )
         return v
 
 
@@ -158,6 +160,7 @@ class ImageDeleteModel(BaseModel):
                 detail=BadRequest.detail
             )
         return v
+
 
 class AudioRenameModel(BaseModel):
     audio_id: str

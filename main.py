@@ -1,14 +1,14 @@
 import mongoengine
+import uvicorn
 from fastapi import FastAPI, Depends, WebSocket, status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from api.api import api_router
+
 import settings
-import uvicorn
-from settings import get_ws_clients
+from api.api import api_router
 from api.websocket_redis_connector import redis_connector
 from db_models.models.user_model import UserModel
-
+from settings import get_ws_clients
 
 app = FastAPI(
     title=settings.PROJECT_NAME
@@ -44,6 +44,7 @@ async def websocket_endpoint(client_id: str, websocket: WebSocket, clients=Depen
 
     except(UserModel.DoesNotExist, mongoengine.ValidationError):
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True, workers=1)

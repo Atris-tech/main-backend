@@ -1,6 +1,7 @@
 import mongoengine
-from db_models.models.user_model import UserModel
+
 from db_models.models.cache_display_model import CacheModel
+from db_models.models.user_model import UserModel
 
 
 class StarModel(mongoengine.Document):

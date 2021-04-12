@@ -1,12 +1,12 @@
 from fastapi import Request, Query
-from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data
+
 from Services.auth.auth_services import token_check
+from Services.notes.notes_parsing_service import b64_to_html
+from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data
+from Services.workspace_services import star_notes, get_star_notes
 from settings import MIN_NOTES_ID, MAX_NOTES_ID
 from .child_api_routes import routing
-from Services.notes.notes_parsing_service import b64_to_html
 from .models import NotesEditingModel, NotesSavingModel, NotesRenameModel, NotesDeleteModel
-from Services.workspace_services import star_notes, get_star_notes
-
 
 router = routing()
 

@@ -1,4 +1,5 @@
 import typesense
+
 import settings
 
 client = typesense.Client({
@@ -11,15 +12,14 @@ client = typesense.Client({
     'connection_timeout_seconds': 5
 })
 
-
 search_requests = {
-  'searches': [
-    {
-      'collection': 'notes11',
-      'q': 'test',
-      'filter_by': 'user_id:=12345a'
-    }
-  ]
+    'searches': [
+        {
+            'collection': 'notes11',
+            'q': 'test',
+            'filter_by': 'user_id:=12345a'
+        }
+    ]
 }
 
 common_search_params = {

@@ -1,7 +1,9 @@
-import requests
-import json
-from settings import MICRO_SERVICES_ACCESS_TOKEN
 import base64
+import json
+
+import requests
+
+from settings import MICRO_SERVICES_ACCESS_TOKEN
 
 
 def summary_and_keywords_or_entity_api_call(text, url):

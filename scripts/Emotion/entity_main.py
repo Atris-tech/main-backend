@@ -1,9 +1,10 @@
-from jose import JWTError, jwt
-from fastapi import FastAPI, Request, HTTPException
-from pydantic import BaseModel
-import nlu
 import base64
 import re
+
+import nlu
+from fastapi import FastAPI, Request, HTTPException
+from jose import JWTError, jwt
+from pydantic import BaseModel
 
 model = nlu.load('emotion')
 
@@ -26,7 +27,7 @@ def verify_token(request):
     token = token[1]
     try:
         payload = jwt.decode(token, "09d25e094fdf6ca25d6c81f166b7a9563g93f7099h6f0f4caa6cfj3b88e8d3e7",
-        algorithms=["HS256"])
+                             algorithms=["HS256"])
     except JWTError as e:
         raise HTTPException(
             status_code=401,

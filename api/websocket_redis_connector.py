@@ -1,8 +1,10 @@
+import asyncio
+import json
+
+import aioredis
 from fastapi import Depends, WebSocket, \
     WebSocketDisconnect
-import json
-import aioredis
-import asyncio
+
 from settings import REDIS_URI, active_connections, get_ws_clients
 
 

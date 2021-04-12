@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-from Services.auth.auth_services import sign_up, create_auth_url, check_user,\
+from starlette.requests import Request
+
+import error_constants
+from Services.auth.auth_services import sign_up, create_auth_url, check_user, \
     update_user_verification, token_check, create_verify_token
 from Services.mail.mail_service import send_mail
-from starlette.requests import Request
-import error_constants
 from api.endpoints.auth.models import SignUpModel, VerificationModel, ForgotPasswordModel
 
 router = APIRouter()
@@ -70,7 +71,7 @@ def resend(
 
 @router.post("/verify-user/", status_code=200)
 def verification(
-         request: Request
+        request: Request
 ):
     payload = token_check(request, verify=True)
     verification_status = update_user_verification(id=payload["id"], verified=True)

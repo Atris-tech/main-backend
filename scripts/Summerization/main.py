@@ -1,10 +1,11 @@
-from jose import JWTError, jwt
+import base64
+import re
+
+import yake
 from fastapi import FastAPI, Request, HTTPException
+from jose import JWTError, jwt
 from pydantic import BaseModel
 from summarizer import Summarizer
-import yake
-import re
-import base64
 
 model = Summarizer(model="bert-large-uncased")
 
@@ -51,7 +52,8 @@ async def summarizer(text_obj: Text, request: Request):
         b64_string_binary = text_obj.text.encode('utf-8')
         binary_text = base64.b64decode(b64_string_binary)
         to_summarize_string = binary_text.decode('utf8')
-        to_summarize_string = to_summarize_string.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace('\\n', ' ').replace('\\', ' ')
+        to_summarize_string = to_summarize_string.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace(
+            '\\n', ' ').replace('\\', ' ')
         to_summarize_string = re.sub(' +', ' ', to_summarize_string)
         to_summarize_string = to_summarize_string.replace('\\', ' ')
         result = model(to_summarize_string, min_length=60, num_sentences=3)

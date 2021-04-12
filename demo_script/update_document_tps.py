@@ -1,4 +1,5 @@
 import typesense
+
 import settings
 
 client = typesense.Client({
@@ -12,10 +13,10 @@ client = typesense.Client({
 })
 
 updated = {
-        'id': '4545452343111',
-        'user_id': '12345a',
-        'title': 'I am updated1',
-        'date': 12244
-    }
+    'id': '4545452343111',
+    'user_id': '12345a',
+    'title': 'I am updated1',
+    'date': 12244
+}
 
 print(client.collections['notes11'].documents['4545452343111'].update(updated))

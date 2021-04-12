@@ -1,4 +1,5 @@
 import os
+
 os.environ["TESTING_ATRIS"] = "True"
 from db_models.models.user_model import UserModel
 import unittest

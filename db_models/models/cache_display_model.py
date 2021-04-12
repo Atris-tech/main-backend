@@ -1,9 +1,11 @@
-import mongoengine
 import datetime
+
+import mongoengine
+import mongoengine_goodjson as gj
+
+from db_models.models import NotesModel
 from .user_model import UserModel
 from .workspace_model import WorkSpaceModel
-from db_models.models import NotesModel
-import mongoengine_goodjson as gj
 
 
 class CacheModel(gj.Document):

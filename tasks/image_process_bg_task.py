@@ -1,8 +1,8 @@
-from Services.redis_service import get_val
-from db_models.models.images_model import Image
-from Services.type_sense.typesense_dic_generator import generate_typsns_data
-from Services.type_sense.type_sense_crud_service import create_collection
 from Services.api_call_service import api_call
+from Services.redis_service import get_val
+from Services.type_sense.type_sense_crud_service import create_collection
+from Services.type_sense.typesense_dic_generator import generate_typsns_data
+from db_models.models.images_model import Image
 from settings import IMAGE_RECOG_PROBABILITY_THRESHOLD, TYPESENSE_IMAGES_INDEX
 
 

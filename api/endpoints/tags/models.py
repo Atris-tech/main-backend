@@ -1,5 +1,6 @@
-from pydantic import AnyStrMinLengthError, AnyStrMaxLengthError, BaseModel, validator
 from fastapi import HTTPException
+from pydantic import BaseModel, validator
+
 from error_constants import EntityLengthError, BadRequest
 from settings import MAX_TAGS_NAME, MIN_NOTES_ID, MAX_NOTES_ID
 

@@ -1,8 +1,10 @@
 import datetime
+
 import mongoengine
-from db_models.models.user_model import UserModel
-from db_models.models.notes_model import NotesModel
+
 from db_models.models.audio_model import Audio
+from db_models.models.notes_model import NotesModel
+from db_models.models.user_model import UserModel
 
 
 class AudioResultsModel(mongoengine.Document):

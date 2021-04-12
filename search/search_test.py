@@ -1,15 +1,16 @@
+import json
+
+from fastapi import HTTPException
 from mongoengine import Q
 
-from error_constants import BadRequest
-from Services.type_sense.type_sense_configs.typesense_client import client
-from settings import TYPESENSE_NOTES_INDEX, TYPESENSE_IMAGES_INDEX, TYPESENSE_AUDIO_INDEX
-from fastapi import HTTPException
 from Services.auth.auth_services import check_user
-from db_models.models.user_model import UserModel
+from Services.type_sense.type_sense_configs.typesense_client import client
+from Services.type_sense.type_sense_crud_service import delete_collection
 from db_models.models.cache_display_model import CacheModel
 from db_models.models.tags_model import TagModel
-from Services.type_sense.type_sense_crud_service import delete_collection
-import json
+from db_models.models.user_model import UserModel
+from error_constants import BadRequest
+from settings import TYPESENSE_NOTES_INDEX, TYPESENSE_IMAGES_INDEX, TYPESENSE_AUDIO_INDEX
 
 
 def search_data(search_requests, common_search_params, notes=True):
@@ -46,10 +47,10 @@ def search_notes(email, query):
     common_search_params = {
         'query_by': ['notes_name', 'clean_text', 'summary']
     }
-    return search_data(search_requests, common_search_params, notes=True,)
+    return search_data(search_requests, common_search_params, notes=True, )
 
 
-def search_images(email, query,):
+def search_images(email, query, ):
     user_obj = UserModel.objects.get(email_id=email)
 
     search_requests = {
@@ -64,7 +65,7 @@ def search_images(email, query,):
     common_search_params = {
         'query_by': ['ocr', 'labels']
     }
-    return search_data(search_requests, common_search_params, notes=False,)
+    return search_data(search_requests, common_search_params, notes=False, )
 
 
 def search_audio(email, query):
@@ -82,14 +83,14 @@ def search_audio(email, query):
     common_search_params = {
         'query_by': ['name', 'transcribe', 'sound_recog']
     }
-    return search_data(search_requests, common_search_params, notes=False,)
+    return search_data(search_requests, common_search_params, notes=False, )
 
 
 def filter_tag(tag_id, email):
     user_obj = check_user(email=email)
     search_results = list()
     try:
-        tag_obj = TagModel.objects.get(Q(user_id=user_obj)& Q(id=tag_id))
+        tag_obj = TagModel.objects.get(Q(user_id=user_obj) & Q(id=tag_id))
         tag_obj_data = json.loads(tag_obj.to_json())
         for cache_id in tag_obj_data["notes"]:
             try:

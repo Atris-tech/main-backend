@@ -1,12 +1,14 @@
-from datetime import datetime, timedelta
-from fastapi import HTTPException
-from settings import MAX_PROFILE_PHOTO_SIZE, AZURE_STORAGE_KEY, AZURE_BLOB_STORAGE_NAME, AZURE_BLOB_STORAGE_URL
-from db_models.models.user_model import UserModel
-from error_constants import FileSizeExceeded
 import uuid
+from datetime import datetime, timedelta
+
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob import BlobServiceClient, generate_account_sas, ResourceTypes, AccountSasPermissions, \
     PublicAccess
+from fastapi import HTTPException
+
+from db_models.models.user_model import UserModel
+from error_constants import FileSizeExceeded
+from settings import MAX_PROFILE_PHOTO_SIZE, AZURE_STORAGE_KEY, AZURE_BLOB_STORAGE_NAME, AZURE_BLOB_STORAGE_URL
 
 
 class StorageServices:
@@ -41,7 +43,7 @@ class StorageServices:
                 container_name = str(uuid.uuid1())
                 user_model_obj.update(user_storage_container_name=container_name)
                 self.blob_service_client.create_container(name=container_name,
-                                                     public_access=PublicAccess.Container)
+                                                          public_access=PublicAccess.Container)
         return {"container_name": container_name, "user_model_obj": user_model_obj}
 
     def upload_file_blob_storage(self, file_data, file_name, email=False, profile=False, save_note=False,
@@ -54,7 +56,8 @@ class StorageServices:
                     detail=FileSizeExceeded.detail
                 )
         if not container_name:
-            container_data = self.get_or_create_container(email=email, notes_cont=save_note, user_model_obj=user_model_obj)
+            container_data = self.get_or_create_container(email=email, notes_cont=save_note,
+                                                          user_model_obj=user_model_obj)
             container_name = container_data["container_name"]
             user_model_obj = container_data["user_model_obj"]
         blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_name)

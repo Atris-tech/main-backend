@@ -10,7 +10,6 @@ client = typesense.Client({
     'connection_timeout_seconds': 5
 })
 
-
 TYPESENSE_NOTES_INDEX = "atris_notes_index"
 TYPESENSE_IMAGES_INDEX = "atris_images_index"
 TYPESENSE_AUDIO_INDEX = "atris_audio_index"

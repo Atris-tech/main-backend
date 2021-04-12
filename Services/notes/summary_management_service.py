@@ -1,14 +1,15 @@
-from mongoengine import Q
 from fastapi import HTTPException
-from error_constants import BadRequest, EntityLengthError
-from db_models.models.notes_model import NotesModel
-from db_models.models.cache_display_model import CacheModel
+from mongoengine import Q
+
+from Services.notes.notes_saving_service import generate_summary_from_clean_text
+from Services.redis_service import get_val
 from Services.type_sense.type_sense_crud_service import get_collection, update_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
+from db_models.models.cache_display_model import CacheModel
+from db_models.models.notes_model import NotesModel
+from error_constants import BadRequest, EntityLengthError
 from settings import TYPESENSE_NOTES_INDEX, NOTES_SUMMARY_DIFFERENCE_THRESHOLD, MAX_SUMMARY_ENTITY_LENGTH
-from Services.notes.notes_saving_service import generate_summary_from_clean_text
 from task_worker_config.celery import app
-from Services.redis_service import get_val
 
 
 def handle_summary(user_obj, smmry_reqst_obj):
@@ -22,10 +23,11 @@ def handle_summary(user_obj, smmry_reqst_obj):
             print(smmry_reqst_obj.summary)
             if notes_data is None:
                 tps_data = generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary, clean_text="",
-                                     notes_name=notes_obj.notes_name)
+                                                notes_name=notes_obj.notes_name)
             else:
-                tps_data = generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary, notes_name=notes_obj.notes_name,
-                                     clean_text=notes_data["clean_text"])
+                tps_data = generate_typsns_data(obj=notes_obj, summary=smmry_reqst_obj.summary,
+                                                notes_name=notes_obj.notes_name,
+                                                clean_text=notes_data["clean_text"])
 
             update_collection(index=TYPESENSE_NOTES_INDEX, data=tps_data)
             notes_obj.uds = "MANUAL"

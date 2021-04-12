@@ -1,14 +1,15 @@
+from random import randrange
+
+from authlib.integrations.starlette_client import OAuth, OAuthError
+from fastapi import APIRouter, HTTPException
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
-from authlib.integrations.starlette_client import OAuth, OAuthError
+
 import settings
-from fastapi import APIRouter, HTTPException
 from Services.auth.auth_services import check_user, user_name_gen, sign_up
-from random import randrange
 from Services.auth.auth_services import login
 from error_constants import UserBanned
-
 
 router = APIRouter()
 config = Config('.env')

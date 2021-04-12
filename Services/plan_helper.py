@@ -1,8 +1,9 @@
-from db_models.models.user_model import UserModel
 from fastapi import HTTPException
+
+from db_models.models.user_model import UserModel
+from error_constants import NoteSizeExceeded
 from error_constants import SpaceExhausted
 from settings import MAX_NOTE_SIZE, MAX_FREE_ACCOUNT_USER_SPACE
-from error_constants import NoteSizeExceeded
 
 
 def get_space(user_id):

@@ -1,4 +1,5 @@
 import typesense
+
 import settings
 
 client = typesense.Client({
@@ -10,4 +11,3 @@ client = typesense.Client({
     'api_key': settings.TYPESENSE_API_KEY,
     'connection_timeout_seconds': 5
 })
-

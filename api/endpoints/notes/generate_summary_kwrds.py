@@ -1,8 +1,10 @@
 from fastapi import Request, APIRouter
-from .models import SmmryEntityModel
-from db_models.models.user_model import UserModel
+
 from Services.auth.auth_services import token_check
 from Services.notes.summary_management_service import handle_summary
+from db_models.models.user_model import UserModel
+from .models import SmmryEntityModel
+
 router = APIRouter()
 
 

@@ -1,6 +1,7 @@
-import requests
-from pathlib import Path
 import json
+from pathlib import Path
+
+import requests
 
 
 def api_call(file_to_process, end_point=False, f_align_end_point=False, sound_recog_endpoint=False, binary=False,
@@ -37,5 +38,5 @@ def api_call(file_to_process, end_point=False, f_align_end_point=False, sound_re
         return {
             "response_data": json.loads(response.text),
             "status_code": response.status_code
-                }
+        }
     return json.loads(response.text)

@@ -4,13 +4,14 @@ from mongoengine import Q
 from Services.audios.delete_audio_service import delete_single_audio
 from Services.audios.get_audio_data import get_audio_data
 from Services.auth.auth_services import token_check
+from Services.type_sense.type_sense_crud_service import get_collection, update_collection
 from api.endpoints.notes.models import AudioDeleteModel, AudioRenameModel
 from db_models.models.audio_model import Audio
 from db_models.models.user_model import UserModel
 from error_constants import BadRequest
 from settings import MIN_NOTES_ID, MAX_NOTES_ID
-from Services.type_sense.type_sense_crud_service import get_collection, update_collection
 from settings import TYPESENSE_AUDIO_INDEX
+
 router = APIRouter()
 
 
@@ -25,8 +26,8 @@ def get_audio_data_api(
 
 @router.post("/delete_audio/", status_code=200)
 def delete_audio(
-    request: Request,
-    audio_delete_obj: AudioDeleteModel,
+        request: Request,
+        audio_delete_obj: AudioDeleteModel,
 ):
     user_dict = token_check(request)
     try:
@@ -43,8 +44,8 @@ def delete_audio(
 
 @router.post("/rename_audio/", status_code=200)
 def rename_audio(
-    request: Request,
-    audio_rename_obj: AudioRenameModel,
+        request: Request,
+        audio_rename_obj: AudioRenameModel,
 ):
     user_dict = token_check(request)
     try:

@@ -1,8 +1,10 @@
+import datetime
+
 import mongoengine
+import mongoengine_goodjson as gj
+
 from .user_model import UserModel
 from .workspace_model import WorkSpaceModel
-import datetime
-import mongoengine_goodjson as gj
 
 
 class NotesModel(gj.Document):

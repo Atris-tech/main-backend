@@ -1,5 +1,7 @@
-import mongoengine
 import datetime
+
+import mongoengine
+
 from .user_model import UserModel
 
 
