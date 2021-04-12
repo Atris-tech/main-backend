@@ -1,25 +1,23 @@
-import base64
-import json
-import uuid
-
-from fastapi import HTTPException
-from mongoengine.queryset.visitor import Q
-
-import error_constants
 from Services.audios.delete_audio_service import delete_audios
-from Services.notes.generate_notes_difference import compare
-from Services.notes.notes_parsing_service import html_to_text
-from Services.plan_helper import check_space
-from Services.storage_services import StorageServices
-from Services.type_sense.type_sense_crud_service import get_collection, update_collection, delete_collection, \
-    create_collection
-from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from db_models.models.cache_display_model import CacheModel
 from db_models.models.notes_model import NotesModel
-from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
+from fastapi import HTTPException
+import error_constants
+from mongoengine.queryset.visitor import Q
+from db_models.models.user_model import UserModel
+from Services.notes.notes_parsing_service import html_to_text
+from Services.storage_services import upload_file_blob_storage, delete_blob, download_blob
+from Services.plan_helper import check_space
+import uuid
 from settings import MAX_CACHE_TEXT_WORDS
+import base64
+import json
 from settings import TYPESENSE_NOTES_INDEX
+from Services.type_sense.type_sense_crud_service import get_collection, update_collection, delete_collection, \
+    create_collection
+from Services.notes.generate_notes_difference import compare
+from Services.type_sense.typesense_dic_generator import generate_typsns_data
 
 
 def generate_summary_from_clean_text(clean_txt):
@@ -97,12 +95,10 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
     notes_model_obj = check_notes(note_id=notes_id, email=user_dict["email_id"])
     check_space(user_model_obj=workspace_data["user_obj"], note_obj=notes_model_obj,
                 new_size_note=len(to_save_data), note_space_check=True)
-    StorageServices().upload_file_blob_storage(file_data=to_save_data,
-                                               container_name=workspace_data[
-                                                   "user_obj"].user_storage_notes_container_name,
-                                               user_model_obj=workspace_data["user_obj"],
-                                               file_name=notes_model_obj.note_blob_id,
-                                               save_note=True)
+    upload_file_blob_storage(file_data=to_save_data,
+                             container_name=workspace_data["user_obj"].user_storage_notes_container_name,
+                             user_model_obj=workspace_data["user_obj"], file_name=notes_model_obj.note_blob_id,
+                             save_note=True)
     clean_txt = html_to_text(to_save_data)
     clean_text_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=str(notes_model_obj.id))
     cache_model_obj = CacheModel.objects.get(notes_id=notes_model_obj)
@@ -154,8 +150,8 @@ def delete_notes(notes_id, email):
     """DELETE DRAWINGS"""
     notes_container_name = check_notes_data["user_obj"].user_storage_notes_container_name
     if notes_container_name is not None:
-        StorageServices().delete_blob(container_name=notes_container_name,
-                                      blob_name=check_notes_data["notes_obj"].note_blob_id)
+        delete_blob(container_name=notes_container_name,
+                    blob_name=check_notes_data["notes_obj"].note_blob_id)
     notes_obj.delete()
     return True
 
@@ -168,10 +164,12 @@ def get_notes_data(user_dict, note_id):
         notes_container_name = user_object_model.user_storage_notes_container_name
         notes_dict = json.loads(notes_model_obj.to_json())
         if notes_container_name is not None:
-            notes_raw = StorageServices().download_blob(
-                container_name=user_object_model.user_storage_notes_container_name,
-                blob_id=notes_model_obj.note_blob_id)
-            to_send_data["notes_data"] = base64.b64encode(notes_raw)
+            notes_raw = download_blob(container_name=user_object_model.user_storage_notes_container_name,
+                                      blob_id=notes_model_obj.note_blob_id)
+            if notes_raw is not None:
+                to_send_data["notes_data"] = base64.b64encode(notes_raw)
+            else:
+                to_send_data["notes_data"] = None
         else:
             to_send_data["notes_data"] = None
         to_send_data["tags_id"] = notes_dict["tags"]
