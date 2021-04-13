@@ -12,6 +12,7 @@ def audio_save_to_db(file_size, stt_data, notes_id, url, blob_name, name, y_axis
         else:
             stt = None
             f_align_data = None
+        print(stt_data)
         sound_recog = stt_data["sound_recog_results"]
         audio_model_obj = Audio(notes_id=note_obj, user_id=note_obj.user_id, name=name, y_axis=y_axis)
         audio_model_obj.save()
