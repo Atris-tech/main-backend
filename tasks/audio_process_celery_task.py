@@ -60,15 +60,15 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
 
         audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=note_id,
                                           url=file_url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
+        print("audio audio_obj_dict")
+        print(audio_obj_dict)
         if audio_obj_dict is not None:
             tps_dic = generate_typsns_data(obj=audio_obj_dict["audio_results_obj"], audio_data=stt_data,
                                            audio_id=str(audio_obj_dict["audio_obj"].id),
                                            audio_name=audio_obj_dict["audio_obj"].name)
-            print(tps_dic)
             create_collection(index=TYPESENSE_AUDIO_INDEX, data=tps_dic)
             print("SAVED TO DB")
             print("###################EOT##################################")
-            print(audio_request_id)
             to_send_ws_data = {
                 "client_id": user_id,
                 "data": {

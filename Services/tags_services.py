@@ -103,6 +103,7 @@ def remove_tag(tag_id, notes_id, email):
         note_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=notes_id))
         tag_obj = TagModel.objects.get(Q(user_id=user_obj) & Q(id=tag_id))
         note_obj.tags.remove(tag_obj)
+        note_obj.tags_name.remove(tag_obj.tag_name)
         note_obj.save()
         catch_model_obj = CacheModel.objects.get(notes_id=note_obj)
         catch_model_obj.tags.remove(tag_obj)
