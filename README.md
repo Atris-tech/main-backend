@@ -13,7 +13,7 @@ docker run --restart always -p 8765:8765 lowerquality/gentle
 
 ```
 screen -S d_stt
-docker run --restart always --gpus all -p 7000:7000 jainal09/nemo:latest
+docker run --restart always --gpus all -p 7000:7000 jainal09/nemo:prod
 ```
 
 ```

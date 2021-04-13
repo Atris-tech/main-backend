@@ -4,6 +4,7 @@ from Services.type_sense.type_sense_crud_service import create_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from db_models.models.images_model import Image
 from settings import IMAGE_RECOG_PROBABILITY_THRESHOLD, TYPESENSE_IMAGES_INDEX
+from db_models.models.tags_model import TagModel
 
 
 def index_image(file_data, url, notes_model_obj, content_length, user_obj, file_name):

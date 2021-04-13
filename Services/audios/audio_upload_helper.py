@@ -1,6 +1,7 @@
 from db_models.models import NotesModel
 from db_models.models.audio_model import Audio
 from db_models.models.audio_results_model import AudioResultsModel
+from db_models.models.tags_model import TagModel
 
 
 def audio_save_to_db(file_size, stt_data, notes_id, url, blob_name, name, y_axis):

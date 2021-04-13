@@ -61,7 +61,11 @@ class StorageServices:
             container_name = container_data["container_name"]
             user_model_obj = container_data["user_model_obj"]
         blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=file_name)
-        blob_client.upload_blob(file_data, overwrite=True)
+        try:
+            blob_client.upload_blob(file_data, overwrite=True)
+        except ResourceNotFoundError:
+            self.blob_service_client.create_container(name=container_name, )
+            blob_client.upload_blob(file_data, overwrite=True)
         url = blob_client.url
         data = {"container_name": container_name, "url": url}
         print(data)

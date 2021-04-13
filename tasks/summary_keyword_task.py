@@ -6,6 +6,7 @@ from db_models.models.notes_model import NotesModel
 from db_models.mongo_setup import global_init
 from settings import TYPESENSE_NOTES_INDEX
 from task_worker_config.celery import app
+from db_models.models.tags_model import TagModel
 
 
 def save_summary_and_key(notes_id, summary_api_endpoint, user_id, notes_model_obj):

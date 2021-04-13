@@ -50,6 +50,7 @@ async def entity_detection(text_obj: Text, request: Request):
         to_process_text = to_process_text.replace('\\', ' ')
         doc = nlp(to_process_text)
         labels = []
+        """generate array of labels"""
         for entity in doc.ents:
             if entity.label_ in labels:
                 pass
@@ -60,8 +61,13 @@ async def entity_detection(text_obj: Text, request: Request):
         for key in labels:
             my_dict[key] = []
         for entity in doc.ents:
-            if entity.text not in my_dict[entity.label_]:
+            if entity.text not in my_dict[entity.label_] and len(entity.text) < 20:
                 my_dict[entity.label_].append(entity.text)
+        print(my_dict)
+        for key in my_dict:
+            if len(my_dict[key]) == 0:
+                del my_dict[key]
+        print(my_dict)
         return my_dict
     except Exception as e:
         print(e)
