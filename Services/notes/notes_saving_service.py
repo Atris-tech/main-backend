@@ -1,4 +1,5 @@
 from Services.audios.delete_audio_service import delete_audios
+from Services.audios.get_audio_data import get_all_audio_data
 from db_models.models.cache_display_model import CacheModel
 from db_models.models.notes_model import NotesModel
 from db_models.models.workspace_model import WorkSpaceModel
@@ -7,7 +8,7 @@ import error_constants
 from mongoengine.queryset.visitor import Q
 from db_models.models.user_model import UserModel
 from Services.notes.notes_parsing_service import html_to_text
-from Services.storage_services import upload_file_blob_storage, delete_blob, download_blob
+from Services.storage_services import StorageServices
 from Services.plan_helper import check_space
 import uuid
 from settings import MAX_CACHE_TEXT_WORDS
@@ -95,10 +96,12 @@ def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
     notes_model_obj = check_notes(note_id=notes_id, email=user_dict["email_id"])
     check_space(user_model_obj=workspace_data["user_obj"], note_obj=notes_model_obj,
                 new_size_note=len(to_save_data), note_space_check=True)
-    upload_file_blob_storage(file_data=to_save_data,
-                             container_name=workspace_data["user_obj"].user_storage_notes_container_name,
-                             user_model_obj=workspace_data["user_obj"], file_name=notes_model_obj.note_blob_id,
-                             save_note=True)
+    StorageServices().upload_file_blob_storage(file_data=to_save_data,
+                                               container_name=workspace_data[
+                                                   "user_obj"].user_storage_notes_container_name,
+                                               user_model_obj=workspace_data["user_obj"],
+                                               file_name=notes_model_obj.note_blob_id,
+                                               save_note=True)
     clean_txt = html_to_text(to_save_data)
     clean_text_data = get_collection(index=TYPESENSE_NOTES_INDEX, id=str(notes_model_obj.id))
     cache_model_obj = CacheModel.objects.get(notes_id=notes_model_obj)
@@ -150,8 +153,8 @@ def delete_notes(notes_id, email):
     """DELETE DRAWINGS"""
     notes_container_name = check_notes_data["user_obj"].user_storage_notes_container_name
     if notes_container_name is not None:
-        delete_blob(container_name=notes_container_name,
-                    blob_name=check_notes_data["notes_obj"].note_blob_id)
+        StorageServices().delete_blob(container_name=notes_container_name,
+                                      blob_name=check_notes_data["notes_obj"].note_blob_id)
     notes_obj.delete()
     return True
 
@@ -164,7 +167,7 @@ def get_notes_data(user_dict, note_id):
         notes_container_name = user_object_model.user_storage_notes_container_name
         notes_dict = json.loads(notes_model_obj.to_json())
         if notes_container_name is not None:
-            notes_raw = download_blob(container_name=user_object_model.user_storage_notes_container_name,
+            notes_raw = StorageServices().download_blob(container_name=user_object_model.user_storage_notes_container_name,
                                       blob_id=notes_model_obj.note_blob_id)
             if notes_raw is not None:
                 to_send_data["notes_data"] = base64.b64encode(notes_raw)
@@ -191,6 +194,9 @@ def get_notes_data(user_dict, note_id):
             to_send_data["summary"] = None
         if "emotion" in notes_dict:
             to_send_data["emotion"] = notes_dict["emotion"]
+        else:
+            to_send_data["emotion"] = None
+        to_send_data["audios"] = get_all_audio_data(notes_model_obj, user_dict["email_id"])
         return to_send_data
     except NotesModel.DoesNotExist:
         raise HTTPException(

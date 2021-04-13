@@ -33,7 +33,7 @@ docker run --restart always --gpus all -p 8007:80 faizanshk/atris-emotion
 
 ```
 screen -S d_entity
-docker run --restart always --gpus all -p 8006:8006 shazam22/atris-entity
+docker run --restart always --gpus all -p 8006:80 shazam22/atris-entity
 ```
 
 ```
@@ -79,6 +79,7 @@ screen -r {{id}}
 docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
 ```
 
+DRON VM
 ```json
 {
   "nemo": "http://20.39.54.134:7000/uploadfile/",
@@ -86,7 +87,22 @@ docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --dat
   "sound_recog": "http://20.39.54.134:5000/model/predict?start_time=0",
   "smry_kwrds": "http://20.39.54.134:8005/get_summery/",
   "entty": "http://20.39.54.134:8006/detection/",
-  "emot": "http://20.39.54.134:8007/analysis/"
+  "emot": "http://20.39.54.134:8007/analysis/",
+  "ocr": "http://20.39.54.134:1000/model/predict",
+  "image_label": "http://20.39.54.134:9000/model/predict"
+}
+```
+DEVANSHI VM
+```json
+{
+  "nemo": "http://13.68.236.211:7000/uploadfile/",
+  "f_align": "http://13.68.236.211:8765/transcriptions?async=false",
+  "sound_recog": "http://13.68.236.211:5000/model/predict?start_time=0",
+  "smry_kwrds": "http://13.68.236.211:8005/get_summery/",
+  "entty": "http://13.68.236.211:8006/detection/",
+  "emot": "http://13.68.236.211:8007/analysis/",
+  "ocr": "http://13.68.236.211:1000/model/predict",
+  "image_label": "http://13.68.236.211:9000/model/predict"
 }
 ```
 
