@@ -10,6 +10,7 @@ from Services.storage_services import StorageServices
 from db_models.models import NotesModel
 from db_models.models.scribbles_model import Scribbles
 from db_models.models.user_model import UserModel
+from db_models.models.tags_model import TagModel
 from settings import MIN_NOTES_ID, MAX_NOTES_ID
 import json
 
@@ -48,7 +49,7 @@ def upload_scribble(background_tasks: BackgroundTasks,
             scribble_obj = Scribbles(
                 user_id=user_obj,
                 note_id=notes_obj,
-                scribble_blob_id=scribble_blob_id,
+                blob_name=scribble_blob_id,
                 name=name,
                 y_axis=y_axis,
                 canvas_size=content_length

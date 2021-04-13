@@ -22,10 +22,13 @@ def check_file_type(file_to_check):
 
 
 def remove_bad_file(new_folder, audio_request_id, container_name, file_name):
-    shutil.rmtree(new_folder)
-    StorageServices().delete_blob(container_name=container_name, blob_name=file_name)
-    print("BAD FILE")
-    print(audio_request_id)
+    try:
+        shutil.rmtree(new_folder)
+        StorageServices().delete_blob(container_name=container_name, blob_name=file_name)
+        print("BAD FILE")
+        print(audio_request_id)
+    except FileNotFoundError:
+        print("no file found")
 
 
 @app.task(soft_time_limit=500, max_retries=3)

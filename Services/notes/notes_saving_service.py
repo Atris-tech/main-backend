@@ -16,11 +16,12 @@ from Services.type_sense.type_sense_crud_service import get_collection, update_c
     create_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from db_models.models.cache_display_model import CacheModel
+from db_models.models.images_model import Image
 from db_models.models.notes_model import NotesModel
+from db_models.models.scribbles_model import Scribbles
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
-from db_models.models.scribbles_model import Scribbles
-from db_models.models.images_model import Image
+from db_models.models.tags_model import TagModel
 from settings import MAX_CACHE_TEXT_WORDS
 from settings import TYPESENSE_NOTES_INDEX
 
@@ -211,6 +212,16 @@ def get_notes_data(user_dict, note_id):
         else:
             to_send_data["emotion"] = None
         to_send_data["audios"] = get_all_audio_data(notes_model_obj, user_dict["email_id"])
+        scribbles = list()
+        for scribble_obj in Scribbles.objects.filter(note_id=note_id):
+            scribbles.append(
+                {
+                    "id": str(scribble_obj.id),
+                    "name": scribble_obj.name,
+                    "y_axis": scribble_obj.y_axis
+                }
+            )
+        to_send_data["scribbles"] =scribbles
         return to_send_data
     except NotesModel.DoesNotExist:
         raise HTTPException(
