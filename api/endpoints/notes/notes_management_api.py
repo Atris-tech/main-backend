@@ -1,5 +1,6 @@
-from fastapi import Request, Query
+from fastapi import Request, Query, HTTPException
 
+import error_constants
 from Services.auth.auth_services import token_check
 from Services.notes.notes_parsing_service import b64_to_html
 from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data
@@ -86,11 +87,17 @@ def get_notes_data_api(
         request: Request,
         notes_id: str = Query(None, min_length=MIN_NOTES_ID, max_length=MAX_NOTES_ID)
 ):
-    user_dict = token_check(request)
-    return get_notes_data(
-        user_dict=user_dict,
-        note_id=notes_id
-    )
+    if notes_id is not None:
+        user_dict = token_check(request)
+        return get_notes_data(
+            user_dict=user_dict,
+            note_id=notes_id
+        )
+    else:
+        raise HTTPException(
+            status_code=error_constants.BadRequest.code,
+            detail=error_constants.BadRequest.detail
+        )
 
 
 @router.get("/starred_notes/", status_code=200)

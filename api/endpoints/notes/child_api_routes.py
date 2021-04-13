@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
-from . import upload_api, generate_entity_emotion, generate_summary_kwrds, audio_management, delete_image
+from . import upload_api, generate_entity_emotion, generate_summary_kwrds, audio_management, delete_image, \
+    scrible_management
 
 
 def routing():
@@ -11,4 +12,5 @@ def routing():
     router.include_router(generate_entity_emotion.router)
     router.include_router(audio_management.router)
     router.include_router(delete_image.router)
+    router.include_router(scrible_management.router)
     return router

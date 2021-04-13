@@ -1,7 +1,7 @@
 from fastapi import Request, APIRouter, Query, HTTPException
 from mongoengine import Q
 
-from Services.audios.delete_audio_service import delete_single_audio
+from Services.audios.delete_audio_service import delete_single_storage_object
 from Services.audios.get_audio_data import get_all_audio_data, get_single_audio_data
 from Services.auth.auth_services import token_check
 from Services.type_sense.type_sense_crud_service import get_collection, update_collection
@@ -15,29 +15,26 @@ from settings import TYPESENSE_AUDIO_INDEX
 router = APIRouter()
 
 
-@router.get("/get_audios/", status_code=200)
-def get_audio_data_api(
-        request: Request,
-        notes_id: str = Query(None, min_length=MIN_NOTES_ID, max_length=MAX_NOTES_ID),
-):
-    user_dict = token_check(request)
-    return
-
-
 @router.get("/get_audio_data/", status_code=200)
 def get_audio_data(
         request: Request,
         audio_id: str = Query(None, min_length=MIN_NOTES_ID, max_length=MAX_NOTES_ID),
 ):
-    user_dict = token_check(request)
-    try:
-        user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
-        audio_obj = Audio.objects.get(Q(user_id=user_obj) & Q(id=audio_id))
-        return get_single_audio_data(audio_obj=audio_obj, user_obj=user_obj)
-    except Audio.DoesNotExist:
+    if audio_id is not None:
+        user_dict = token_check(request)
+        try:
+            user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
+            audio_obj = Audio.objects.get(Q(user_id=user_obj) & Q(id=audio_id))
+            return get_single_audio_data(audio_obj=audio_obj, user_obj=user_obj)
+        except Audio.DoesNotExist:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+    else:
         raise HTTPException(
             status_code=BadRequest.code,
-            detail=BadRequest.detail + " or note deleted before"
+            detail=BadRequest.detail
         )
 
 
@@ -50,7 +47,7 @@ def delete_audio(
     try:
         user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
         audio_obj = Audio.objects.get(Q(user_id=user_obj) & Q(id=audio_delete_obj.audio_id))
-        delete_single_audio(audio_obj=audio_obj, container_name=user_obj.user_storage_container_name)
+        delete_single_storage_object(obj=audio_obj, container_name=user_obj.user_storage_container_name)
         return True
     except Audio.DoesNotExist:
         raise HTTPException(

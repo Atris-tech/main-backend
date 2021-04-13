@@ -13,7 +13,8 @@ def delete_audios(notes_obj, container_name):
         StorageServices().delete_blob(container_name=container_name, blob_name=audio_obj.blob_name)
 
 
-def delete_single_audio(audio_obj, container_name):
-    delete_collection(collections_id=str(audio_obj.id), index=TYPESENSE_AUDIO_INDEX)
-    StorageServices().delete_blob(container_name=container_name, blob_name=audio_obj.blob_name)
-    audio_obj.delete()
+def delete_single_storage_object(obj, container_name, tps_del=True):
+    if tps_del:
+        delete_collection(collections_id=str(obj.id), index=TYPESENSE_AUDIO_INDEX)
+    StorageServices().delete_blob(container_name=container_name, blob_name=obj.blob_name)
+    obj.delete()

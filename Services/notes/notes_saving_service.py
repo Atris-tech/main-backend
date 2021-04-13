@@ -1,24 +1,28 @@
-from Services.audios.delete_audio_service import delete_audios
-from Services.audios.get_audio_data import get_all_audio_data
-from db_models.models.cache_display_model import CacheModel
-from db_models.models.notes_model import NotesModel
-from db_models.models.workspace_model import WorkSpaceModel
-from fastapi import HTTPException
-import error_constants
-from mongoengine.queryset.visitor import Q
-from db_models.models.user_model import UserModel
-from Services.notes.notes_parsing_service import html_to_text
-from Services.storage_services import StorageServices
-from Services.plan_helper import check_space
-import uuid
-from settings import MAX_CACHE_TEXT_WORDS
 import base64
 import json
-from settings import TYPESENSE_NOTES_INDEX
+import uuid
+
+from fastapi import HTTPException
+from mongoengine.queryset.visitor import Q
+
+import error_constants
+from Services.audios.delete_audio_service import delete_audios, delete_single_storage_object
+from Services.audios.get_audio_data import get_all_audio_data
+from Services.notes.generate_notes_difference import compare
+from Services.notes.notes_parsing_service import html_to_text
+from Services.plan_helper import check_space
+from Services.storage_services import StorageServices
 from Services.type_sense.type_sense_crud_service import get_collection, update_collection, delete_collection, \
     create_collection
-from Services.notes.generate_notes_difference import compare
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
+from db_models.models.cache_display_model import CacheModel
+from db_models.models.notes_model import NotesModel
+from db_models.models.user_model import UserModel
+from db_models.models.workspace_model import WorkSpaceModel
+from db_models.models.scribbles_model import Scribbles
+from db_models.models.images_model import Image
+from settings import MAX_CACHE_TEXT_WORDS
+from settings import TYPESENSE_NOTES_INDEX
 
 
 def generate_summary_from_clean_text(clean_txt):
@@ -150,7 +154,16 @@ def delete_notes(notes_id, email):
     delete_audios(notes_obj,
                   check_notes_data["user_obj"].user_storage_container_name)
     """DELETE IMAGES"""
+    image_objs = Image.objects.filter(notes_id=notes_obj)
+    for image_obj in image_objs:
+        delete_single_storage_object(obj=image_obj,
+                                     container_name=check_notes_data["user_obj"].user_storage_container_name)
     """DELETE DRAWINGS"""
+    scrible_objs = Scribbles.objects.filter(note_id=notes_obj)
+    for scrible_obj in scrible_objs:
+        delete_single_storage_object(obj=scrible_obj,
+                                     container_name=check_notes_data["user_obj"].user_storage_container_name,
+                                     tps_del=False)
     notes_container_name = check_notes_data["user_obj"].user_storage_notes_container_name
     if notes_container_name is not None:
         StorageServices().delete_blob(container_name=notes_container_name,
@@ -167,8 +180,9 @@ def get_notes_data(user_dict, note_id):
         notes_container_name = user_object_model.user_storage_notes_container_name
         notes_dict = json.loads(notes_model_obj.to_json())
         if notes_container_name is not None:
-            notes_raw = StorageServices().download_blob(container_name=user_object_model.user_storage_notes_container_name,
-                                      blob_id=notes_model_obj.note_blob_id)
+            notes_raw = StorageServices().download_blob(
+                container_name=user_object_model.user_storage_notes_container_name,
+                blob_id=notes_model_obj.note_blob_id)
             if notes_raw is not None:
                 to_send_data["notes_data"] = base64.b64encode(notes_raw)
             else:

@@ -7,7 +7,7 @@ from dateutil.tz import tzutc
 from fastapi.exceptions import HTTPException
 from mongoengine import Q
 
-from Services.audios.delete_audio_service import delete_single_audio
+from Services.audios.delete_audio_service import delete_single_storage_object
 from Services.storage_services import StorageServices
 from db_models.models.audio_model import Audio
 from db_models.models.user_model import UserModel
@@ -56,7 +56,7 @@ def get_single_audio_data(audio_obj, user_obj):
         to_send_data["last_edited_date"] = audio_results_obj.last_edited_date
         return to_send_data
     except AudioResultsModel.DoesNotExist:
-        delete_single_audio(audio_obj=audio_obj, container_name=user_obj.user_storage_container_name)
+        delete_single_storage_object(obj=audio_obj, container_name=user_obj.user_storage_container_name)
         raise HTTPException(
             status_code=BadRequest.code,
             detail=BadRequest.detail
