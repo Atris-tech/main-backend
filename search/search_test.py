@@ -50,7 +50,7 @@ def search_notes(email, query):
     return search_data(search_requests, common_search_params, notes=True, )
 
 
-def search_images(email, query, ):
+def search_images(email, query):
     user_obj = UserModel.objects.get(email_id=email)
 
     search_requests = {
@@ -65,7 +65,7 @@ def search_images(email, query, ):
     common_search_params = {
         'query_by': ['ocr', 'labels']
     }
-    return search_data(search_requests, common_search_params, notes=False, )
+    return search_data(search_requests, common_search_params, notes=False)
 
 
 def search_audio(email, query):
