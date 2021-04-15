@@ -9,14 +9,14 @@ router = APIRouter()
 @router.get("/note_search/", status_code=200)
 def note_search(
         request: Request,
-        note_name: str = Query(None, max_length=20),
+        q: str = Query(None, max_length=100),
 
 ):
-    if note_name is not None:
+    if q is not None:
         user_dict = token_check(request)
         return search_notes(
             email=user_dict["email_id"],
-            query=note_name
+            query=q
         )
     else:
         raise HTTPException(
@@ -28,14 +28,14 @@ def note_search(
 @router.get("/image_search/", status_code=200)
 def image_search(
         request: Request,
-        image: str = Query(None, max_length=20),
+        q: str = Query(None, max_length=100),
 
 ):
-    if image is not None:
+    if q is not None:
         user_dict = token_check(request)
         return search_images(
             email=user_dict["email_id"],
-            query=image
+            query=q
         )
     else:
         raise HTTPException(
@@ -47,13 +47,13 @@ def image_search(
 @router.get("/audio_search/", status_code=200)
 def audio_search(
         request: Request,
-        audio: str = Query(None, max_length=20),
+        q: str = Query(None, max_length=100),
 ):
-    if audio is not None:
+    if q is not None:
         user_dict = token_check(request)
         return search_audio(
             email=user_dict["email_id"],
-            query=audio
+            query=q
         )
     else:
         raise HTTPException(
@@ -65,14 +65,14 @@ def audio_search(
 @router.get("/filter_tags/", status_code=200)
 def filter_tags(
         request: Request,
-        tag_name: str = Query(None, max_length=20),
+        tag_id: str = Query(None, max_length=100),
 
 ):
-    if tag_name is not None:
+    if tag_id is not None:
         user_dict = token_check(request)
         return filter_tag(
             email=user_dict["email_id"],
-            tag_id=tag_name
+            tag_id=tag_id
         )
     else:
         raise HTTPException(

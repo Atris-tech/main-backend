@@ -13,22 +13,34 @@ from error_constants import BadRequest
 from settings import TYPESENSE_NOTES_INDEX, TYPESENSE_IMAGES_INDEX, TYPESENSE_AUDIO_INDEX
 
 
-def search_data(search_requests, common_search_params, notes=True):
+def search_data(search_requests, common_search_params, notes=False, images=False, audio=False):
     data = client.multi_search.perform(search_requests, common_search_params)
+    print(data)
     search_results = list()
     if data['results'][0]['found'] >= 1:
         for result in data['results'][0]['hits']:
             try:
                 if notes:
+                    print("in notes")
                     notes_id = result["document"]["id"]
+                    print(notes_id)
                 else:
                     notes_id = result["document"]["notes_id"]
+                    print("in else")
+                    print(notes_id)
                 cache_model_obj = CacheModel.objects.get(notes_id=notes_id)
                 data = json.loads(cache_model_obj.to_json())
                 data['highlights'] = result['highlights']
                 search_results.append(data)
             except CacheModel.DoesNotExist:
-                delete_collection(collections_id=result["id"], index=TYPESENSE_NOTES_INDEX)
+                if notes:
+                    index = TYPESENSE_NOTES_INDEX
+                elif audio:
+                    index = TYPESENSE_AUDIO_INDEX
+                elif images:
+                    index = TYPESENSE_IMAGES_INDEX
+                print(index)
+                delete_collection(collections_id=result["document"]["id"], index=index)
     return search_results
 
 
@@ -45,7 +57,7 @@ def search_notes(email, query):
     }
 
     common_search_params = {
-        'query_by': ['notes_name', 'clean_text', 'summary']
+        'query_by': "clean_text, summary, notes_name"
     }
     return search_data(search_requests, common_search_params, notes=True, )
 
@@ -63,9 +75,9 @@ def search_images(email, query):
         ]
     }
     common_search_params = {
-        'query_by': ['ocr', 'labels']
+        'query_by': "ocr, labels"
     }
-    return search_data(search_requests, common_search_params, notes=False)
+    return search_data(search_requests, common_search_params, images=True)
 
 
 def search_audio(email, query):
@@ -81,9 +93,9 @@ def search_audio(email, query):
         ]
     }
     common_search_params = {
-        'query_by': ['name', 'transcribe', 'sound_recog']
+        'query_by': "transcribe, sound_recog, name",
     }
-    return search_data(search_requests, common_search_params, notes=False, )
+    return search_data(search_requests, common_search_params, audio=True, )
 
 
 def filter_tag(tag_id, email):
