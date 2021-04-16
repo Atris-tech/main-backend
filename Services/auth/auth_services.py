@@ -295,7 +295,8 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
                 "user_name": user_obj.user_name,
                 "first_name": user_obj.first_name,
                 "last_name": user_obj.last_name,
-                "picture": user_obj.image
+                "picture": user_obj.image,
+                "user_id": str(user_obj.id)
             }
         else:
             data = {
