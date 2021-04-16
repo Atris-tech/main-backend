@@ -34,6 +34,11 @@ def upload_audio(
         y_axis: str = Form(default=None),
         work_space_id: str = Form(None, max_length=MAX_NOTES_ID, min_length=MAX_NOTES_ID)
 ):
+    if work_space_id is None or audio_request_id is None or  notes_id is None:
+        raise HTTPException(
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
+        )
     print(y_axis)
     user_dict = token_check(request)
     user_obj = UserModel.objects.get(email_id=user_dict["email_id"])
@@ -66,7 +71,7 @@ def upload_audio(
                               file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
                               original_file_name=file.filename,
                               blob_size=content_length, audio_request_id=audio_request_id, y_axis=y_axis,
-                              work_space_id=work_space_id, note_name=notes_obj.notes_name)
+                              workspace_id=work_space_id, note_name=notes_obj.notes_name)
     return True
 
 

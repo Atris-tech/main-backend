@@ -35,7 +35,7 @@ def save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size, note
 def audio_save_to_db(file_size, stt_data, notes_id, url, blob_name, name, y_axis):
     try:
         note_obj = NotesModel.objects.get(id=notes_id)
-        return save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size, )
+        return save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size, note_name=note_obj.notes_name)
     except NotesModel.DoesNotExist:
         try:
             note_obj = NotesModel.objects.get(id=notes_id)
