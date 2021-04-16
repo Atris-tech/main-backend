@@ -35,9 +35,9 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                 audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=notes_id,
                                                   url=url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
                 if audio_obj_dict is not None:
-                    if "transcribe" not in stt_data:
+                    if "transcribe" not in stt_data or stt_data["transcribe"] is None:
                         stt_data["transcribe"] = ""
-                    if "sound_recog_results" not in stt_data:
+                    if "sound_recog_results" not in stt_data or stt_data["sound_recog_results"]:
                         stt_data["sound_recog_results"] = []
                     to_send_ws_data = {
                         "client_id": str(user_obj.id),
