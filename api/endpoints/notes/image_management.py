@@ -1,6 +1,7 @@
 import mimetypes
 import os
 import shutil
+import uuid
 
 from fastapi import Request, APIRouter, HTTPException, Cookie, Query, BackgroundTasks
 from fastapi.responses import StreamingResponse
@@ -39,16 +40,21 @@ def read_items(background_tasks: BackgroundTasks, request: Request, img_id: str 
             download_obj = StorageServices().download_blob(container_name=user_obj.user_storage_container_name,
                                                            blob_id=image_obj.blob_name, obj=True)
             if download_obj:
-                new_folder = os.path.join("Uploads", str(user_obj.id))
+                user_folder = os.path.join("Uploads", str(user_obj.id))
                 try:
-                    os.mkdir(new_folder)
+                    os.mkdir(user_folder)
                 except FileExistsError:
                     print("directory exists")
-                image_file = os.path.join(new_folder, str(image_obj.blob_name))
+                unique_folder = os.path.join(user_folder, str(uuid.uuid4()))
+                try:
+                    os.mkdir(unique_folder)
+                except FileExistsError:
+                    print("directory exists")
+                image_file = os.path.join(unique_folder, str(image_obj.blob_name))
                 with open(image_file, "wb") as download_file:
                     download_file.write(download_obj.readall())
                 file_obj = open(image_file, "rb")
-                background_tasks.add_task(delete_image_folder, folder_name=new_folder)
+                background_tasks.add_task(delete_image_folder, folder_name=unique_folder)
                 return StreamingResponse(file_obj, media_type=mimetypes.guess_type(image_file)[0])
             else:
                 raise HTTPException(

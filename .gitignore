@@ -231,7 +231,7 @@ dmypy.json
 
 # profiling data
 .prof
-
+/Uploads/*
 # End of https://www.toptal.com/developers/gitignore/api/pycharm+all,python
 /1.wav
 /false.wav
