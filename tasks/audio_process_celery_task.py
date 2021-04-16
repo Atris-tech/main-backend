@@ -70,10 +70,12 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
         print("audio audio_obj_dict")
         print(audio_obj_dict)
         if audio_obj_dict is not None:
-            if "transcribe" not in stt_data:
+            if "transcribe" not in stt_data or stt_data["transcribe"] is None:
                 stt_data["transcribe"] = ""
-            if "sound_recog_results" not in stt_data:
+            if "sound_recog_results" not in stt_data or stt_data["sound_recog_results"]:
                 stt_data["sound_recog_results"] = []
+            print("transcribe")
+            print(stt_data["transcribe"])
             tps_dic = generate_typsns_data(obj=audio_obj_dict["audio_results_obj"], audio_data=stt_data,
                                            audio_id=str(audio_obj_dict["audio_obj"].id),
                                            audio_name=audio_obj_dict["audio_obj"].name)
