@@ -74,10 +74,13 @@ class StorageServices:
             user_model_obj.update(image=url)
         return data
 
-    def download_blob(self, container_name, blob_id):
+    def download_blob(self, container_name, blob_id, obj=False):
         try:
             blob_client = self.blob_service_client.get_blob_client(container=container_name, blob=blob_id)
-            return blob_client.download_blob().readall()
+            if obj:
+                return blob_client.download_blob()
+            else:
+                return blob_client.download_blob().readall()
         except ResourceNotFoundError:
             return None
 

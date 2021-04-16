@@ -180,7 +180,7 @@ def remove_ref_token(user_obj):
         pass
 
 
-def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
+def refresh_token_utils(ref_token=False, user_obj=False, new_user=True, rf_user_dic=False):
     if ref_token:
         """get access token"""
         if verify_jwt_token(ref_token, refresh_token=True):
@@ -196,9 +196,12 @@ def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
                     detail=error_constants.UserBanned.detail
                 )
             else:
-                expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-                access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
-                return access_token
+                if rf_user_dic:
+                    return user_dict
+                else:
+                    expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+                    access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
+                    return access_token
         else:
             raise HTTPException(
                 status_code=error_constants.RfTokenExpiredInvalid.code,
@@ -394,15 +397,19 @@ def user_name_gen():
     return username
 
 
-def token_check(request, verify=False, forgot_password=False, refresh_token=False):
-    token = request.headers.get("Authorization")
-    if token is None:
-        raise HTTPException(
-            status_code=error_constants.TokenDoesNotExist.code,
-            detail=error_constants.TokenDoesNotExist.detail
-        )
-    token = token.split()
-    token = token[1]
+def token_check(request, verify=False, forgot_password=False, refresh_token=False, direct_token=False,
+                rf_dict=False):
+    if direct_token:
+        token = direct_token
+    else:
+        token = request.headers.get("Authorization")
+        if token is None:
+            raise HTTPException(
+                status_code=error_constants.TokenDoesNotExist.code,
+                detail=error_constants.TokenDoesNotExist.detail
+            )
+        token = token.split()
+        token = token[1]
     if verify:
         payload = verify_jwt_token(token, verify=True)
         return payload
@@ -410,7 +417,10 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
         payload = verify_jwt_token(token, forgot_password=True)
         return payload
     if refresh_token:
-        return refresh_token_utils(ref_token=token)
+        if rf_dict:
+            return refresh_token_utils(ref_token=token, rf_user_dic=True)
+        else:
+            return refresh_token_utils(ref_token=token)
     print("here in payload")
     payload = verify_jwt_token(token)
     if payload:

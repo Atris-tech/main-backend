@@ -9,7 +9,6 @@ from db_models.models.user_model import UserModel
 class Image(mongoengine.Document):
     user_id = mongoengine.ReferenceField(UserModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     notes_id = mongoengine.ReferenceField(NotesModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
-    url = mongoengine.URLField(required=True)
     image_size = mongoengine.FloatField()
     blob_name = mongoengine.StringField()
     last_edited_date = mongoengine.DateField(default=datetime.datetime.now())

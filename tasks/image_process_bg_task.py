@@ -2,18 +2,12 @@ from Services.api_call_service import api_call
 from Services.redis_service import get_val
 from Services.type_sense.type_sense_crud_service import create_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
-from db_models.models.images_model import Image
 from settings import IMAGE_RECOG_PROBABILITY_THRESHOLD, TYPESENSE_IMAGES_INDEX
 from db_models.models.tags_model import TagModel
 
 
-def index_image(file_data, url, notes_model_obj, content_length, user_obj, file_name):
-    image_model_obj = Image()
-    image_model_obj.url = url
-    image_model_obj.image_size = content_length
-    image_model_obj.user_id = user_obj
-    image_model_obj.notes_id = notes_model_obj
-    image_model_obj.save()
+def index_image(file_data, image_model_obj, file_name):
+
     ocr_results = str()
     image_labels_results_list = list()
     OCR_ENDPOINT = get_val(key="OCR_ENDPOINT")

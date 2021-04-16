@@ -765,7 +765,7 @@
 										},
 										{
 											"key": "notes_id",
-											"value": "607546d4399fc9dfcce0bb00",
+											"value": "607921cca488c48faa7263de",
 											"type": "text"
 										}
 									]
@@ -792,11 +792,21 @@
 						{
 							"name": "delete_image",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"image_id\": \"string\"\r\n}",
+									"raw": "{\r\n  \"image_id\": \"607921d7a488c48faa7263e0\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -817,6 +827,36 @@
 										"api",
 										"delete_image",
 										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get_image",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/get_image/?img_id=6079285371d46b5565b9749c",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"get_image",
+										""
+									],
+									"query": [
+										{
+											"key": "img_id",
+											"value": "6079285371d46b5565b9749c"
+										}
 									]
 								}
 							},
@@ -1782,17 +1822,17 @@
 	],
 	"variable": [
 		{
-			"id": "e1abcd7f-d61b-4ba5-a07b-18928bebf517",
+			"id": "13410b9b-2ae6-459e-9103-afc7a3dfecbe",
 			"key": "token",
 			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaF90b2tlbiIsImVtYWlsX2lkIjoiZmFpemFuNDVzaGFpa2hAZ21haWwuY29tIiwiYWNjb3VudF90eXBlIjoiTm9ybWFsIiwidmVyaWZpZWQiOnRydWUsImV4cCI6MTY0NTk2MzM3NS4xNzk3MzR9.34ejQJT9KMqi85SDDLPMBhhJPLWbHrEoAYHlQ4GaAgM"
 		},
 		{
-			"id": "88876fa2-651d-4ed8-abfe-dcbda1dc2486",
+			"id": "53ef5da3-f1d0-4317-a781-dff22a716d65",
 			"key": "host",
 			"value": ""
 		},
 		{
-			"id": "53db399d-1cb2-4724-9abe-3a1cd9fabbe6",
+			"id": "56bd6a61-14c4-4e3f-b473-e10ca20df6aa",
 			"key": "MICRO_TOKEN",
 			"value": ""
 		}

@@ -9,6 +9,8 @@ from Services.storage_services import StorageServices
 from db_models.models.notes_model import NotesModel
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
+from db_models.models.images_model import Image
+from db_models.models.tags_model import TagModel
 from error_constants import BadRequest, MinAudioLength, MaxAudioLength, MaxImageLength
 from settings import MIN_AUDIO_LENGTH, MAX_AUDIO_LENGTH, MAX_IMAGE_LENGTH
 from tasks.image_process_bg_task import index_image
@@ -102,8 +104,12 @@ def upload_image(
     data = StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
     print("data")
     print(data)
-    url = data["url"]
-    background_tasks.add_task(index_image, file_data=file_data, url=url, notes_model_obj=notes_obj,
-                              content_length=content_length, user_obj=user_obj,
+    image_model_obj = Image()
+    image_model_obj.image_size = content_length
+    image_model_obj.blob_name = file_name
+    image_model_obj.user_id = user_obj
+    image_model_obj.notes_id = notes_obj
+    image_model_obj.save()
+    background_tasks.add_task(index_image, file_data=file_data, image_model_obj=image_model_obj,
                               file_name=file_name)
-    return url
+    return str(image_model_obj.id)
