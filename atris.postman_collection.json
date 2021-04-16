@@ -579,7 +579,7 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "/D:/atris/main-server/1.wav"
+											"src": "/C:/Users/atris/Downloads/bad.wav"
 										},
 										{
 											"key": "audio_request_id",
@@ -588,7 +588,12 @@
 										},
 										{
 											"key": "notes_id",
-											"value": "6077c4061bc08dac8b36847c",
+											"value": "6079fbed332c956afb26cd16",
+											"type": "text"
+										},
+										{
+											"key": "work_space_id",
+											"value": "6075f97892f1bedbff512b58",
 											"type": "text"
 										}
 									]
