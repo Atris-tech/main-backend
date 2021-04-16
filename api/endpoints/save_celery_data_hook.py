@@ -1,6 +1,7 @@
 from Services.audios.audio_upload_helper import audio_save_to_db
 from fastapi import Request, APIRouter, HTTPException
 from pydantic import BaseModel
+from jose import JWTError, jwt
 
 
 from settings import TYPESENSE_AUDIO_INDEX
@@ -51,9 +52,9 @@ def save_to_db_hook_call(
                                       url=save_to_db_hook.file_url, blob_name=save_to_db_hook.file_name,
                                       name=save_to_db_hook.original_file_name, y_axis=save_to_db_hook.y_axis)
     if audio_obj_dict is not None:
-        if "transcribe" not in stt_data:
+        if "transcribe" not in save_to_db_hook.stt_data:
             stt_data["transcribe"] = ""
-        if "sound_recog_results" not in stt_data:
+        if "sound_recog_results" not in save_to_db_hook.stt_data:
             stt_data["sound_recog_results"] = []
         tps_dic = generate_typsns_data(obj=audio_obj_dict["audio_results_obj"], audio_data=save_to_db_hook.stt_data,
                                        audio_id=str(audio_obj_dict["audio_obj"].id),
@@ -63,7 +64,8 @@ def save_to_db_hook_call(
                 "data": {
                     "status": "PROCESSED",
                     "task": "Audio Processing",
-                    "audio_id": str(audio_obj_dict["audio_obj"].id)
+                    "audio_id": str(audio_obj_dict["audio_obj"].id),
+                    "note_name": audio_obj_dict["note_name"],
                 }
             }
     else:

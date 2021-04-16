@@ -4,14 +4,13 @@ from db_models.models.audio_results_model import AudioResultsModel
 from db_models.models.tags_model import TagModel
 
 
-def save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size):
+def save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size, note_name):
     if "transcribe" in stt_data:
         stt = stt_data["transcribe"]
         f_align_data = stt_data["f_align"]
     else:
         stt = None
         f_align_data = None
-    print(stt_data)
     if "sound_recog_results" in stt_data:
         sound_recog = stt_data["sound_recog_results"]
     else:
@@ -30,17 +29,18 @@ def save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size):
         blob_size=file_size
     )
     audio_results_obj.save()
-    return {"audio_results_obj": audio_results_obj, "audio_obj": audio_model_obj}
+    return {"audio_results_obj": audio_results_obj, "audio_obj": audio_model_obj, "note_name": note_name}
 
 
 def audio_save_to_db(file_size, stt_data, notes_id, url, blob_name, name, y_axis):
     try:
         note_obj = NotesModel.objects.get(id=notes_id)
-        return save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size)
+        return save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size, )
     except NotesModel.DoesNotExist:
         try:
             note_obj = NotesModel.objects.get(id=notes_id)
-            return save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size)
+            return save_to_db(stt_data, note_obj, name, y_axis, url, blob_name, file_size,
+                              note_name=note_obj.notes_name)
         except NotesModel.DoesNotExist:
             print("Note Deleted")
             return None

@@ -10,7 +10,8 @@ from settings import TYPESENSE_AUDIO_INDEX
 from task_worker_config.celery import app
 
 
-def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_request_id, original_file_name, y_axis):
+def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_request_id, original_file_name, y_axis,
+                workspace_id, note_name):
     file_name = str(uuid.uuid4()) + file_name
     print(blob_size)
     data = StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file_name, user_model_obj=user_obj)
@@ -34,14 +35,20 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                 audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=notes_id,
                                                   url=url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
                 if audio_obj_dict is not None:
-                    """websocket code here"""
+                    if "transcribe" not in stt_data:
+                        stt_data["transcribe"] = ""
+                    if "sound_recog_results" not in stt_data:
+                        stt_data["sound_recog_results"] = []
                     to_send_ws_data = {
                         "client_id": str(user_obj.id),
                         "data": {
                             "status": "PROCESSED",
                             "task": "Audio Processing",
                             "audio_request_id": audio_request_id,
-                            "audio_id": str(audio_obj_dict["audio_obj"].id)
+                            "audio_id": str(audio_obj_dict["audio_obj"].id),
+                            "note_id": notes_id,
+                            "note_name": audio_obj_dict["note_name"],
+                            "workspace_id": workspace_id
                         }
                     }
                     print(to_send_ws_data)
@@ -59,6 +66,9 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                             "task": "Audio Processing",
                             "audio_request_id": audio_request_id,
                             "detail": "Unknown Error Occurred or Note Deleted",
+                            "note_id": notes_id,
+                            "note_name": note_name,
+                            "workspace_id": workspace_id
                         }
                     }
                     print(to_send_ws_data)
@@ -74,7 +84,10 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                         "status": "FAILED",
                         "task": "Audio Processing",
                         "audio_request_id": audio_request_id,
-                        "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
+                        "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE",
+                        "note_id": notes_id,
+                        "note_name": note_name,
+                        "workspace_id": workspace_id
                     }
                 }
                 print(to_send_ws_data)
@@ -92,5 +105,7 @@ def upload_task(user_obj, file_data, file_name, notes_id, blob_size, audio_reque
                               "container_name": data["container_name"],
                               "original_file_name": original_file_name,
                               "y_axis": y_axis,
-                              "user_id": str(user_obj.id)
+                              "user_id": str(user_obj.id),
+                              "workspace_id": workspace_id,
+                              "note_name": note_name
                           })

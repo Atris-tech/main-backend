@@ -19,7 +19,7 @@ from settings import TYPESENSE_AUDIO_INDEX, MICRO_SERVICES_ACCESS_TOKEN
 from task_worker_config.celery import app
 
 
-url = "http://127.0.0.1:8000/api/save_to_db_hook/"
+url = "http://127.0.0.1:6000/api/save_to_db_hook/"
 
 
 def check_file_type(file_to_check):
@@ -39,7 +39,7 @@ def remove_bad_file(new_folder, audio_request_id, container_name, file_name):
 
 @app.task(soft_time_limit=500, max_retries=3)
 def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, container_name, original_file_name,
-                     y_axis, user_id):
+                     y_axis, user_id, workspace_id, note_name):
     global_init()
     print("note_id")
     print(note_id)
@@ -65,7 +65,6 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
         print(stt_data)
         print("api call completed")
         print("folder deleted")
-
         audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=note_id,
                                           url=file_url, blob_name=file_name, name=original_file_name, y_axis=y_axis)
         print("audio audio_obj_dict")
@@ -87,7 +86,10 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                     "status": "PROCESSED",
                     "task": "Audio Processing",
                     "audio_request_id": audio_request_id,
-                    "audio_id": str(audio_obj_dict["audio_obj"].id)
+                    "audio_id": str(audio_obj_dict["audio_obj"].id),
+                    "note_id": note_id,
+                    "note_name": audio_obj_dict["note_name"],
+                    "workspace_id": workspace_id
                 }
             }
             print(to_send_ws_data)
@@ -101,20 +103,23 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                 "file_url": file_url,
                 "file_name": file_name,
                 "original_file_name": original_file_name,
-                "y_axis": y_axis
+                "y_axis": str(y_axis),
+                "user_id": str(user_id)
             })
             headers = {
                 'Authorization': 'Bearer ' + MICRO_SERVICES_ACCESS_TOKEN,
                 'Content-Type': 'application/json'
             }
             response = requests.request("POST", url, headers=headers, data=payload)
-            if response.text != "false":
+            if response.text != "false" and response.status_code == 200:
                 to_send_ws_data = json.loads(response.text)
                 to_send_ws_data["client_id"] = user_id
                 to_send_ws_data["audio_request_id"] = audio_request_id
+                to_send_ws_data["note_id"] = note_id,
+                to_send_ws_data["workspace_id"] = workspace_id
                 print(to_send_ws_data)
                 redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
-            else:
+            if response.status_code != 200 or response.text == "false":
                 remove_bad_file(new_folder, audio_request_id, container_name, file_name)
                 to_send_ws_data = {
                     "client_id": user_id,
@@ -123,6 +128,9 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                         "task": "Audio Processing",
                         "audio_request_id": audio_request_id,
                         "detail": "Unknown Error Occurred or Note Deleted",
+                        "note_id": note_id,
+                        "note_name": note_name,
+                        "workspace_id": workspace_id
                     }
                 }
                 print(to_send_ws_data)
@@ -136,7 +144,10 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                 "status": "FAILED",
                 "task": "Audio Processing",
                 "audio_request_id": audio_request_id,
-                "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE"
+                "detail": "BAD FILE SUPPORTED TYPE or MAL FORMED FILE STRUCTURE",
+                "note_id": note_id,
+                "note_name": note_name,
+                "workspace_id": workspace_id
             }
         }
         print(to_send_ws_data)

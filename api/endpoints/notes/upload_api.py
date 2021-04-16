@@ -12,7 +12,7 @@ from db_models.models.workspace_model import WorkSpaceModel
 from db_models.models.images_model import Image
 from db_models.models.tags_model import TagModel
 from error_constants import BadRequest, MinAudioLength, MaxAudioLength, MaxImageLength
-from settings import MIN_AUDIO_LENGTH, MAX_AUDIO_LENGTH, MAX_IMAGE_LENGTH
+from settings import MIN_AUDIO_LENGTH, MAX_AUDIO_LENGTH, MAX_IMAGE_LENGTH, MAX_NOTES_ID, MIN_NOTES_ID
 from tasks.image_process_bg_task import index_image
 from tasks.upload_file_stt_bg_tasks import upload_task
 
@@ -31,7 +31,8 @@ def upload_audio(
         file: UploadFile = File(...),
         notes_id: str = Form(...),
         content_length: int = Depends(valid_content_length),
-        y_axis: str = Form(default=None)
+        y_axis: str = Form(default=None),
+        work_space_id: str = Form(None, max_length=MAX_NOTES_ID, min_length=MAX_NOTES_ID)
 ):
     print(y_axis)
     user_dict = token_check(request)
@@ -48,6 +49,7 @@ def upload_audio(
         )
 
     try:
+        WorkSpaceModel.objects.get(Q(user_id=user_obj) & Q(id=work_space_id))
         notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=notes_id))
         print("*********************************************************")
         print(content_length)
@@ -63,7 +65,8 @@ def upload_audio(
     background_tasks.add_task(upload_task, user_obj=user_obj, notes_id=str(notes_obj.id),
                               file_data=file_data, file_name=str(uuid.uuid4()) + file.filename,
                               original_file_name=file.filename,
-                              blob_size=content_length, audio_request_id=audio_request_id, y_axis=y_axis)
+                              blob_size=content_length, audio_request_id=audio_request_id, y_axis=y_axis,
+                              work_space_id=work_space_id, note_name=notes_obj.notes_name)
     return True
 
 
