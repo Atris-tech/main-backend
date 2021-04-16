@@ -187,3 +187,73 @@ class AudioRenameModel(BaseModel):
                 detail=error_obj.detail
             )
         return v
+
+
+class CreateScribbleModel(BaseModel):
+    note_id: str
+    y_axis: Optional[str] = None
+    name: Optional[str] = "untitled"
+
+    @validator('note_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+    @validator('name')
+    def has_max_length(cls, v, field):
+        max_length = MAX_NOTES_NAME_LENGTH
+        if len(v) > max_length:
+            error_obj = EntityLengthError(entity=str(field.name), length=max_length, your_length=len(v))
+            raise HTTPException(
+                status_code=error_obj.code,
+                detail=error_obj.detail
+            )
+        return v
+
+
+class GetScribble(BaseModel):
+    scribble_id: str
+
+    @validator('scribble_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+
+class RenameScribble(BaseModel):
+    scribble_id: str
+    name: str
+
+    @validator('scribble_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+    @validator('name')
+    def has_max_length(cls, v, field):
+        max_length = MAX_NOTES_NAME_LENGTH
+        if len(v) > max_length:
+            error_obj = EntityLengthError(entity=str(field.name), length=max_length, your_length=len(v))
+            raise HTTPException(
+                status_code=error_obj.code,
+                detail=error_obj.detail
+            )
+        return v

@@ -964,7 +964,7 @@
 					"name": "scribles",
 					"item": [
 						{
-							"name": "upload_scribbles",
+							"name": "save_scribbles",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -989,21 +989,11 @@
 										{
 											"key": "file",
 											"type": "file",
-											"src": "/C:/Users/atris/Downloads/hoppscotch-collection (1).json"
+											"src": "/D:/atris/main-server/1852e797-6c8c-4a15-b9e2-3ac21d77659e"
 										},
 										{
-											"key": "note_id",
-											"value": "6075ff1b0d28d705c73dcfd1",
-											"type": "text"
-										},
-										{
-											"key": "y_axis",
-											"value": "1",
-											"type": "text"
-										},
-										{
-											"key": "name",
-											"value": "test",
+											"key": "scribble_id",
+											"value": "6079f920332c956afb26cd14",
 											"type": "text"
 										}
 									]
@@ -1021,6 +1011,175 @@
 									"path": [
 										"api",
 										"upload_scribble",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get_scribbles",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"scribble_id\": \"6079f920332c956afb26cd14\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/get_scribble/",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"get_scribble",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create_scribble",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"note_id\": \"6079f109bdc7bc30e8c0d3a7\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "127.0.0.1:8000/api/create_scribble/",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"create_scribble",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_scribbles",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"scribble_id\": \"6079f135bdc7bc30e8c0d3aa\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "127.0.0.1:8000/api/delete_scribble/",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"delete_scribble",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "rename_scribble",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"scribble_id\": \"6079f135bdc7bc30e8c0d3aa\",\r\n  \"name\": \"new name\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "127.0.0.1:8000/api/rename_scribble/",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"rename_scribble",
 										""
 									]
 								}
@@ -1798,6 +1957,49 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "celery_hook",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{MICRO_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"blob_size\": \"string\",\r\n  \"stt_data\": {},\r\n  \"note_id\": \"string\",\r\n  \"file_url\": \"string\",\r\n  \"file_name\": \"string\",\r\n  \"original_file_name\": \"string\",\r\n  \"y_axis\": \"string\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/save_to_db_hook/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"save_to_db_hook",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
@@ -1822,17 +2024,14 @@
 	],
 	"variable": [
 		{
-			"id": "13410b9b-2ae6-459e-9103-afc7a3dfecbe",
 			"key": "token",
 			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaF90b2tlbiIsImVtYWlsX2lkIjoiZmFpemFuNDVzaGFpa2hAZ21haWwuY29tIiwiYWNjb3VudF90eXBlIjoiTm9ybWFsIiwidmVyaWZpZWQiOnRydWUsImV4cCI6MTY0NTk2MzM3NS4xNzk3MzR9.34ejQJT9KMqi85SDDLPMBhhJPLWbHrEoAYHlQ4GaAgM"
 		},
 		{
-			"id": "53ef5da3-f1d0-4317-a781-dff22a716d65",
 			"key": "host",
 			"value": ""
 		},
 		{
-			"id": "56bd6a61-14c4-4e3f-b473-e10ca20df6aa",
 			"key": "MICRO_TOKEN",
 			"value": ""
 		}
