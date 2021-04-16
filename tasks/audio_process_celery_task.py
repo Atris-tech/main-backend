@@ -2,6 +2,9 @@ import os
 import shutil
 import urllib.request
 import uuid
+import requests
+import json
+
 
 import magic
 
@@ -12,8 +15,11 @@ from Services.storage_services import StorageServices
 from Services.type_sense.type_sense_crud_service import create_collection
 from Services.type_sense.typesense_dic_generator import generate_typsns_data
 from db_models.mongo_setup import global_init
-from settings import TYPESENSE_AUDIO_INDEX
+from settings import TYPESENSE_AUDIO_INDEX, MICRO_SERVICES_ACCESS_TOKEN
 from task_worker_config.celery import app
+
+
+url = "http://127.0.0.1:8000/api/save_to_db_hook/"
 
 
 def check_file_type(file_to_check):
@@ -58,7 +64,6 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                             f_align_end_point=f_align_end_point, sound_recog_endpoint=sound_recog_endpoint)
         print(stt_data)
         print("api call completed")
-        shutil.rmtree(new_folder)
         print("folder deleted")
 
         audio_obj_dict = audio_save_to_db(file_size=blob_size, stt_data=stt_data, notes_id=note_id,
@@ -66,6 +71,10 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
         print("audio audio_obj_dict")
         print(audio_obj_dict)
         if audio_obj_dict is not None:
+            if "transcribe" not in stt_data:
+                stt_data["transcribe"] = ""
+            if "sound_recog_results" not in stt_data:
+                stt_data["sound_recog_results"] = []
             tps_dic = generate_typsns_data(obj=audio_obj_dict["audio_results_obj"], audio_data=stt_data,
                                            audio_id=str(audio_obj_dict["audio_obj"].id),
                                            audio_name=audio_obj_dict["audio_obj"].name)
@@ -82,20 +91,42 @@ def audio_preprocess(file_url, note_id, file_name, blob_size, audio_request_id, 
                 }
             }
             print(to_send_ws_data)
+            shutil.rmtree(new_folder)
             redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
         else:
-            remove_bad_file(new_folder, audio_request_id, container_name, file_name)
-            to_send_ws_data = {
-                "client_id": user_id,
-                "data": {
-                    "status": "FAILED",
-                    "task": "Audio Processing",
-                    "audio_request_id": audio_request_id,
-                    "detail": "Unknown Error Occurred or Note Deleted",
-                }
+            payload = json.dumps({
+                "blob_size": blob_size,
+                "stt_data": stt_data,
+                "note_id": str(note_id),
+                "file_url": file_url,
+                "file_name": file_name,
+                "original_file_name": original_file_name,
+                "y_axis": y_axis
+            })
+            headers = {
+                'Authorization': 'Bearer ' + MICRO_SERVICES_ACCESS_TOKEN,
+                'Content-Type': 'application/json'
             }
-            print(to_send_ws_data)
-            redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
+            response = requests.request("POST", url, headers=headers, data=payload)
+            if response.text != "false":
+                to_send_ws_data = json.loads(response.text)
+                to_send_ws_data["client_id"] = user_id
+                to_send_ws_data["audio_request_id"] = audio_request_id
+                print(to_send_ws_data)
+                redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
+            else:
+                remove_bad_file(new_folder, audio_request_id, container_name, file_name)
+                to_send_ws_data = {
+                    "client_id": user_id,
+                    "data": {
+                        "status": "FAILED",
+                        "task": "Audio Processing",
+                        "audio_request_id": audio_request_id,
+                        "detail": "Unknown Error Occurred or Note Deleted",
+                    }
+                }
+                print(to_send_ws_data)
+                redis_publisher_serv(channel=str(user_id), data=to_send_ws_data)
 
     else:
         remove_bad_file(new_folder, audio_request_id, container_name, file_name)

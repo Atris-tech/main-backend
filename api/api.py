@@ -5,6 +5,7 @@ from .endpoints.auth import user_settings
 from .endpoints.notes import notes_management_api
 from .endpoints.tags import tag_management
 from .endpoints.workspaces import workspace_management
+from .endpoints import save_celery_data_hook
 
 api_router = APIRouter()
 api_router.include_router(google_login.router, tags=["login"])
@@ -18,3 +19,5 @@ api_router.include_router(tag_management.router, tags=['tags'])
 api_router.include_router(search_api.router, tags=['image_search'])
 api_router.include_router(search_api.router, tags=['audio_search'])
 api_router.include_router(search_api.router, tags=['note_search'])
+api_router.include_router(save_celery_data_hook.router, tags=['celery_hook'])
+
