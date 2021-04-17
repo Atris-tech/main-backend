@@ -154,7 +154,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"workspace_id\": \"607543ab473b781d50bebfa3\"\r\n}"
+							"raw": "{\r\n  \"workspace_id\": \"607a0aa0401332fe525e639d\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "localhost:8000/api/display_all_notes",
@@ -1388,7 +1393,7 @@
 							"urlencoded": []
 						},
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/get_note?notes_id=6075f98d92f1bedbff512b59",
+							"raw": "http://127.0.0.1:8000/api/get_note?notes_id=607a0adf401332fe525e639e",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -1409,7 +1414,7 @@
 								},
 								{
 									"key": "notes_id",
-									"value": "6075f98d92f1bedbff512b59"
+									"value": "607a0adf401332fe525e639e"
 								}
 							]
 						}
@@ -1524,7 +1529,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"tags_name\": [\"string3👿\"],\r\n  \"workspace_id\": \"6075f97892f1bedbff512b58\",\r\n  \"notes_id\": \"6077c2f51bc08dac8b368479\"\r\n}",
+							"raw": "{\r\n  \"tags_name\": [\"string3👿\"],\r\n  \"workspace_id\": \"607a0aa0401332fe525e639d\",\r\n  \"notes_id\": \"607a0adf401332fe525e639e\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1596,10 +1601,20 @@
 				{
 					"name": "recommend_tags",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/get_matching_tags/?tag_name",
+							"raw": "http://127.0.0.1:8000/api/get_matching_tags/?tag_name=string3",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -1616,7 +1631,7 @@
 							"query": [
 								{
 									"key": "tag_name",
-									"value": null
+									"value": "string3"
 								}
 							]
 						}
@@ -1763,10 +1778,20 @@
 				{
 					"name": "filter_tags",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "127.0.0.1:8000/api/api/filter_tags/?tag_id",
+							"raw": "127.0.0.1:8000/api/filter_tags/?tag_id=607a12eea0309f02139014ac",
 							"host": [
 								"127",
 								"0",
@@ -1776,14 +1801,13 @@
 							"port": "8000",
 							"path": [
 								"api",
-								"api",
 								"filter_tags",
 								""
 							],
 							"query": [
 								{
 									"key": "tag_id",
-									"value": null
+									"value": "607a12eea0309f02139014ac"
 								}
 							]
 						}
