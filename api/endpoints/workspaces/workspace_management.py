@@ -1,17 +1,13 @@
-from fastapi import APIRouter, Request, HTTPException
-from pydantic import BaseModel
-from Services.workspace_services import new_workspace, delete_workspace, rename_workspace
-from Services.auth.auth_services import token_check
-from typing import Optional
-from error_constants import BAD_REQUEST
+from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 
+from Services.auth.auth_services import token_check
+from Services.display_all_workspace import display_workspace_catch
+from Services.workspace_services import new_workspace, delete_workspace, rename_workspace, display_all_caches
+from api.endpoints.workspaces.models import WorkspaceEditingModel, WorkspaceRenameModel, WorkspaceDeleteModel, \
+    WorkspaceCacheModel
+from error_constants import BadRequest
 
 router = APIRouter()
-
-
-class WorkspaceEditingModel(BaseModel):
-    workspace_name:  str
-    emoji: str
 
 
 @router.post("/create_workspace/", status_code=200)
@@ -28,12 +24,6 @@ def create_user_workspace(
     )
 
 
-class WorkspaceRenameModel(BaseModel):
-    old_workspace_name: str
-    new_workspace_name: Optional[str]
-    emoji: Optional[str]
-
-
 @router.post("/rename_workspace/", status_code=200)
 def rename_user_workspace(
         workspace_rename_obj: WorkspaceRenameModel,
@@ -45,8 +35,8 @@ def rename_user_workspace(
         user_dict = token_check(request)
         if not workspace_rename_obj.new_workspace_name and not workspace_rename_obj.emoji:
             raise HTTPException(
-                status_code=BAD_REQUEST["status_code"],
-                detail=BAD_REQUEST["detail"]
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
             )
         return rename_workspace(
             old_workspace_name=workspace_rename_obj.old_workspace_name,
@@ -56,23 +46,40 @@ def rename_user_workspace(
         )
     else:
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )
-
-
-class WorkspaceDeleteModel(BaseModel):
-    workspace_name:  str
 
 
 @router.post("/delete_workspace/", status_code=200)
 def delete_user_workspace(
         workspace_delete_obj: WorkspaceDeleteModel,
         request: Request,
+        background_tasks: BackgroundTasks
 
 ):
     user_dict = token_check(request)
-    return delete_workspace(
-        workspace_name=workspace_delete_obj.workspace_name,
-        user_dict=user_dict,
+    background_tasks.add_task(delete_workspace,
+                              workspace_id=workspace_delete_obj.workspace_id,
+                              user_dict=user_dict)
+    return True
+
+
+@router.post("/display_all_notes", status_code=200)
+def display_notes(
+        workspace_obj: WorkspaceCacheModel,
+        request: Request
+):
+    user_dict = token_check(request)
+    return display_all_caches(
+        workspace_id=workspace_obj.workspace_id,
+        user_dict=user_dict
     )
+
+
+@router.post("/display_workspaces", status_code=200)
+def display_workspace_method(
+        request: Request
+):
+    user_dict = token_check(request)
+    return display_workspace_catch(email=user_dict["email_id"])

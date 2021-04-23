@@ -1,13 +1,15 @@
+from random import randrange
+
+from authlib.integrations.starlette_client import OAuth, OAuthError
+from fastapi import APIRouter, HTTPException
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
-from authlib.integrations.starlette_client import OAuth, OAuthError
-import settings
-from fastapi import APIRouter, HTTPException
-from Services.auth.auth_services import check_user, user_name_gen, sign_up
-from random import randrange
-from Services.auth.auth_services import login
 
+import settings
+from Services.auth.auth_services import check_user, user_name_gen, sign_up
+from Services.auth.auth_services import login
+from error_constants import UserBanned
 
 router = APIRouter()
 config = Config('.env')
@@ -45,23 +47,31 @@ async def auth(request: Request):
                 if get_user.user_name == user_name:
                     print("fucked up name")
                     return RedirectResponse(url=settings.LOGIN_PAGE)
-
+            try:
+                last_name = user["name"].split()[1].replace(" ", "").capitalize()
+            except IndexError:
+                last_name = None
             token_dict = sign_up(
                 user_name=user_name.replace(" ", "").lower(),
                 email=user["email"].replace(" ", "").lower(),
-                first_name=user["name"].split()[0].replace(" ", "").lower(),
-                last_name=user["name"].split()[1].replace(" ", "").lower(),
+                first_name=user["name"].split()[0].replace(" ", "").capitalize(),
+                last_name=last_name,
                 picture=user["picture"],
                 user_check=False
             )
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
-                                    token_dict["ref_token"])
+                                        token_dict["ref_token"])
         else:
+            print(user)
+            try:
+                last_name = user["name"].split()[1].replace(" ", "").capitalize()
+            except IndexError:
+                last_name = None
             token_dict = sign_up(
                 user_name=user["given_name"].replace(" ", "").lower(),
                 email=user["email"],
-                first_name=user["name"].split()[0].replace(" ", "").lower(),
-                last_name=user["name"].split()[1].replace(" ", "").lower(),
+                first_name=user["name"].split()[0].replace(" ", "").capitalize(),
+                last_name=last_name,
                 picture=user["picture"],
                 user_check=False
             )
@@ -70,7 +80,10 @@ async def auth(request: Request):
     else:
         token_dict = login(email_id=user["email"], password=False, user_obj=get_user, new_user=False)
         if token_dict == "user_banned":
-            return HTTPException(status_code=400, detail="user_banned")
+            return HTTPException(
+                status_code=UserBanned.code,
+                detail=UserBanned.detail
+            )
         else:
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
                                         token_dict["ref_token"])

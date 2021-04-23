@@ -1,8 +1,9 @@
-from db_models.models.user_model import UserModel
 from fastapi import HTTPException
-from error_constants import SPACE_EXHAUSTED
+
+from db_models.models.user_model import UserModel
+from error_constants import NoteSizeExceeded
+from error_constants import SpaceExhausted
 from settings import MAX_NOTE_SIZE, MAX_FREE_ACCOUNT_USER_SPACE
-from error_constants import NOTE_SIZE_EXCEEDED
 
 
 def get_space(user_id):
@@ -19,8 +20,8 @@ def check_space(user_model_obj, note_obj=False, new_size_note=False, note_space_
         print(old_size_note)
         if new_size_note > MAX_NOTE_SIZE:
             raise HTTPException(
-                status_code=NOTE_SIZE_EXCEEDED["status_code"],
-                detail=NOTE_SIZE_EXCEEDED["detail"]
+                status_code=NoteSizeExceeded.code,
+                detail=NoteSizeExceeded.detail
             )
         difference = new_size_note - old_size_note
         print("difference")
@@ -52,19 +53,21 @@ def check_space(user_model_obj, note_obj=False, new_size_note=False, note_space_
         print(user_space)
         if user_space < 0 and user_model_obj.plan == "Free":
             raise HTTPException(
-                status_code=SPACE_EXHAUSTED["status_code"],
-                detail=SPACE_EXHAUSTED["detail"]
+                status_code=SpaceExhausted.code,
+                detail=SpaceExhausted.detail
             )
         elif user_model_obj.space_occupied > user_space and user_model_obj.plan == "Free":
             raise HTTPException(
-                status_code=SPACE_EXHAUSTED["status_code"],
-                detail=SPACE_EXHAUSTED["detail"]
+                status_code=SpaceExhausted.code,
+                detail=SpaceExhausted.detail
             )
         else:
             user_model_obj.space = user_space
             user_model_obj.save()
             if not blob_size:
                 note_obj.note_size = new_size_note
+    if note_space_check:
+        return note_obj
 
 
 def increase_quota_space(user_model_obj, to_increase):

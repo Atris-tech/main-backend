@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 from fastapi import HTTPException
 from icecream import ic
 
-from error_constants import BAD_REQUEST
+from error_constants import BadRequest
 
 
 def html_to_text(data):
@@ -23,6 +23,6 @@ def b64_to_html(html):
         ic()
         ic(e)
         raise HTTPException(
-            status_code=BAD_REQUEST["status_code"],
-            detail=BAD_REQUEST["detail"]
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
         )

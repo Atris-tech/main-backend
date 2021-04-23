@@ -1,9 +1,12 @@
-import mongoengine
-from .user_model import UserModel
 import datetime
 
+import mongoengine
+import mongoengine_goodjson as gj
 
-class WorkSpaceModel(mongoengine.Document):
+from .user_model import UserModel
+
+
+class WorkSpaceModel(gj.Document):
     user_id = mongoengine.ReferenceField(UserModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     work_space_name = mongoengine.StringField(required=True, default="home")
     work_space_emoji = mongoengine.StringField(required=True)

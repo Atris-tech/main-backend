@@ -17,3 +17,10 @@ icecream
 celery
 gunicorn
 python-multipart
+mongoengine_goodjson
+typesense
+html5lib
+pytest
+mongomock
+aioredis
+python-logstash-async

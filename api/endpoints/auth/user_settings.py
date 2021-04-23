@@ -1,24 +1,10 @@
-from fastapi import FastAPI, APIRouter, Request, File, UploadFile, HTTPException
-from settings import MAX_NAME_LENGTH, MIN_NAME_LENGTH
-from pydantic import BaseModel, StrictStr
-from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
-from Services.storage_services import upload_file_blob_storage
-from typing import Optional
+from fastapi import APIRouter, Request, File, UploadFile, HTTPException
 
+from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
+from Services.storage_services import StorageServices
+from api.endpoints.auth.models import UserSettingModel
 
 router = APIRouter()
-app = FastAPI()
-
-
-class UserSettingModel(BaseModel):
-    username:  Optional[StrictStr]
-    firstname: StrictStr
-    lastname: StrictStr
-
-    class Config:
-        anystr_strip_whitespace = True
-        min_anystr_length = MIN_NAME_LENGTH
-        max_anystr_length = MAX_NAME_LENGTH
 
 
 @router.post("/change_user/", status_code=200)
@@ -54,8 +40,9 @@ def change_dp(
 ):
     user_dict = token_check(request)
     file_data = file.file.read()
-    return upload_file_blob_storage(file_data=file_data, file_name=file.filename, email=user_dict["email_id"],
-                                    profile=True)
+    return StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file.filename,
+                                                      email=user_dict["email_id"],
+                                                      profile=True)
 
 
 @router.post("/logout_all_devices", status_code=200)
@@ -69,8 +56,3 @@ def logout_from_all_devices(
     else:
         remove_ref_token(user_obj)
         return True
-
-
-
-
-

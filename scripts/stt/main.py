@@ -1,18 +1,18 @@
 import os
 import warnings
+
 warnings.filterwarnings('ignore')
 import nemo.collections.asr as nemo_asr
 from nemo.collections import nlp as nemo_nlp
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, UploadFile, Form, Request, HTTPException
 import subprocess
 import magic
 import uuid
 import requests
 import json
+from jose import JWTError, jwt
 
-
-app = FastAPI(host='0.0.0.0', port = 8080)
-
+app = FastAPI(host='0.0.0.0', port=8080)
 
 MIME_TYPES_AUDIO = {
     "mp3": "audio/mpeg",
@@ -26,13 +26,34 @@ MIME_TYPES_AUDIO = {
 # Speech Recognition model - QuartzNet
 jasper = nemo_asr.models.EncDecCTCModel.from_pretrained(model_name="Jasper10x5Dr-En").cuda()
 # Punctuation and capitalization model
-punctuation = nemo_nlp.models.PunctuationCapitalizationModel.from_pretrained(model_name='Punctuation_Capitalization_with_DistilBERT').cuda()
+punctuation = nemo_nlp.models.PunctuationCapitalizationModel.from_pretrained(
+    model_name='Punctuation_Capitalization_with_DistilBERT').cuda()
+
+
+def verify_token(request):
+    token = request.headers.get("Authorization")
+    if token is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization Error"
+        )
+    token = token.split()
+    token = token[1]
+    try:
+        jwt.decode(token, "09d25e094fdf6ca25d6c81f166b7a9563g93f7099h6f0f4caa6cfj3b88e8d3e7",
+                   algorithms=["HS256"])
+    except JWTError as e:
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization Error"
+        )
 
 
 def convert_audio(source_format, file):
     target_file = str(uuid.uuid4()) + ".wav"
     if source_format == "wav":
-        subprocess.call(["sox", file, "-r", "16000", "-c", "1", target_file])
+        print("in wav file convert audio")
+        subprocess.call(["sox", file, "-r", "16000", "-c", "1", "-b", "16", "-e",  "signed-integer", target_file])
     elif source_format == "mp3":
         subprocess.call(["sox", file, "-r", "16000", "-c", "1", target_file])
     elif source_format == "m4a":
@@ -43,7 +64,6 @@ def convert_audio(source_format, file):
         subprocess.call(["ffmpeg", "-i", file, "-acodec", "pcm_s16le", "-ac", "1", "-ar", "16000", target_file])
     os.remove(file)
     return target_file
-
 
 
 def check_mime_type(file):
@@ -90,7 +110,7 @@ def transcribe(file_name, f_align_url, sound_recog_url):
         print("here")
         payload = {'transcript': text}
         files = [
-          ('audio', (file_name, open(file_name, 'rb'), 'application/octet-stream'))
+            ('audio', (file_name, open(file_name, 'rb'), 'application/octet-stream'))
         ]
         response = requests.request("POST", f_align_url, data=payload, files=files)
         f_align = response.text
@@ -99,22 +119,26 @@ def transcribe(file_name, f_align_url, sound_recog_url):
     files = [
         ('audio', (file_name, open(file_name, 'rb'), 'audio/wav'))
     ]
+    try:
+        response = requests.request("POST", sound_recog_url, files=files)
 
-    response = requests.request("POST", sound_recog_url, files=files)
-
-    sound_recog_results = response.text
-    sound_recog_results = json.loads(sound_recog_results)
-    sound_recog_predictions = list()
-    for result in sound_recog_results["predictions"]:
-        if result["probability"] > 0.4:
-            sound_recog_predictions.append(result["label"])
-    os.remove(file_name)
-    response_dict["sound_recog_results"] = sound_recog_predictions
+        sound_recog_results = response.text
+        sound_recog_results = json.loads(sound_recog_results)
+        sound_recog_predictions = list()
+        for result in sound_recog_results["predictions"]:
+            if result["probability"] > 0.4:
+                sound_recog_predictions.append(result["label"])
+        os.remove(file_name)
+        response_dict["sound_recog_results"] = sound_recog_predictions
+    except Exception as e:
+        response_dict["sound_recog_results"] = None
     return response_dict
 
 
 @app.post("/uploadfile/")
-def create_upload_file(file: UploadFile = File(...), f_align_url: str = Form(...), sound_recog_url: str = Form(...)):
+def create_upload_file(request: Request, file: UploadFile = File(...), f_align_url: str = Form(...),
+                       sound_recog_url: str = Form(...)):
+    verify_token(request)
     file_name = file.filename
     print(file_name)
     with open(file_name, 'wb') as f:

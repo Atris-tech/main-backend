@@ -1,19 +1,19 @@
-from dateutil.relativedelta import relativedelta
-from jose import JWTError, jwt
-from Services.redis_service import get_val, set_val, redis_obj
 from datetime import datetime
-import settings
-from db_models.models.user_model import UserModel
-from passlib.context import CryptContext
-from db_models.mongo_setup import global_init
-from coolname import generate_slug
-from db_models.models.token_model import TokenModel
-from fastapi import HTTPException
-import error_constants
 
+from coolname import generate_slug
+from dateutil.relativedelta import relativedelta
+from fastapi import HTTPException
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+import error_constants
+import settings
+from Services.redis_service import get_val, set_val, redis_obj
+from db_models.models.token_model import TokenModel
+from db_models.models.user_model import UserModel
+from db_models.mongo_setup import global_init
 
 global_init()
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -36,14 +36,14 @@ def verify_jwt_token(token, verify=False, forgot_password=False, refresh_token=F
         elif verify and payload["token_type"] != "verify":
             print("here in verify and not verify")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         elif not verify and payload["token_type"] == "verify":
             print("here in not verify and token verify")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         if forgot_password and payload["token_type"] == "forgot_password":
             print("here in forgot password")
@@ -51,14 +51,14 @@ def verify_jwt_token(token, verify=False, forgot_password=False, refresh_token=F
         elif forgot_password and payload["token_type"] != "forgot_password":
             print("print here in forgot password and token not forgot password")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         elif not forgot_password and payload["token_type"] == "forgot_password":
             print("print here in not forgot password and token forgot password")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         if refresh_token and payload["token_type"] == "refresh_token":
             print("print here in refresh token")
@@ -66,14 +66,14 @@ def verify_jwt_token(token, verify=False, forgot_password=False, refresh_token=F
         elif refresh_token and payload["token_type"] != "refresh_token":
             print("print here in refresh token and token not refresh token")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         elif not refresh_token and payload["token_type"] == "refresh_token":
             print("print here in not refresh token and token refresh token")
             raise HTTPException(
-                status_code=error_constants.BAD_REQUEST["status_code"],
-                detail=error_constants.BAD_REQUEST["detail"]
+                status_code=error_constants.BadRequest.code,
+                detail=error_constants.BadRequest.detail
             )
         print("access token")
         return payload
@@ -139,8 +139,8 @@ def get_ref_token(user_obj):
         print(ref_token)
         if token_obj.token_status == "Dead":
             raise HTTPException(
-                status_code=error_constants.USER_BANNED["status_code"],
-                detail=error_constants.USER_BANNED["detail"]
+                status_code=error_constants.UserBanned.code,
+                detail=error_constants.UserBanned.detail
             )
         if ref_token is None:
             return create_ref_token(user_obj=user_obj, token_obj=token_obj)
@@ -154,8 +154,8 @@ def get_ref_token(user_obj):
                 if user_dict is not None:
                     if "banned" in user_dict:
                         raise HTTPException(
-                            status_code=error_constants.USER_BANNED["status_code"],
-                            detail=error_constants.USER_BANNED["detail"]
+                            status_code=error_constants.UserBanned.code,
+                            detail=error_constants.UserBanned.detail
                         )
                     expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
                     access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
@@ -180,29 +180,32 @@ def remove_ref_token(user_obj):
         pass
 
 
-def refresh_token_utils(ref_token=False, user_obj=False, new_user=True):
+def refresh_token_utils(ref_token=False, user_obj=False, new_user=True, rf_user_dic=False):
     if ref_token:
         """get access token"""
         if verify_jwt_token(ref_token, refresh_token=True):
             user_dict = get_val(ref_token, json_type=True)
             if user_dict is None:
                 raise HTTPException(
-                    status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
-                    detail=error_constants.TOKEN_NOT_EXIST["detail"]
+                    status_code=error_constants.TokenDoesNotExist.code,
+                    detail=error_constants.TokenDoesNotExist.detail
                 )
             if "banned" in user_dict:
                 raise HTTPException(
-                    status_code=error_constants.USER_BANNED["status_code"],
-                    detail=error_constants.USER_BANNED["detail"]
+                    status_code=error_constants.UserBanned.code,
+                    detail=error_constants.UserBanned.detail
                 )
             else:
-                expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-                access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
-                return access_token
+                if rf_user_dic:
+                    return user_dict
+                else:
+                    expiry_min = datetime.now() + relativedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+                    access_token = create_jwt_token(data=user_dict, expire_date_time=expiry_min.timestamp())
+                    return access_token
         else:
             raise HTTPException(
-                status_code=error_constants.RF_TOKEN_EXPIRED_INVALID["status_code"],
-                detail=error_constants.RF_TOKEN_EXPIRED_INVALID["detail"]
+                status_code=error_constants.RfTokenExpiredInvalid.code,
+                detail=error_constants.RfTokenExpiredInvalid.detail
             )
     if not new_user:
         return get_ref_token(user_obj)
@@ -237,6 +240,7 @@ def check_user(email=False, user_name=False):
             return False
     else:
         try:
+            user_name = str(user_name).lower()
             user_obj = UserModel.objects.get(user_name=user_name)
             return user_obj
         except UserModel.DoesNotExist:
@@ -247,13 +251,13 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
     if user_check:
         if check_user(user_name=user_name):
             raise HTTPException(
-                status_code=error_constants.USER_NAME_TAKEN["status_code"],
-                detail=error_constants.USER_NAME_TAKEN["detail"]
+                status_code=error_constants.UserNameTaken.code,
+                detail=error_constants.UserNameTaken.detail
             )
         elif check_user(email=email):
             raise HTTPException(
-                status_code=error_constants.EMAIL_ID_EXISTS["status_code"],
-                detail=error_constants.EMAIL_ID_EXISTS["detail"]
+                status_code=error_constants.EmailIdExists.code,
+                detail=error_constants.EmailIdExists.detail
             )
     user_model_obj = UserModel()
     user_model_obj.user_name = user_name.lower()
@@ -291,7 +295,8 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
                 "user_name": user_obj.user_name,
                 "first_name": user_obj.first_name,
                 "last_name": user_obj.last_name,
-                "picture": user_obj.image
+                "picture": user_obj.image,
+                "user_id": str(user_obj.id)
             }
         else:
             data = {
@@ -312,9 +317,10 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
         return data
 
 
-def login(email_id, password=True, user_obj=False, new_user=True):
+def login(email_id: str, password: bool = True, user_obj=False, new_user=True):
     try:
         print(email_id)
+        email_id = email_id.lower()
         user_model_obj = UserModel.objects.get(email_id=email_id)
         print(user_model_obj.user_name)
         print(user_model_obj.password_hash)
@@ -326,13 +332,13 @@ def login(email_id, password=True, user_obj=False, new_user=True):
             print(a)
             if not a:
                 raise HTTPException(
-                    status_code=error_constants.INCORRECT_PASSWORD["status_code"],
-                    detail=error_constants.INCORRECT_PASSWORD["detail"]
+                    status_code=error_constants.IncorrectPassword.code,
+                    detail=error_constants.IncorrectPassword.detail
                 )
             if not user_model_obj.verified:
                 raise HTTPException(
-                    status_code=error_constants.VERIFICATION_ERROR["status_code"],
-                    detail=error_constants.VERIFICATION_ERROR["detail"]
+                    status_code=error_constants.VerificationError.code,
+                    detail=error_constants.VerificationError.detail
                 )
 
         if not new_user:
@@ -341,8 +347,8 @@ def login(email_id, password=True, user_obj=False, new_user=True):
         return refresh_token_utils(user_obj=user_obj)
     except UserModel.DoesNotExist:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
 
 
@@ -369,8 +375,8 @@ def update_user(email=False, user_name=False, first_name=False, last_name=False)
             try:
                 UserModel.objects.get(user_name=user_name)
                 raise HTTPException(
-                    status_code=error_constants.USER_NAME_TAKEN["status_code"],
-                    detail=error_constants.USER_NAME_TAKEN["detail"]
+                    status_code=error_constants.UserNameTaken.code,
+                    detail=error_constants.UserNameTaken.detail
                 )
             except UserModel.DoesNotExist:
                 user_model_obj.user_name = user_name
@@ -382,8 +388,8 @@ def update_user(email=False, user_name=False, first_name=False, last_name=False)
         return True
     except UserModel.DoesNotExist:
         raise HTTPException(
-            status_code=error_constants.INVALID_EMAIL["status_code"],
-            detail=error_constants.INVALID_EMAIL["detail"]
+            status_code=error_constants.InvalidEmailError.code,
+            detail=error_constants.InvalidEmailError.detail
         )
 
 
@@ -392,15 +398,19 @@ def user_name_gen():
     return username
 
 
-def token_check(request, verify=False, forgot_password=False, refresh_token=False):
-    token = request.headers.get("Authorization")
-    if token is None:
-        raise HTTPException(
-            status_code=error_constants.TOKEN_NOT_EXIST["status_code"],
-            detail=error_constants.TOKEN_NOT_EXIST["detail"]
-        )
-    token = token.split()
-    token = token[1]
+def token_check(request, verify=False, forgot_password=False, refresh_token=False, direct_token=False,
+                rf_dict=False):
+    if direct_token:
+        token = direct_token
+    else:
+        token = request.headers.get("Authorization")
+        if token is None:
+            raise HTTPException(
+                status_code=error_constants.TokenDoesNotExist.code,
+                detail=error_constants.TokenDoesNotExist.detail
+            )
+        token = token.split()
+        token = token[1]
     if verify:
         payload = verify_jwt_token(token, verify=True)
         return payload
@@ -408,7 +418,10 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
         payload = verify_jwt_token(token, forgot_password=True)
         return payload
     if refresh_token:
-        return refresh_token_utils(ref_token=token)
+        if rf_dict:
+            return refresh_token_utils(ref_token=token, rf_user_dic=True)
+        else:
+            return refresh_token_utils(ref_token=token)
     print("here in payload")
     payload = verify_jwt_token(token)
     if payload:
@@ -416,6 +429,6 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
         return payload
     else:
         raise HTTPException(
-            status_code=error_constants.TOKEN_EXPIRED["status_code"],
-            detail=error_constants.TOKEN_EXPIRED["detail"]
+            status_code=error_constants.TokenExpired.code,
+            detail=error_constants.TokenExpired.detail
         )

@@ -1,4 +1,5 @@
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
+
 import settings
 from Services.mail.mail_body_return_service import mail_body
 
