@@ -65,7 +65,7 @@ def delete_user_workspace(
     return True
 
 
-@router.post("/display_all_notes", status_code=200)
+@router.post("/display_all_notes/", status_code=200)
 def display_notes(
         workspace_obj: WorkspaceCacheModel,
         request: Request
@@ -77,7 +77,7 @@ def display_notes(
     )
 
 
-@router.post("/display_workspaces", status_code=200)
+@router.post("/display_workspaces/", status_code=200)
 def display_workspace_method(
         request: Request
 ):

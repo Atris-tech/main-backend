@@ -79,6 +79,10 @@ screen -r {{id}}
 docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
 ```
 
+```shell
+pm2 start "gunicorn -w 10 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker main:app --timeout 120"
+```
+
 DRON VM
 ```json
 {
