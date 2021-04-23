@@ -11,7 +11,9 @@ from db_models.models.user_model import UserModel
 from settings import get_ws_clients
 
 app = FastAPI(
-    title=settings.PROJECT_NAME
+    title=settings.PROJECT_NAME,
+    docs_url=None,
+    redoc_url=None
 )
 
 # Set all CORS enabled origins
