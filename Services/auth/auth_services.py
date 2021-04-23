@@ -1,8 +1,8 @@
 import uuid
 from datetime import datetime
 import os
-import urllib.request
 
+import requests
 from coolname import generate_slug
 from dateutil.relativedelta import relativedelta
 from fastapi import HTTPException
@@ -279,7 +279,8 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
         user_model_obj.account_type = "Third Party Oath"
         user_model_obj.user_storage_container_name = str(uuid.uuid1())
         file = str(uuid.uuid4()) + os.path.basename(picture)
-        filedata = urllib.request.urlopen(picture)
+        response = requests.request("GET", picture)
+        filedata = response.content
         StorageServices().upload_file_blob_storage(container_name=user_model_obj.user_storage_container_name,
                                                    file_data=filedata, file_name=file)
         user_model_obj.image = file
