@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Request, File, UploadFile, HTTPException
+import uuid
+
+from fastapi import APIRouter, Request, File, UploadFile, HTTPException, Header, Depends
 
 from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
 from Services.storage_services import StorageServices
 from api.endpoints.auth.models import UserSettingModel
+from error_constants import MaxProfileLength, MinProfileLength
+from settings import MAX_PROFILE_PHOTO_SIZE, MIN_PROFILE_PHOTO_SIZE
 
 router = APIRouter()
 
@@ -33,16 +37,34 @@ def get_user_setting_data(
     )
 
 
+def valid_content_length(content_length: int = Header(..., lt=50_000_000)):
+    return content_length
+
+
 @router.post("/change_profile/", status_code=200)
 def change_dp(
         request: Request,
-        file: UploadFile = File(...)
+        file: UploadFile = File(...),
+        content_length: int = Depends(valid_content_length)
 ):
     user_dict = token_check(request)
     file_data = file.file.read()
-    return StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file.filename,
-                                                      email=user_dict["email_id"],
-                                                      profile=True)
+    if content_length < MIN_PROFILE_PHOTO_SIZE:
+        raise HTTPException(
+            status_code=MinProfileLength.code,
+            detail=MinProfileLength.detail
+        )
+    elif content_length > MAX_PROFILE_PHOTO_SIZE:
+        raise HTTPException(
+            status_code=MaxProfileLength.code,
+            detail=MaxProfileLength.detail
+        )
+    file_name = str(uuid.uuid4()) + file.filename
+    url_dict = StorageServices().upload_file_blob_storage(file_data=file_data, file_name=file_name,
+                                                          email=user_dict["email_id"],
+                                                          profile=True)
+    url_dict.pop('container_name')
+    return url_dict
 
 
 @router.post("/logout_all_devices/", status_code=200)

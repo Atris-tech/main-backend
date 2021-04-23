@@ -1,4 +1,5 @@
-from settings import MAX_AUDIO_LENGTH, MIN_AUDIO_LENGTH, MAX_IMAGE_LENGTH
+from settings import MAX_AUDIO_LENGTH, MIN_AUDIO_LENGTH, MAX_IMAGE_LENGTH, MAX_PROFILE_PHOTO_SIZE, \
+    MIN_PROFILE_PHOTO_SIZE
 
 
 class UserBanned:
@@ -133,6 +134,16 @@ class MinAudioLength:
 class MaxImageLength:
     code = 422
     detail = "Too Big Image File. Max Image Size allowed is " + str(MAX_IMAGE_LENGTH / 100000000) + " mb"
+
+
+class MaxProfileLength:
+    code = 422
+    detail = "Too Big Profile Picture. Max Profile picture Size allowed is " + str(MAX_PROFILE_PHOTO_SIZE)
+
+
+class MinProfileLength:
+    code = 422
+    detail = "Too Small Profile Picture. Min Profile picture Size allowed is " + str(MIN_PROFILE_PHOTO_SIZE)
 
 
 class NoneValue:

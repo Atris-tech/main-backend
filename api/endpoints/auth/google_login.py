@@ -30,7 +30,7 @@ async def glogin(request: Request):
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@router.get('/auth/')
+@router.get('/auth')
 async def auth(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)

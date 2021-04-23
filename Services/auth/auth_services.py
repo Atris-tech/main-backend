@@ -1,4 +1,7 @@
+import uuid
 from datetime import datetime
+import os
+import urllib.request
 
 from coolname import generate_slug
 from dateutil.relativedelta import relativedelta
@@ -9,6 +12,7 @@ from passlib.context import CryptContext
 import error_constants
 import settings
 from Services.redis_service import get_val, set_val, redis_obj
+from Services.storage_services import StorageServices
 from db_models.models.token_model import TokenModel
 from db_models.models.user_model import UserModel
 from db_models.mongo_setup import global_init
@@ -273,7 +277,12 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
         return user_model_obj
     else:
         user_model_obj.account_type = "Third Party Oath"
-        user_model_obj.image = picture
+        user_model_obj.user_storage_container_name = str(uuid.uuid1())
+        file = str(uuid.uuid4()) + os.path.basename(picture)
+        filedata = urllib.request.urlopen(picture)
+        StorageServices().upload_file_blob_storage(container_name=user_model_obj.user_storage_container_name,
+                                                   file_data=filedata, file_name=file)
+        user_model_obj.image = file
         user_model_obj.verified = True
         user_model_obj.save()
         return refresh_token_utils(user_obj=user_model_obj)
@@ -285,7 +294,8 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
             "user_name": user_obj.user_name,
             "email": user_obj.email_id,
             "full name": user_obj.first_name + " " + user_obj.last_name,
-            "picture": user_obj.image
+            "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
+                                                        blob_name=user_obj.image)
         }
         return data
     elif email_address:
@@ -295,7 +305,8 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
                 "user_name": user_obj.user_name,
                 "first_name": user_obj.first_name,
                 "last_name": user_obj.last_name,
-                "picture": user_obj.image,
+                "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
+                                                            blob_name=user_obj.image),
                 "user_id": str(user_obj.id)
             }
         else:
@@ -303,7 +314,8 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
                 "user_name": user_obj.user_name,
                 "email": user_obj.email_id,
                 "full name": user_obj.first_name + " " + user_obj.last_name,
-                "picture": user_obj.image
+                "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
+                                                            blob_name=user_obj.image)
             }
         return data
     elif user_name:
@@ -312,7 +324,8 @@ def get_user_data(user_name=False, email_address=False, user_obj=False, user_set
             "user_name": user_obj.user_name,
             "email": user_obj.email_id,
             "full name": user_obj.first_name + " " + user_obj.last_name,
-            "picture": user_obj.image
+            "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
+                                                            blob_name=user_obj.image)
         }
         return data
 
