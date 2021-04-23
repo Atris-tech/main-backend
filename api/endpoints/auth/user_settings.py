@@ -45,7 +45,7 @@ def change_dp(
                                                       profile=True)
 
 
-@router.post("/logout_all_devices", status_code=200)
+@router.post("/logout_all_devices/", status_code=200)
 def logout_from_all_devices(
         request: Request
 ):
