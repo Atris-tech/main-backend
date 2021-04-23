@@ -24,13 +24,13 @@ oauth.register(
 )
 
 
-@router.get('/google-login')
+@router.get('/google-login/')
 async def glogin(request: Request):
     redirect_uri = settings.AUTHLIB_REDIRECT_AUTH_URL
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
-@router.get('/auth')
+@router.get('/auth/')
 async def auth(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)

@@ -236,3 +236,4 @@ dmypy.json
 /1.wav
 /false.wav
 /recording 1.aac
+.env.prod
