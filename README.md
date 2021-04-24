@@ -33,7 +33,7 @@ docker run --restart always --gpus all -p 8007:80 faizanshk/atris-emotion
 
 ```
 screen -S d_entity
-docker run --restart always --gpus all -p 8006:80 shazam22/atris-entity
+docker run --restart always --gpus all -p 8006:8006 shazam22/atris-entity
 ```
 
 ```
@@ -43,7 +43,7 @@ docker run --restart always --gpus all -p 8005:8005 beyonder99/atris_summerizati
 
 ```
 screen -S d_ocr
-docker run --restart always -it -p 1000:5000 quay.io/codait/max-ocr
+docker run --restart always -p 1000:5000 quay.io/codait/max-ocr
 ```
 
 ```
@@ -146,4 +146,10 @@ Emotion
 ```
 id : faizanshk
 Password : 4nSH4VHE;KvBap%
+```
+
+Stt
+```
+id: jainal09
+password : 09Prototype_101
 ```

@@ -290,55 +290,42 @@ def sign_up(user_name, email, first_name, last_name, picture=False, password=Fal
         return refresh_token_utils(user_obj=user_model_obj)
 
 
+def generate_user_data_dict(user_obj):
+    data = {
+        "user_name": user_obj.user_name,
+        "email": user_obj.email_id,
+        "full name": user_obj.first_name + " " + user_obj.last_name,
+    }
+    print("user image")
+    print(user_obj.image)
+    if user_obj.image is not None:
+        data["picture"] = StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
+                                                           blob_name=user_obj.image)
+    else:
+        data["picture"] = None
+    return data
+
+
 def get_user_data(user_name=False, email_address=False, user_obj=False, user_setting=False):
     if user_obj:
-        data = {
-            "user_name": user_obj.user_name,
-            "email": user_obj.email_id,
-            "full name": user_obj.first_name + " " + user_obj.last_name,
-            "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
-                                                        blob_name=user_obj.image)
-        }
-        return data
+        return generate_user_data_dict(user_obj)
     elif email_address:
         try:
             user_obj = UserModel.objects.get(email_id=email_address)
             if user_setting:
-                data = {
-                    "user_name": user_obj.user_name,
-                    "first_name": user_obj.first_name,
-                    "last_name": user_obj.last_name,
-                    "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
-                                                                blob_name=user_obj.image),
-                    "user_id": str(user_obj.id)
-                }
-                return data
+                return generate_user_data_dict(user_obj)
         except UserModel.DoesNotExist:
             raise HTTPException(
                 status_code=error_constants.BadRequest.code,
                 detail=error_constants.BadRequest
             )
         else:
-            data = {
-                "user_name": user_obj.user_name,
-                "email": user_obj.email_id,
-                "full name": user_obj.first_name + " " + user_obj.last_name,
-                "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
-                                                            blob_name=user_obj.image)
-            }
-            return data
+            return generate_user_data_dict(user_obj)
 
     elif user_name:
         try:
             user_obj = UserModel.objects.get(user_name=user_name)
-            data = {
-                "user_name": user_obj.user_name,
-                "email": user_obj.email_id,
-                "full name": user_obj.first_name + " " + user_obj.last_name,
-                "picture": StorageServices().regenerate_url(container_name=user_obj.user_storage_container_name,
-                                                            blob_name=user_obj.image)
-            }
-            return data
+            return generate_user_data_dict(user_obj)
         except UserModel.DoesNotExist:
             raise HTTPException(
                 status_code=error_constants.BadRequest.code,
