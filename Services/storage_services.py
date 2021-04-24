@@ -71,7 +71,8 @@ class StorageServices:
         print(data)
         print("blob uploaded")
         if profile:
-            self.delete_blob(container_name, user_model_obj.image)
+            if user_model_obj.image:
+                self.delete_blob(container_name, user_model_obj.image)
             user_model_obj.update(image=file_name)
         return data
 
