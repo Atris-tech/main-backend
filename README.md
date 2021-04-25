@@ -1,88 +1,88 @@
 # main-backend
 
-```
+```shell
 docker commit `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'` jainal09/nemo:latest
 docker exec -it `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'` bash
 docker stop `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'`
 ```
 
-```
-screen -S d_gentle
-docker run --restart always -p 8765:8765 lowerquality/gentle
-```
-
-```
-screen -S d_stt
-docker run --restart always --gpus all -p 7000:7000 jainal09/nemo:prod
-```
-
-```
-screen -S d_max-audio
-docker run --restart always -p 5000:5000 -it quay.io/codait/max-audio-classifier
-```
-
-```
-screen -S d_image_label
-docker run --restart always -p 9000:5000 -it quay.io/codait/max-resnet-50
-```
-
-```
-screen -S d_emotion
-docker run --restart always --gpus all -p 8007:80 faizanshk/atris-emotion
-```
-
-```
-screen -S d_entity
-docker run --restart always --gpus all -p 8006:8006 shazam22/atris-entity
-```
-
-```
-screen -S d_summary
-docker run --restart always --gpus all -p 8005:8005 beyonder99/atris_summerization
-```
-
-```
-screen -S d_ocr
-docker run --restart always -p 1000:5000 quay.io/codait/max-ocr
-```
-
-```
-screen -S celery-stt
-celery -A task_worker_config worker -l INFO -Q stt_queue -c 20 -n worker1 -E
-```
-
-```
-screen -S celery-entity
-celery -A task_worker_config worker -l INFO -Q entity_queue -c 4 -n worker2 -E
-```
-
-```
-screen -S celery-summary
-celery -A task_worker_config worker -l INFO -Q summary_queue -c 4 -n worker3 -E
-```
-
-```
-screen -S celery-flower
-source env1/bin/activate
-cd main-backend
-flower -A task_worker_config -port=5555 --basic_auth=admin:atris_admin
-```
-
-`Ctrl+a` `d`
-
-```
-screen -ls
-screen -r {{id}}
-```
-
-```
-docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
+```shell
+pm2 start "docker run -p 8765:8765 lowerquality/gentle"
 ```
 
 ```shell
-pm2 start "gunicorn -w 10 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker main:app --timeout 120"
+pm2 start "docker run --gpus all -p 7000:7000 jainal09/nemo:prod"
 ```
 
+```shell
+pm2 start "docker run -p 5000:5000 quay.io/codait/max-audio-classifier"
+```
+
+```shell
+pm2 start "docker run -p 9000:5000 quay.io/codait/max-resnet-50"
+```
+
+```shell
+pm2 start "docker run --gpus all -p 8007:80 faizanshk/atris-emotion"
+```
+
+```shell
+pm2 start "docker run --gpus all -p 8006:8006 shazam22/atris-entity"
+```
+
+```shell
+pm2 start "docker run --gpus all -p 8005:8005 beyonder99/atris_summerization"
+```
+
+```shell
+pm2 start "docker run -p 1000:5000 quay.io/codait/max-ocr"
+```
+
+> Celery Install
+
+```shell
+source venv/bin/activate
+pip install -r requirements.txt
+sudo apt-get install libmagic1
+pip install python-magic
+```
+> Celery Running
+```shell
+pm2 start "celery -A task_worker_config worker -l INFO -Q stt_queue -c 20 -n worker1 -E"
+```
+
+```shell
+pm2 start "celery -A task_worker_config worker -l INFO -Q entity_queue -c 4 -n worker2 -E"
+```
+
+```shell
+pm2 start "celery -A task_worker_config worker -l INFO -Q summary_queue -c 4 -n worker3 -E"
+```
+
+> Flower Installation
+```shell
+virtualenv -p python3.8 flowerenv
+source flowerenv/bin/activate
+cd main-backend
+pip install -r requirements.txt
+pip install python-magic
+pip install flower
+```
+> Flower Running
+```shell
+pm2 start "flower -A task_worker_config -port=5555 --basic_auth=admin:atris_admin"
+```
+
+## Typesense
+```shell
+docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
+```
+
+## Main Endpoint
+```shell
+pm2 start "gunicorn -w 10 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker main:app --timeout 120"
+```
+## Url Configs
 DRON VM
 ```json
 {
@@ -119,13 +119,8 @@ DEVANSHI VM
 5. Entity Endpoint - `ENTITY_ENDPOINT`
 6. Emotion Analysis Endpoint - `EMOTION_ANALYSIS_ENDPOINT`
 
-```
-rq-dashboard -u redis://:D9iQsiD+4qUfmL9kQGIgvhLGB2tZnrv+tqoyo5prVfU=@paper.redis.cache.windows.net:6379/0
 
-rq worker -c worker_config
-```
-
-NLP Deployment authentication.
+## NLP Deployment authentication.
 
 Entity
 
