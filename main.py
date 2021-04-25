@@ -1,8 +1,10 @@
 import mongoengine
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI, Depends, WebSocket, status
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
 import settings
 from api.api import api_router
@@ -22,12 +24,16 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
 )
+sentry_sdk.init(
+    settings.SENTRY_KEY_URL,
+    traces_sample_rate=1.0
+)
+app.add_middleware(SentryAsgiMiddleware)
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key=settings.JWT_SECRET_KEY)
+    secret_key=settings.JWT_SECRET_KEY, )
 
 app.include_router(api_router, prefix="/api")
 

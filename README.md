@@ -1,5 +1,5 @@
 # main-backend
-
+## Micorservices
 ```shell
 docker commit `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'` jainal09/nemo:latest
 docker exec -it `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'` bash
@@ -73,6 +73,10 @@ pip install flower
 pm2 start "flower -A task_worker_config -port=5555 --basic_auth=admin:atris_admin"
 ```
 
+> Save to Db Hook
+```shell
+pm2 start "gunicorn -w 9 -b 127.0.0.1:6000 -k uvicorn.workers.UvicornWorker main:app --timeout 120"
+```
 ## Typesense
 ```shell
 docker run -p 8108:8108 -v typesense-data:/data typesense/typesense:0.19.0 --data-dir /data --api-key=a882fbadb8add13fcfdf347c43c5f3e8acb71076fa76c59c04b03a7710939816895b8ac45bab80d1d3e67adc4e8d3a44ce38805e10aaada0e49b979a874c6801
@@ -86,14 +90,14 @@ pm2 start "gunicorn -w 10 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker main:
 DRON VM
 ```json
 {
-  "nemo": "http://20.39.54.134:7000/uploadfile/",
-  "f_align": "http://20.39.54.134:8765/transcriptions?async=false",
-  "sound_recog": "http://20.39.54.134:5000/model/predict?start_time=0",
-  "smry_kwrds": "http://20.39.54.134:8005/get_summery/",
-  "entty": "http://20.39.54.134:8006/detection/",
-  "emot": "http://20.39.54.134:8007/analysis/",
-  "ocr": "http://20.39.54.134:1000/model/predict",
-  "image_label": "http://20.39.54.134:9000/model/predict"
+  "nemo": "http://52.152.166.196:7000/uploadfile/",
+  "f_align": "http://52.152.166.196:8765/transcriptions?async=false",
+  "sound_recog": "http://52.152.166.196:5000/model/predict?start_time=0",
+  "smry_kwrds": "http://52.152.166.196:8005/get_summery/",
+  "entty": "http://52.152.166.196:8006/detection/",
+  "emot": "http://52.152.166.196:8007/analysis/",
+  "ocr": "http://52.152.166.196:1000/model/predict",
+  "image_label": "http://52.152.166.196:9000/model/predict"
 }
 ```
 DEVANSHI VM

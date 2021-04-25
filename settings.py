@@ -103,6 +103,8 @@ TYPESENSE_AUDIO_INDEX = os.getenv("TYPESENSE_AUDIO_INDEX")
 PROJECT_DIR = os.path.dirname(__file__)
 IMAGE_RECOG_PROBABILITY_THRESHOLD = float(os.getenv("IMAGE_RECOG_PROBABILITY_THRESHOLD"))
 
+SENTRY_KEY_URL = os.getenv("SENTRY_KEY_URL")
+
 active_connections = []
 
 
