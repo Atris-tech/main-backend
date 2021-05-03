@@ -106,6 +106,39 @@ class NotesDeleteModel(BaseModel):
         return v
 
 
+class NotesDuplicateModel(BaseModel):
+    notes_id: str
+    workspace_id: str
+
+    @validator('notes_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+
+class NotesMoveModel(BaseModel):
+    notes_id: str
+    old_workspace_id: str
+    new_workspace_id: str
+
+    @validator('notes_id', 'old_workspace_id', 'new_workspace_id')
+    def has_min_length(cls, v):
+        min_length = MIN_NOTES_ID
+        max_length = MAX_NOTES_ID
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
+        return v
+
+
 class SmmryEntityModel(BaseModel):
     notes_id: str
     summary: Optional[str]

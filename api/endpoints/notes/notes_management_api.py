@@ -3,11 +3,11 @@ from fastapi import Request, Query, HTTPException
 import error_constants
 from Services.auth.auth_services import token_check
 from Services.notes.notes_parsing_service import b64_to_html
-from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data
+from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data, duplicate_notes, move_notes
 from Services.workspace_services import star_notes, get_star_notes
 from settings import MIN_NOTES_ID, MAX_NOTES_ID
 from .child_api_routes import routing
-from .models import NotesEditingModel, NotesSavingModel, NotesRenameModel, NotesDeleteModel
+from .models import NotesEditingModel, NotesSavingModel, NotesRenameModel, NotesDeleteModel, NotesDuplicateModel,NotesMoveModel
 
 router = routing()
 
@@ -108,3 +108,34 @@ def get_all_stared_notes(
     return get_star_notes(
         user_dict=user_dict
     )
+
+
+@router.post("/duplicate_note/", status_code=200)
+def duplicate_note_call(
+        notes_duplicate_obj: NotesDuplicateModel,
+        request: Request,
+
+):
+    print(notes_duplicate_obj.notes_id)
+    user_dict = token_check(request)
+    return duplicate_notes(
+        user_dict=user_dict,
+        workspace_id=notes_duplicate_obj.workspace_id,
+        old_note_id=notes_duplicate_obj.notes_id
+    )
+
+
+@router.post("/move_note/", status_code=200)
+def move_note_call(
+        notes_move_obj: NotesMoveModel,
+        request: Request,
+):
+    print(notes_move_obj.notes_id)
+    user_dict = token_check(request)
+    return move_notes(
+        user_dict=user_dict,
+        notes_id=notes_move_obj.notes_id,
+        old_workspace_id=notes_move_obj.old_workspace_id,
+        new_workspace_id=notes_move_obj.new_workspace_id
+    )
+
