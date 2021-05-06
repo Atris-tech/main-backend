@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, validator
 from pydantic import EmailStr, StrictStr
 
-from error_constants import EntityLengthError
+from error_constants import EntityLengthError, BadRequest
 from settings import MAX_USERNAME_LENGTH, MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH, MAX_NAME_LENGTH, MIN_NAME_LENGTH
 
 
@@ -149,4 +149,22 @@ class UserSettingModel(BaseModel):
         if not v:
             error_obj = EntityLengthError(entity=str(field.name), empty=True)
             raise HTTPException(status_code=error_obj.code, detail=error_obj.detail)
+        return v
+
+
+class ChangePasswordModel(BaseModel):
+
+    email_id: EmailStr
+    old_password: str
+    new_password: str
+
+    @validator('old_password', 'new_password')
+    def has_min_length(cls, v):
+        min_length = MIN_PASSWORD_LENGTH
+        max_length = MAX_PASSWORD_LENGTH
+        if len(v) < min_length or len(v) > max_length:
+            raise HTTPException(
+                status_code=BadRequest.code,
+                detail=BadRequest.detail
+            )
         return v
