@@ -1,5 +1,5 @@
 # main-backend
-## Micorservices
+## Micro services
 ```shell
 docker commit `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'` jainal09/nemo:latest
 docker exec -it `docker ps | grep 'jainal09/nemo:latest' |awk '{ print $1 }'` bash
@@ -124,7 +124,7 @@ DEVANSHI VM
 6. Emotion Analysis Endpoint - `EMOTION_ANALYSIS_ENDPOINT`
 
 
-## NLP Deployment authentication.
+## Docker Registry Authentication.
 
 Entity
 
