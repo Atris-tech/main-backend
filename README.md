@@ -35,7 +35,7 @@ pm2 start "docker run --gpus all -p 8005:8005 beyonder99/atris_summerization"
 ```
 
 ```shell
-  
+pm2 start "docker run -p 1000:5000 quay.io/codait/max-ocr
 ```
 
 > Celery Install
