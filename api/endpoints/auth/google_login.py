@@ -2,6 +2,7 @@ from random import randrange
 
 from authlib.integrations.starlette_client import OAuth, OAuthError
 from fastapi import APIRouter, HTTPException
+from starlette.background import BackgroundTasks
 from starlette.config import Config
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
@@ -9,6 +10,7 @@ from starlette.responses import HTMLResponse, RedirectResponse
 import settings
 from Services.auth.auth_services import check_user, user_name_gen, sign_up
 from Services.auth.auth_services import login
+from Services.mail.mail_service import email_builder
 from error_constants import UserBanned
 
 router = APIRouter()
@@ -31,7 +33,7 @@ async def glogin(request: Request):
 
 
 @router.get('/auth')
-async def auth(request: Request):
+async def auth(request: Request, background_tasks: BackgroundTasks):
     try:
         token = await oauth.google.authorize_access_token(request)
     except OAuthError as error:
@@ -40,6 +42,9 @@ async def auth(request: Request):
     get_user = check_user(email=user["email"])
     if not get_user:
         get_user = check_user(user_name=user["given_name"])
+        email_variable = {
+            "FIRSTNAME": user["name"].split()[0].replace(" ", "").capitalize(),
+        }
         if get_user:
             user_name = user_name_gen()
             if get_user.user_name == user_name:
@@ -59,6 +64,9 @@ async def auth(request: Request):
                 picture=user["picture"],
                 user_check=False
             )
+            background_tasks.add_task(email_builder, user["email"].replace(" ", "").lower(), email_variable,
+                                      "Welcome to Atris",
+                                      "welcome")
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
                                         token_dict["ref_token"])
         else:
@@ -75,6 +83,9 @@ async def auth(request: Request):
                 picture=user["picture"],
                 user_check=False
             )
+            background_tasks.add_task(email_builder, user["email"].replace(" ", "").lower(), email_variable,
+                                      "Welcome to Atris",
+                                      "welcome")
             return RedirectResponse(url=settings.AUTH_REDIRECT_URL + "q=" + token_dict["access_token"] + "&ref=" +
                                         token_dict["ref_token"])
     else:
