@@ -117,6 +117,21 @@ def display_all_caches(workspace_id, user_dict):
         )
 
 
+def display_starred_notes(user_dict):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    try:
+        satred_notes = StarModel.objects.filter(user_id=user_object_model)
+        cache_notes = list()
+        for star_note in satred_notes:
+            cache_notes.append(json.loads(star_note.cache_id.to_json()))
+        return cache_notes
+    except CacheModel.DoesNotExist:
+        raise HTTPException(
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
+        )
+
+
 def star_notes(user_dict, notes_id):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:

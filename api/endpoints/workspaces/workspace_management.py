@@ -2,7 +2,8 @@ from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 
 from Services.auth.auth_services import token_check
 from Services.display_all_workspace import display_workspace_catch
-from Services.workspace_services import new_workspace, delete_workspace, rename_workspace, display_all_caches
+from Services.workspace_services import new_workspace, delete_workspace, rename_workspace, display_all_caches, \
+    display_starred_notes
 from api.endpoints.workspaces.models import WorkspaceEditingModel, WorkspaceRenameModel, WorkspaceDeleteModel, \
     WorkspaceCacheModel
 from error_constants import BadRequest
@@ -83,3 +84,11 @@ def display_workspace_method(
 ):
     user_dict = token_check(request)
     return display_workspace_catch(email=user_dict["email_id"])
+
+
+@router.get("/get_all_starred_notes/", status_code=200)
+def display_workspace_method(
+        request: Request
+):
+    user_dict = token_check(request)
+    return display_starred_notes(user_dict)
