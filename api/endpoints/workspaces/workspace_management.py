@@ -86,7 +86,7 @@ def display_workspace_method(
     return display_workspace_catch(email=user_dict["email_id"])
 
 
-@router.get("/get_all_starred_notes/", status_code=200)
+@router.get("/get_all_bookmark_notes/", status_code=200)
 def display_workspace_method(
         request: Request
 ):

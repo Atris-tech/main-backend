@@ -6,6 +6,7 @@ from mongoengine.queryset.visitor import Q
 
 from Services.notes.notes_saving_service import delete_notes
 from db_models.models import NotesModel
+from db_models.models.bookmark_model import BookMarkModel
 from db_models.models.cache_display_model import CacheModel
 from db_models.models.starred_model import StarModel
 from db_models.models.user_model import UserModel
@@ -117,12 +118,27 @@ def display_all_caches(workspace_id, user_dict):
         )
 
 
+def display_book_mark_notes(user_dict):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    try:
+        book_mark_notes = BookMarkModel.objects.filter(user_id=user_object_model)
+        cache_notes = list()
+        for book_mark_note in book_mark_notes:
+            cache_notes.append(json.loads(book_mark_note.cache_id.to_json()))
+        return cache_notes
+    except CacheModel.DoesNotExist:
+        raise HTTPException(
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
+        )
+
+
 def display_starred_notes(user_dict):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
-        satred_notes = StarModel.objects.filter(user_id=user_object_model)
+        star_notes = StarModel.objects.filter(user_id=user_object_model)
         cache_notes = list()
-        for star_note in satred_notes:
+        for star_note in star_notes:
             cache_notes.append(json.loads(star_note.cache_id.to_json()))
         return cache_notes
     except CacheModel.DoesNotExist:
@@ -135,9 +151,32 @@ def display_starred_notes(user_dict):
 def star_notes(user_dict, notes_id):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
-        cache_model_objs = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
-        StarModel(user_id=user_object_model, cache_id=cache_model_objs).save()
-        return True
+        cache_model_obj = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
+        try:
+            StarModel.objects.get(cache_id=cache_model_obj)
+            return False
+        except StarModel.DoesNotExist:
+            StarModel(user_id=user_object_model, cache_id=cache_model_obj).save()
+            return True
+    except CacheModel.DoesNotExist:
+        raise HTTPException(
+            status_code=BadRequest.code,
+            detail=BadRequest.detail
+        )
+
+
+def book_mark_notes(user_dict, notes_id):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    try:
+        cache_model_obj = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
+        try:
+            print("in try")
+            BookMarkModel.objects.get(cache_id=cache_model_obj)
+            return False
+        except BookMarkModel.DoesNotExist:
+            print("in except")
+            BookMarkModel(user_id=user_object_model, cache_id=cache_model_obj).save()
+            return True
     except CacheModel.DoesNotExist:
         raise HTTPException(
             status_code=BadRequest.code,
