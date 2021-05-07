@@ -4,7 +4,8 @@ import error_constants
 from Services.auth.auth_services import token_check
 from Services.notes.notes_parsing_service import b64_to_html
 from Services.notes.notes_saving_service import new_note, rename_notes, delete_notes, save_note, get_notes_data, duplicate_notes, move_notes
-from Services.workspace_services import star_notes, get_star_notes, book_mark_notes
+from Services.workspace_services import star_notes, book_mark_note, unstar, un_bookmark, \
+    get_book_mark_notes
 from settings import MIN_NOTES_ID, MAX_NOTES_ID
 from .child_api_routes import routing
 from .models import NotesEditingModel, NotesSavingModel, NotesRenameModel, NotesDeleteModel, NotesDuplicateModel,NotesMoveModel
@@ -82,28 +83,37 @@ def star_note_api(
     )
 
 
-@router.post("/star_note/", status_code=200)
+@router.post("/un_star/", status_code=200)
 def star_note_api(
         notes_id_obj: NotesDeleteModel,
         request: Request,
 ):
     user_dict = token_check(request)
-    return star_notes(
+    return unstar(
         user_dict=user_dict,
         notes_id=notes_id_obj.notes_id
     )
 
 
-@router.post("/book_mark_note/", status_code=200)
+@router.post("/un_bookmark/", status_code=200)
 def star_note_api(
         notes_id_obj: NotesDeleteModel,
         request: Request,
 ):
     user_dict = token_check(request)
-    return book_mark_notes(
+    return un_bookmark(
         user_dict=user_dict,
         notes_id=notes_id_obj.notes_id
     )
+
+
+@router.post("/bookmark_note/", status_code=200)
+def star_note_api(
+        notes_id_obj: NotesDeleteModel,
+        request: Request,
+):
+    user_dict = token_check(request)
+    return book_mark_note(user_dict=user_dict, notes_id=notes_id_obj.notes_id)
 
 
 @router.get("/get_note/", status_code=200)
@@ -124,12 +134,12 @@ def get_notes_data_api(
         )
 
 
-@router.get("/starred_notes/", status_code=200)
-def get_all_stared_notes(
+@router.get("/get_all_bookmark_notes/", status_code=200)
+def get_all_bookmark_notes(
         request: Request
 ):
     user_dict = token_check(request)
-    return get_star_notes(
+    return get_book_mark_notes(
         user_dict=user_dict
     )
 

@@ -8,7 +8,6 @@ from Services.notes.notes_saving_service import delete_notes
 from db_models.models import NotesModel
 from db_models.models.bookmark_model import BookMarkModel
 from db_models.models.cache_display_model import CacheModel
-from db_models.models.starred_model import StarModel
 from db_models.models.user_model import UserModel
 from db_models.models.workspace_model import WorkSpaceModel
 from error_constants import BadRequest, WorkspaceExist
@@ -109,23 +108,36 @@ def delete_workspace(workspace_id, user_dict):
 def display_all_caches(workspace_id, user_dict):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
+        data = list()
         cache_model_objs = CacheModel.objects.filter(Q(user_id=user_object_model) & Q(workspace_id=workspace_id))
-        return json.loads(cache_model_objs.to_json())
+        for cache_model_obj in cache_model_objs:
+            cache_data = json.loads(cache_model_obj.to_json())
+            try:
+                BookMarkModel.objects.get(cache_id=cache_model_obj)
+                cache_data["bookmark"] = True
+            except BookMarkModel.DoesNotExist:
+                cache_data["bookmark"] = False
+            data.append(cache_data)
+        return data
     except CacheModel.DoesNotExist:
         raise HTTPException(
             status_code=BadRequest.code,
             detail=BadRequest.detail
         )
+
+
+def generate_obj_json_list(obj_list):
+    cache_notes = list()
+    for model_obj in obj_list:
+        cache_notes.append(json.loads(model_obj.cache_id.to_json()))
+    return cache_notes
 
 
 def display_book_mark_notes(user_dict):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
-        book_mark_notes = BookMarkModel.objects.filter(user_id=user_object_model)
-        cache_notes = list()
-        for book_mark_note in book_mark_notes:
-            cache_notes.append(json.loads(book_mark_note.cache_id.to_json()))
-        return cache_notes
+        book_mark_note_objs = BookMarkModel.objects.filter(user_id=user_object_model)
+        return generate_obj_json_list(book_mark_note_objs)
     except CacheModel.DoesNotExist:
         raise HTTPException(
             status_code=BadRequest.code,
@@ -133,14 +145,11 @@ def display_book_mark_notes(user_dict):
         )
 
 
-def display_starred_notes(user_dict):
+def get_cache_object(user_dict, notes_id):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
-        star_notes = StarModel.objects.filter(user_id=user_object_model)
-        cache_notes = list()
-        for star_note in star_notes:
-            cache_notes.append(json.loads(star_note.cache_id.to_json()))
-        return cache_notes
+        cache_model_obj = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
+        return cache_model_obj
     except CacheModel.DoesNotExist:
         raise HTTPException(
             status_code=BadRequest.code,
@@ -149,23 +158,34 @@ def display_starred_notes(user_dict):
 
 
 def star_notes(user_dict, notes_id):
-    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    cache_model_obj = get_cache_object(user_dict, notes_id)
+    if not cache_model_obj.star:
+        cache_model_obj.update(star=True)
+        return True
+    else:
+        return False
+
+
+def unstar(user_dict, notes_id):
+    cache_model_obj = get_cache_object(user_dict, notes_id)
+    if cache_model_obj.star:
+        cache_model_obj.update(star=False)
+        return True
+    else:
+        return False
+
+
+def un_bookmark(user_dict, notes_id):
+    cache_model_obj = get_cache_object(user_dict, notes_id)
     try:
-        cache_model_obj = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
-        try:
-            StarModel.objects.get(cache_id=cache_model_obj)
-            return False
-        except StarModel.DoesNotExist:
-            StarModel(user_id=user_object_model, cache_id=cache_model_obj).save()
-            return True
-    except CacheModel.DoesNotExist:
-        raise HTTPException(
-            status_code=BadRequest.code,
-            detail=BadRequest.detail
-        )
+        book_mark_obj = BookMarkModel.objects.get(cache_id=cache_model_obj)
+        book_mark_obj.delete()
+        return True
+    except BookMarkModel.DoesNotExist:
+        return False
 
 
-def book_mark_notes(user_dict, notes_id):
+def book_mark_note(user_dict, notes_id):
     user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
     try:
         cache_model_obj = CacheModel.objects.get(Q(user_id=user_object_model) & Q(notes_id=notes_id))
@@ -184,15 +204,14 @@ def book_mark_notes(user_dict, notes_id):
         )
 
 
-def get_star_notes(user_dict):
+def get_book_mark_notes(user_dict):
     try:
         user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
-        starred_notes_objs = StarModel.objects.filter(user_id=user_object_model)
-        print(starred_notes_objs)
+        book_mark_notes_objs = BookMarkModel.objects.filter(user_id=user_object_model)
         data = list()
-        for obj in starred_notes_objs:
+        for obj in book_mark_notes_objs:
             cache_obj = obj.cache_id
             data.append(json.loads(cache_obj.to_json()))
         return data
-    except StarModel.DoesNotExist:
+    except BookMarkModel.DoesNotExist:
         return None

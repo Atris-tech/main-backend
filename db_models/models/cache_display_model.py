@@ -10,6 +10,7 @@ from .workspace_model import WorkSpaceModel
 
 class CacheModel(gj.Document):
     notes_name = mongoengine.StringField(required=True)
+    star = mongoengine.BooleanField(default=False)
     user_id = mongoengine.ReferenceField(UserModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     workspace_id = mongoengine.ReferenceField(WorkSpaceModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
     notes_id = mongoengine.ReferenceField(NotesModel, reverse_delete_rule=mongoengine.CASCADE, required=True)
