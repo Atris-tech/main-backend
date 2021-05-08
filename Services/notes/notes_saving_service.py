@@ -74,7 +74,7 @@ def check_user_workspace(workspace_id, email):
         )
 
 
-def new_note(user_dict, work_space_id, notes_name=False):
+def new_note(user_dict, work_space_id, notes_name=False, return_notes_obj=False):
     workspace_data = check_user_workspace(work_space_id, user_dict["email_id"])
     notes_model_obj = NotesModel()
     print("###################################################")
@@ -93,7 +93,10 @@ def new_note(user_dict, work_space_id, notes_name=False):
     cache_model_obj.user_id = workspace_data["user_obj"]
     cache_model_obj.workspace_id = workspace_data["workspace_obj"]
     cache_model_obj.save()
-    return str(notes_model_obj.id)
+    if return_notes_obj:
+        return notes_model_obj
+    else:
+        return str(notes_model_obj.id)
 
 
 def save_note(user_dict, work_space_id, to_save_data, notes_id=False):
@@ -221,10 +224,33 @@ def get_notes_data(user_dict, note_id):
                     "y_axis": scribble_obj.y_axis
                 }
             )
-        to_send_data["scribbles"] =scribbles
+        to_send_data["scribbles"] = scribbles
         return to_send_data
     except NotesModel.DoesNotExist:
         raise HTTPException(
             status_code=error_constants.BadRequest.code,
             detail=error_constants.BadRequest.detail
         )
+
+
+def duplicate_notes(user_dict, workspace_id, old_note_id):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    old_notes_obj = NotesModel.objects.get(Q(id=old_note_id) & Q(user_id=user_object_model))
+    new_notes_obj = new_note(user_dict, workspace_id, notes_name=old_notes_obj.notes_name + "(Copy)",
+                             return_notes_obj=True)
+    notes_raw = StorageServices().download_blob(
+        container_name=user_object_model.user_storage_notes_container_name,
+        blob_id=old_notes_obj.note_blob_id)
+    return save_note(user_dict, work_space_id=workspace_id, to_save_data=notes_raw, notes_id=new_notes_obj.id)
+
+
+def move_notes(user_dict, notes_id, old_workspace_id,  new_workspace_id):
+    check_workspace_dic = check_user_workspace(old_workspace_id, email=user_dict["email_id"])
+    user_obj = check_workspace_dic["user_obj"]
+    old_workspace_obj = check_workspace_dic["workspace_obj"]
+    notes_obj = NotesModel.objects.get(Q(user_id=user_obj) & Q(id=notes_id) & Q(workspace_id=old_workspace_obj))
+    check_workspace_dic = check_user_workspace(new_workspace_id, email=user_dict["email_id"])
+    new_workspace_obj = check_workspace_dic["workspace_obj"]
+    notes_obj.workspace_id = notes_obj.update(workspace_id=new_workspace_obj)
+    CacheModel.objects.get(notes_id=notes_obj).update(workspace_id=new_workspace_obj)
+    return True

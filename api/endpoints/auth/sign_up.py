@@ -4,7 +4,7 @@ from starlette.requests import Request
 import error_constants
 from Services.auth.auth_services import sign_up, create_auth_url, check_user, \
     update_user_verification, token_check, create_verify_token
-from Services.mail.mail_service import send_mail
+from Services.mail.mail_service import email_builder
 from api.endpoints.auth.models import SignUpModel, VerificationModel, ForgotPasswordModel
 
 router = APIRouter()
@@ -24,8 +24,17 @@ def register(background_tasks: BackgroundTasks, register_obj: SignUpModel):
     token_data = create_verify_token(user_obj, verify=True)
     token = token_data["token"]
     url = create_auth_url(token, type="verify")
-    data = {"user": username, "url": url}
-    background_tasks.add_task(send_mail, [str(register_obj.email)], "verify", data, "Verify your Atris Account")
+    email_variable = {
+        "FIRSTNAME": register_obj.first_name.replace(" ", "").capitalize(),
+        "URL": url
+    }
+    background_tasks.add_task(email_builder, str(register_obj.email), email_variable, "Verify your Atris Account",
+                              "verify_user")
+    email_variable = {
+        "FIRSTNAME": register_obj.first_name.replace(" ", "").capitalize(),
+    }
+    background_tasks.add_task(email_builder, str(register_obj.email), email_variable, "Welcome to Atris",
+                              "welcome")
     return True
 
 
@@ -47,18 +56,26 @@ def resend(
                     detail=error_constants.EmailAlreadyVerified.detail
                 )
             url = create_auth_url(token, type="verify")
-            data = {"user": data["user_name"], "url": url}
-            background_tasks.add_task(send_mail, [str(verification_model_obj.email)], "verify", data,
-                                      "Verify your Atris Account")
+            email_variable = {
+                "FIRSTNAME": data["user_name"],
+                "URL": url
+            }
+            background_tasks.add_task(email_builder, str(verification_model_obj.email), email_variable,
+                                      "Verify your Atris Account",
+                                      "verify_user")
             return True
         elif verification_model_obj.type == "forgot_password":
             token_data = create_verify_token(user_obj, forgot_password=True)
             token = token_data["token"]
             data = token_data["user_data"]
             url = create_auth_url(token, type="forgot")
-            data = {"user": data["user_name"], "url": url}
-            background_tasks.add_task(send_mail, [str(verification_model_obj.email)], "forgot", data,
-                                      "Reset your Atris Account")
+            email_variable = {
+                "FIRSTNAME": data["user_name"],
+                "URL": url
+            }
+            background_tasks.add_task(email_builder, str(verification_model_obj.email), email_variable,
+                                      "Reset your Atris Account Password",
+                                      "forgot_password")
             return True
         else:
             return HTTPException(status_code=400)

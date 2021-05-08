@@ -1,5 +1,6 @@
 import os
 
+import sentry_sdk
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -104,6 +105,15 @@ PROJECT_DIR = os.path.dirname(__file__)
 IMAGE_RECOG_PROBABILITY_THRESHOLD = float(os.getenv("IMAGE_RECOG_PROBABILITY_THRESHOLD"))
 
 SENTRY_KEY_URL = os.getenv("SENTRY_KEY_URL")
+MAIL_GUN_API_KEY = os.getenv("MAIL_GUN_API_KEY")
+MAIL_GUN_API_ENDPOINT = os.getenv("MAIL_GUN_API_ENDPOINT")
+
+
+def sentry_logs_init():
+    sentry_sdk.init(
+        SENTRY_KEY_URL
+    )
+
 
 active_connections = []
 

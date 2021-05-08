@@ -2,9 +2,10 @@ import uuid
 
 from fastapi import APIRouter, Request, File, UploadFile, HTTPException, Header, Depends
 
-from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token
+from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token, \
+    change_password
 from Services.storage_services import StorageServices
-from api.endpoints.auth.models import UserSettingModel
+from api.endpoints.auth.models import UserSettingModel, ChangePasswordModel
 from error_constants import MaxProfileLength, MinProfileLength
 from settings import MAX_PROFILE_PHOTO_SIZE, MIN_PROFILE_PHOTO_SIZE
 
@@ -78,3 +79,19 @@ def logout_from_all_devices(
     else:
         remove_ref_token(user_obj)
         return True
+
+
+@router.post("/change_password/", status_code=200)
+def change_password_call(
+        change_password_obj:ChangePasswordModel,
+        request: Request
+):
+    print(change_password_obj.old_password)
+    user_dict = token_check(request)
+    return change_password(
+        user_dict= user_dict,
+        old_password= change_password_obj.old_password,
+        new_password= change_password_obj.new_password,
+        verify_new_password= change_password_obj.verify_new_password,
+    )
+

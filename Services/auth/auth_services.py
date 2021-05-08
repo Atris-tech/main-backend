@@ -448,3 +448,29 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
             status_code=error_constants.TokenExpired.code,
             detail=error_constants.TokenExpired.detail
         )
+
+
+def change_password(user_dict, old_password=False, new_password=False, verify_new_password=False):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+
+    if old_password:
+        password_hash = user_object_model.password_hash
+        a = verify_password(plain_password=old_password, hashed_password=password_hash)
+        if not a:
+            raise HTTPException(
+                status_code=error_constants.IncorrectPassword.code,
+                detail=error_constants.IncorrectPassword.detail
+            )
+        else:
+            if new_password == verify_new_password:
+                new_password_hash = get_password_hash(new_password)
+                user_object_model.update(password_hash=new_password_hash)
+            else:
+                return "password not matched"
+
+    else:
+        if new_password == verify_new_password:
+            new_password_hash = get_password_hash(new_password)
+            user_object_model.update(password_hash=new_password_hash)
+        else:
+            return "password not matched"
