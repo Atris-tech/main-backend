@@ -81,19 +81,17 @@ def logout_from_all_devices(
         return True
 
 
-# @router.post("/change_password/", status_code=200)
-# def change_password_call(
-#         change_password_obj=ChangePasswordModel
-# ):
-#     print(change_password_obj.email_id)
-#     print(change_password_obj.old_password)
-#     return change_password(
-#         email_id=change_password_obj.email_id,
-#         old_password= change_password_obj.old_password,
-#         new_password= change_password_obj.new_password,
-#     )
-
 @router.post("/change_password/", status_code=200)
-def change_password_call(pass_input: ChangePasswordModel):
-    token_dict = change_password(pass_input.email_id, pass_input.old_password, pass_input.new_password)
-    return token_dict
+def change_password_call(
+        change_password_obj:ChangePasswordModel,
+        request: Request
+):
+    print(change_password_obj.old_password)
+    user_dict = token_check(request)
+    return change_password(
+        user_dict= user_dict,
+        old_password= change_password_obj.old_password,
+        new_password= change_password_obj.new_password,
+        verify_new_password= change_password_obj.verify_new_password,
+    )
+

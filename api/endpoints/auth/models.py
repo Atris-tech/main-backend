@@ -154,11 +154,11 @@ class UserSettingModel(BaseModel):
 
 class ChangePasswordModel(BaseModel):
 
-    email_id: EmailStr
     old_password: str
     new_password: str
+    verify_new_password: str
 
-    @validator('old_password', 'new_password')
+    @validator('old_password', 'new_password', 'verify_new_password')
     def has_min_length(cls, v):
         min_length = MIN_PASSWORD_LENGTH
         max_length = MAX_PASSWORD_LENGTH
