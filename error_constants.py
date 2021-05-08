@@ -149,3 +149,13 @@ class MinProfileLength:
 class NoneValue:
     code = 400
     detail = "got no or none value in request"
+
+
+class PasswordDoesNotMatch:
+    code = 422
+    detail = "password not matched"
+
+
+class OldNewPasswordMatch:
+    code = 422
+    detail = "old and new password match"

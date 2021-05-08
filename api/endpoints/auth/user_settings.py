@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Request, File, UploadFile, HTTPException, Header, Depends
+from fastapi import APIRouter, Request, File, UploadFile, HTTPException, Header, Depends, BackgroundTasks
 
 from Services.auth.auth_services import token_check, update_user, get_user_data, check_user, remove_ref_token, \
     change_password
@@ -83,15 +83,16 @@ def logout_from_all_devices(
 
 @router.post("/change_password/", status_code=200)
 def change_password_call(
-        change_password_obj:ChangePasswordModel,
-        request: Request
+        change_password_obj: ChangePasswordModel,
+        request: Request,
+        background_tasks: BackgroundTasks,
 ):
     print(change_password_obj.old_password)
     user_dict = token_check(request)
     return change_password(
-        user_dict= user_dict,
-        old_password= change_password_obj.old_password,
-        new_password= change_password_obj.new_password,
-        verify_new_password= change_password_obj.verify_new_password,
+        user_dict=user_dict,
+        old_password=change_password_obj.old_password,
+        new_password=change_password_obj.new_password,
+        verify_new_password=change_password_obj.verify_new_password,
+        background_tasks=background_tasks
     )
-

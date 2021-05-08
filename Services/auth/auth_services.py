@@ -8,9 +8,11 @@ from dateutil.relativedelta import relativedelta
 from fastapi import HTTPException
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from starlette.background import BackgroundTasks
 
 import error_constants
 import settings
+from Services.mail.mail_service import email_builder
 from Services.redis_service import get_val, set_val, redis_obj
 from Services.storage_services import StorageServices
 from db_models.models.token_model import TokenModel
@@ -296,6 +298,10 @@ def generate_user_data_dict(user_obj):
         "email": user_obj.email_id,
         "full name": user_obj.first_name + " " + user_obj.last_name,
     }
+    if user_obj.password_hash:
+        data["old_password"] = True
+    else:
+        data["old_password"] = False
     print("user image")
     print(user_obj.image)
     if user_obj.image is not None:
@@ -450,10 +456,25 @@ def token_check(request, verify=False, forgot_password=False, refresh_token=Fals
         )
 
 
-def change_password(user_dict, old_password=False, new_password=False, verify_new_password=False):
-    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+def update_expilicit_password(new_password, email_variable, user_object_model, background_tasks):
+    new_password_hash = get_password_hash(new_password)
+    user_object_model.update(password_hash=new_password_hash)
+    background_tasks.add_task(email_builder, str(user_object_model.email_id), email_variable,
+                              "Atris Account Password has been changed",
+                              "password_changed")
 
+
+def change_password(background_tasks, user_dict, old_password=False, new_password=False, verify_new_password=False):
+    user_object_model = UserModel.objects.get(email_id=user_dict["email_id"])
+    email_variable = {
+        "FIRSTNAME": user_object_model.first_name,
+    }
     if old_password:
+        if old_password == new_password:
+            raise HTTPException(
+                status_code=error_constants.OldNewPasswordMatch.code,
+                detail=error_constants.OldNewPasswordMatch.detail
+            )
         password_hash = user_object_model.password_hash
         a = verify_password(plain_password=old_password, hashed_password=password_hash)
         if not a:
@@ -463,14 +484,20 @@ def change_password(user_dict, old_password=False, new_password=False, verify_ne
             )
         else:
             if new_password == verify_new_password:
-                new_password_hash = get_password_hash(new_password)
-                user_object_model.update(password_hash=new_password_hash)
+                update_expilicit_password(new_password, email_variable, user_object_model, background_tasks)
+                return True
             else:
-                return "password not matched"
+                raise HTTPException(
+                    status_code=error_constants.PasswordDoesNotMatch.code,
+                    detail=error_constants.PasswordDoesNotMatch.detail
+                )
 
     else:
         if new_password == verify_new_password:
-            new_password_hash = get_password_hash(new_password)
-            user_object_model.update(password_hash=new_password_hash)
+            update_expilicit_password(new_password, email_variable, user_object_model, background_tasks)
+            return True
         else:
-            return "password not matched"
+            raise HTTPException(
+                status_code=error_constants.PasswordDoesNotMatch.code,
+                detail=error_constants.PasswordDoesNotMatch.detail
+            )
