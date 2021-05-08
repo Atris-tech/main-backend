@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "1630b3e3-bd42-4ef6-91cc-ab5e908627a7",
+		"_postman_id": "9826b9a1-2faf-4d07-a2fa-19c656114a72",
 		"name": "atris",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -293,7 +293,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"faizan1@atrisapp.com\",\r\n  \"password\": \"1234\"\r\n}",
+							"raw": "{\r\n  \"email\": \"faizan@atrisapp.com\",\r\n  \"password\": \"1234\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -393,7 +393,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"user_name\": \"sentry11\",\r\n  \"email\": \"faizan1@atrisapp.com\",\r\n  \"first_name\": \"string\",\r\n  \"last_name\": \"string\",\r\n  \"password\": \"1234\"\r\n}",
+							"raw": "{\r\n  \"user_name\": \"sentry\",\r\n  \"email\": \"faizan@atrisapp.com\",\r\n  \"first_name\": \"faizan\",\r\n  \"last_name\": \"shaikh\",\r\n  \"password\": \"123455\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -413,6 +413,49 @@
 							"path": [
 								"api",
 								"register",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "change_password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"old_password\": \"123455\",\r\n  \"new_password\": \"1234\",\r\n  \"verify_new_password\": \"1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/change_password/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"change_password",
 								""
 							]
 						}
