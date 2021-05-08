@@ -24,6 +24,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
+    allow_headers=["*"],
 )
 sentry_sdk.init(
     settings.SENTRY_KEY_URL,
