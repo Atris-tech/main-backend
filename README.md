@@ -124,31 +124,3 @@ DEVANSHI VM
 6. Emotion Analysis Endpoint - `EMOTION_ANALYSIS_ENDPOINT`
 
 
-## Docker Registry Authentication.
-
-Entity
-
-```
-id: shazam22
-password : Infamous123
-```
-
-Summarization
-
-```
-id: beyonder99
-password : Infamous123
-```
-
-Emotion
-
-```
-id : faizanshk
-Password : 4nSH4VHE;KvBap%
-```
-
-Stt
-```
-id: jainal09
-password : 09Prototype_101
-```
